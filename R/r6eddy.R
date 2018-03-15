@@ -18,10 +18,10 @@ R6Eddy <- R6::R6Class(
         delete_rflow = function(fn_name) {},
         # cache
         digest = function(object, ...) {},
-        find_key = function(key) {},
-        has_key = function(key) {},
-        get_data = function(key) {},
-        put_data = function(key, value) {}
+        find_key = function(key, fn_name) {},
+        has_key = function(key, fn_name) {},
+        get_data = function(key, fn_name) {},
+        put_data = function(key, value, fn_name) {}
         # TODO: cache_reset()
         # TODO: flush_to_disk()
     ),
@@ -92,7 +92,7 @@ R6Eddy$set("public", "digest", function(object, ...) {
 
 
 # find_key ----
-R6Eddy$set("public", "find_key", function(key) {
+R6Eddy$set("public", "find_key", function(key, fn_name) {
     
     # where is the key (in what cache), if anywhere
     # first check in memory cache
@@ -101,7 +101,7 @@ R6Eddy$set("public", "find_key", function(key) {
         "memory"
     } else {
         if (!is.null(private$path)) {
-            key_on_disk <- file.exists(file.path(private$path, key))
+            key_on_disk <- file.exists(file.path(private$path, fn_name, key))
             if (key_on_disk) {
                 "disk"
             } else {
@@ -115,22 +115,22 @@ R6Eddy$set("public", "find_key", function(key) {
 
 
 # has_key ----
-R6Eddy$set("public", "has_key", function(key) {
+R6Eddy$set("public", "has_key", function(key, fn_name) {
     
-    found <- self$find_key(key)
+    found <- self$find_key(key, fn_name)
     found != "missing"
 }, overwrite = TRUE)
 
 
 # get_data ----
-R6Eddy$set("public", "get_data", function(key) {
+R6Eddy$set("public", "get_data", function(key,fn_name) {
     
     found <- self$find_key(key)
     if (found == "memory") {
         get(key, envir = private$cache, inherits = FALSE)
     } else if (found == "disk") {
         # private$cache_path is not null since key was found on disk
-        readRDS(file = file.path(private$cache_path, key))
+        readRDS(file = file.path(private$cache_path, fn_name, key))
     } else {
         stop("key not found:", key)
     }
@@ -139,13 +139,17 @@ R6Eddy$set("public", "get_data", function(key) {
 
 
 # put_data ----
-R6Eddy$set("public", "put_data", function(key, value) {
+R6Eddy$set("public", "put_data", function(key, value, fn_name) {
     
     # we always overwrite data in cache (but there should not be the case)
     # for now, put it in memory and on disk
     assign(key, value, envir = private$cache)
     if (!is.null(private$path)) {
-        saveRDS(value, file = file.path(private$path, key))
+        cache_path <- file.path(private$path, fn_name)
+        if (!dir.exists(cache_path)) {
+            dir.create(cache_path, showWarnings = FALSE)
+        }
+        saveRDS(value, file = file.path(private$path, fn_name, key))
     }
     
 }, overwrite = TRUE)

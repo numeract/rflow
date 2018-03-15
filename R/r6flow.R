@@ -114,10 +114,9 @@ R6Flow$set("public", "rf_fn", function(...) {
     body_hash <- self$eddy$digest(as.character(body(self$fn)))
     
     # check self if there is an out_hash associated with in_hash & body_hash
-    # TODO: implement private get_out_hash (also check cache exists in eddy)
     out_hash <- private$get_out_hash(in_hash, body_hash)
     if (!is.na(out_hash)) {
-        out_data <- self$eddy$get_data(out_hash)
+        out_data <- self$eddy$get_data(out_hash, self$fn_name)
     } else {
         # not in cache, eval the function
         # replace the first arg to reconstruct the original fn match.call
@@ -134,10 +133,9 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
-        # TODO: implement private add_state
         private$add_state(in_hash, body_hash, out_hash)
         # store in cache
-        self$eddy$put_data(out_hash, out_data)
+        self$eddy$put_data(out_hash, out_data, self$fn_name)
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
@@ -147,6 +145,7 @@ R6Flow$set("public", "rf_fn", function(...) {
 
 # get_out_hash ----
 R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
+    # TODO: implement private get_out_hash (also check cache exists in eddy)
     warning("`add_state` not yet implemented")
     return(NA_character_)
 }, overwrite = TRUE)
@@ -157,6 +156,8 @@ R6Flow$set("private", "add_state", function(in_hash,
                                             body_hash, 
                                             out_hash, 
                                             make_current = TRUE) {
+
+    # TODO: implement private add_state
     warning("`add_state` not yet implemented")
 }, overwrite = TRUE)
 
