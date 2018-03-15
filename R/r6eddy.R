@@ -9,13 +9,15 @@ R6Eddy <- R6::R6Class(
     public = list(
         rflow_lst = list(),
         is_reactive = NULL,
-        initialize = function() {},
+        initialize = function(is_reactive = FALSE, 
+                              cache_path = NULL, 
+                              algo = "xxhash64") {},
         # rflow
         exists_rflow = function(fn_name) {},
         add_rflow = function(fn_name, rflow) {},
         delete_rflow = function(fn_name) {},
         # cache
-        digest = function(...) {},
+        digest = function(object, ...) {},
         find_key = function(key) {},
         has_key = function(key) {},
         get_data = function(key) {},
@@ -66,7 +68,7 @@ R6Eddy$set("public", "add_rflow", function(fn_name, rflow) {
     
     if (self$exists_rflow(fn_name)) 
         stop("overwriting not yet implemented")
-    self$exists_rflow[[fn_name]] <- rflow
+    self$rflow_lst[[fn_name]] <- rflow
     # TODO: update adjacency matrix
     
 }, overwrite = TRUE)
@@ -75,7 +77,7 @@ R6Eddy$set("public", "add_rflow", function(fn_name, rflow) {
 # delete_rflow ----
 R6Eddy$set("public", "delete_rflow", function(fn_name) {
     
-    self$exists_rflow[[fn_name]] <- NULL
+    self$rflow_lst[[fn_name]] <- NULL
     # TODO: do not remove the disk cache, but we should remove memory cache?
     # TODO: update adjacency matrix
     
@@ -83,9 +85,9 @@ R6Eddy$set("public", "delete_rflow", function(fn_name) {
 
 
 # digest ----
-R6Eddy$set("public", "digest", function(...) {
+R6Eddy$set("public", "digest", function(object, ...) {
     
-    digest::digest(..., algo = private$algo)
+    digest::digest(object, ..., algo = private$algo)
 }, overwrite = TRUE)
 
 
@@ -98,8 +100,16 @@ R6Eddy$set("public", "find_key", function(key) {
     if (key_in_mem) {
         "memory"
     } else {
-        key_on_disk <- file.exists(file.path(private$path, key))
-        if (key_on_disk) "disk" else "missing"
+        if (!is.null(private$path)) {
+            key_on_disk <- file.exists(file.path(private$path, key))
+            if (key_on_disk) {
+                "disk"
+            } else {
+                "missing"
+            }
+        } else {
+            "missing"
+        }
     }
 }, overwrite = TRUE)
 
@@ -119,6 +129,7 @@ R6Eddy$set("public", "get_data", function(key) {
     if (found == "memory") {
         get(key, envir = private$cache, inherits = FALSE)
     } else if (found == "disk") {
+        # private$cache_path is not null since key was found on disk
         readRDS(file = file.path(private$cache_path, key))
     } else {
         stop("key not found:", key)
@@ -133,7 +144,9 @@ R6Eddy$set("public", "put_data", function(key, value) {
     # we always overwrite data in cache (but there should not be the case)
     # for now, put it in memory and on disk
     assign(key, value, envir = private$cache)
-    saveRDS(value, file = file.path(private$path, key))
+    if (!is.null(private$path)) {
+        saveRDS(value, file = file.path(private$path, key))
+    }
     
 }, overwrite = TRUE)
 

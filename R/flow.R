@@ -13,7 +13,7 @@ make_rflow <- function(fn,
     r6flow <- R6Flow$new(
         fn = fn,
         fn_name = fn_name,
-        eddy = options$eddy
+        eddy = eddy
     )
     rf_fn <- r6flow$rf_fn
     

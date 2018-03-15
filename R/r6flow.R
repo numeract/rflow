@@ -7,12 +7,22 @@
 R6Flow <- R6::R6Class(
     classname = 'R6Flow',
     public = list(
-        fn = function() {},             # original function
-        fn_name = character(),          # function name
-        rf_fn = function() {},          # rflow (cached) function
+        # original fb (declare as obj to avoid locking of R6 methods)
+        fn = NULL,
+        fn_name = character(),
+        # rflow (cached) function
+        rf_fn = function(...) {},
+        # link to R6Eddy obj were data is stored
+        eddy = NULL,
         
-        eddy = NULL,                    # link to R6Eddy obj were data is stored
-        initialize = function() {}
+        initialize = function(fn, fn_name, eddy) {}
+    ),
+    private = list(
+        get_out_hash = function(in_hash, body_hash) {},
+        add_state = function(in_hash, 
+                             body_hash, 
+                             out_hash, 
+                             make_current = TRUE) {}
     ),
     active = list(
         is_valid = function() {
@@ -25,9 +35,7 @@ R6Flow <- R6::R6Class(
 
 
 # Initialize ----
-R6Flow$set("public", "initialize", function(fn,
-                                            fn_name,
-                                            eddy) {
+R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
     
     if (eddy$exists_rflow(fn_name)) {
         stop("overwriting / re-flowing function not yet implemented")
@@ -38,11 +46,16 @@ R6Flow$set("public", "initialize", function(fn,
     self$fn <- fn
     self$fn_name <- fn_name
     self$eddy <- eddy
+    
+    # R6 locks methods / functions found in public list
+    unlockBinding('rf_fn', self)
     # rf_fn and fn have the same arguments
     formals(self$rf_fn) <- formals(args(fn))
     # the enclosing env of rn_fn is not changed to preserve access to self$
     # all args of this initialize function are transfered to new R6 obj
+    lockBinding('rf_fn', self)
     
+    self$eddy <- eddy
     # register itself in eddy
     eddy$add_rflow(fn_name, self)
     
@@ -96,12 +109,12 @@ R6Flow$set("public", "rf_fn", function(...) {
         lapply(default_args, eval, envir = environment(self$fn))
     )
     
-    in_hash <- self$eddy$digest(rflow_hash, static_data)
+    in_hash <- self$eddy$digest(c(rflow_hash, static_data))
     # TODO: maybe cache body_hash? how can we tell if original fn body changed?
     body_hash <- self$eddy$digest(as.character(body(self$fn)))
     
     # check self if there is an out_hash associated with in_hash & body_hash
-    # TODO: implement private get_state (also check cache exits in eddy)
+    # TODO: implement private get_out_hash (also check cache exists in eddy)
     out_hash <- private$get_out_hash(in_hash, body_hash)
     if (!is.na(out_hash)) {
         out_data <- self$eddy$get_data(out_hash)
@@ -122,12 +135,28 @@ R6Flow$set("public", "rf_fn", function(...) {
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
         # TODO: implement private add_state
-        private$add_state(in_hash, body_hash, out_hash, make_current = TRUE)
+        private$add_state(in_hash, body_hash, out_hash)
         # store in cache
         self$eddy$put_data(out_hash, out_data)
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
     self
+}, overwrite = TRUE)
+
+
+# get_out_hash ----
+R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
+    warning("`add_state` not yet implemented")
+    return(NA_character_)
+}, overwrite = TRUE)
+
+
+# add_state ----
+R6Flow$set("private", "add_state", function(in_hash, 
+                                            body_hash, 
+                                            out_hash, 
+                                            make_current = TRUE) {
+    warning("`add_state` not yet implemented")
 }, overwrite = TRUE)
 
