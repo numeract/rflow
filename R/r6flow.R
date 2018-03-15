@@ -131,12 +131,3 @@ R6Flow$set("public", "rf_fn", function(...) {
     self
 }, overwrite = TRUE)
 
-# # TODO: return rflow type, keep this for collect
-# if (res$visible) {
-#     res$value
-# } else {
-#     invisible(res$value)
-# }
-
-
-
