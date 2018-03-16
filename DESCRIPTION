@@ -20,7 +20,8 @@ Imports:
     digest,
     magrittr,
     purrr,
-    R6
+    R6,
+    tibble
 Suggests:
     testthat
 Collate: 

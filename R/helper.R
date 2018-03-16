@@ -39,3 +39,16 @@ discard_at <- function(.x, .at) {
     
     purrr::discard(.x, .p)
 }
+
+
+now_utc <- function(length = 1L) {
+    
+    len <- as.integer(length[1L])
+    stopifnot(base::length(len) == 1L || len >= 0L)
+    
+    if (len == 0L) {
+        as.POSIXct(character(), tz = 'UTC')
+    } else {
+        rep(lubridate::now('UTC'), len)
+    }
+}
