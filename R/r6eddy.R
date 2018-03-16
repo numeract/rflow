@@ -94,7 +94,7 @@ R6Eddy$set("public", "digest", function(object, ...) {
 # find_key ----
 R6Eddy$set("public", "find_key", function(key, fn_name) {
     
-    # where is the key (in what cache), if anywhere
+    # where is the key (in which cache), if anywhere
     # first check in memory cache
     key_in_mem <- exists(key, envir = private$cache, inherits = FALSE)
     if (key_in_mem) {
@@ -123,7 +123,7 @@ R6Eddy$set("public", "has_key", function(key, fn_name) {
 
 
 # get_data ----
-R6Eddy$set("public", "get_data", function(key,fn_name) {
+R6Eddy$set("public", "get_data", function(key, fn_name) {
     
     found <- self$find_key(key)
     if (found == "memory") {

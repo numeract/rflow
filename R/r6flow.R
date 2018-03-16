@@ -15,20 +15,25 @@ R6Flow <- R6::R6Class(
         # link to R6Eddy obj were data is stored
         eddy = NULL,
         
-        initialize = function(fn, fn_name, eddy) {}
+        initialize = function(fn, fn_name, eddy) {},
+        collect = function(what = NULL) {},
+        collect_hash = function(what = NULL) {}
     ),
     private = list(
-        get_out_hash = function(in_hash, body_hash) {},
+        # data frame to store hashes and current state
+        state = NULL,
+        state_index = NA_integer_,
+        find_state_index = function(in_hash, body_hash) {},
+        get_state = function(index = NULL) {},
+        check_state = function(index = NULL) {},
         add_state = function(in_hash, 
                              body_hash, 
                              out_hash, 
-                             make_current = TRUE) {}
+                             make_current = TRUE) {},
+        get_out_hash = function(in_hash, body_hash) {}
     ),
     active = list(
-        is_valid = function() {
-            # TODO: read state from tbl
-            TRUE
-        }
+        is_valid = function() {}
     ),
     lock_objects = TRUE
 )
