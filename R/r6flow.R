@@ -12,10 +12,12 @@ R6Flow <- R6::R6Class(
         fn_name = character(),
         # rflow (cached) function
         rf_fn = function(...) {},
+        # callback to split the output into a list to hash its elem separately
+        split_output_fn = NULL,
         # link to R6Eddy obj were data is stored
         eddy = NULL,
         
-        initialize = function(fn, fn_name, eddy) {},
+        initialize = function(fn, fn_name, split_output_fn, eddy) {},
         collect = function(what = NULL) {},
         collect_hash = function(what = NULL) {}
     ),
@@ -30,7 +32,11 @@ R6Flow <- R6::R6Class(
                              body_hash, 
                              out_hash, 
                              make_current = TRUE) {},
-        get_out_hash = function(in_hash, body_hash) {}
+        get_out_hash = function(in_hash, body_hash) {},
+        
+        # data frame to store carved output elements
+        output_state = NULL,
+        add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
     active = list(
         is_valid = function() {}
@@ -111,6 +117,21 @@ R6Flow$set("public", "rf_fn", function(...) {
         private$add_state(in_hash, body_hash, out_hash)
         # store in cache
         self$eddy$put_data(out_hash, out_data, self$fn_name)
+        
+        # carve the out_data and store its elements
+        if (!is.null(self$split_output_fn)) {
+            out_lst <- self$split_output_fn(out_data)
+            if (!is.list(out_lst)) stop("split_output_fn must return a named list")
+            out_nms <- names(out_lst) %if_not_in% ""
+            if (length(out_nms) != length(out_lst))
+                stop("split_output_fn must provide a name for each element")
+            for (elem_name in out_nms) {
+                elem_data <- out_lst[[elem_name]]
+                elem_hash <- self$eddy$digest(elem_data)
+                private$add_output_state(out_hash, elem_name, elem_hash)
+                self$eddy$put_data(elem_hash, elem_data, self$fn_name)
+            }
+        }
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
@@ -119,7 +140,10 @@ R6Flow$set("public", "rf_fn", function(...) {
 
 
 # Initialize ----
-R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
+R6Flow$set("public", "initialize", function(fn,
+                                            fn_name,
+                                            split_output_fn = NULL,
+                                            eddy = get_default_eddy()) {
     
     if (eddy$exists_rflow(fn_name)) {
         stop("overwriting / re-flowing function not yet implemented")
@@ -130,6 +154,7 @@ R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
     # init self$
     self$fn <- fn
     self$fn_name <- fn_name
+    self$split_output_fn <- split_output_fn
     self$eddy <- eddy
     
     # R6 locks methods / functions found in public list
@@ -148,6 +173,13 @@ R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
         time_stamp = now_utc(0L)
     )
     private$state_index <- NA_integer_
+    
+    # output state
+    private$output_state <- tibble::data_frame(
+        out_hash = character(),
+        elem_name = character(),
+        elem_hash = character()
+    )
     
     self$eddy <- eddy
     # register itself in eddy
@@ -296,10 +328,35 @@ R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
 }, overwrite = TRUE)
 
 
+# add_output_state ----
+R6Flow$set("private", "add_output_state", function(out_hash, 
+                                                   elem_name, 
+                                                   elem_hash) {
+    
+    found_state_idx <- which(
+        private$output_state$out_hash == out_hash && 
+        private$output_state$elem_name == elem_name
+    )
+    len <- length(found_state_idx)
+    stopifnot(len <= 1L)
+    output_state <- private$output_state
+    if (len == 1L) {
+        output_state <- output_state[-found_state_idx, , drop = FALSE]
+    } 
+    
+    private$output_state <- 
+        output_state %>%
+        tibble::add_row(
+            out_hash = out_hash,
+            elem_name = elem_name,
+            elem_hash = elem_hash
+        )
+    
+}, overwrite = TRUE)
+
+
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
     
     !is.na(private$state_index)
 }, overwrite = TRUE)
-
-
