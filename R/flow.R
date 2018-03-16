@@ -7,11 +7,18 @@ make_rflow <- function(fn,
                        eddy = get_default_eddy()
 ) {
     # best place to capture the name of the function
+    # fn_name (the binding) is irrelevant (it's the args and body that matter)
+    # but it is useful from the point of view of the human mind (debug)
     mc <- match.call()
-    fn_name <- as.character(mc$fn)
+    stopifnot(is.function(fn))
+    if (is.symbol(mc$fn)) {
+        fn_name <- as.character(mc$fn)
+    } else {
+        # anonymous function
+        fn_name <- "anonymous"
+    }
     
     # do input validation here, keep R6Flow initialize simpler
-    stopifnot(is.function(fn))
     if (!is.null(hash_input_fn)) {
         stopifnot(is.function(hash_input_fn))
         fn_formals <- formals(args(fn))

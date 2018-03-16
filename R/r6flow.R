@@ -73,18 +73,18 @@ R6Flow$set("public", "rf_fn", function(...) {
             discard_at(names(supplied_args))
         
         # R6Flow args are eval for hashing by getting their hash (faster)
-        # and for data by getting thier data
+        # and for data by getting their data
         if (self$eddy$is_reactive) {
             # TODO: is_reactive case
             stop("reactive eddies not yet implemented")
         } else {
-            # non-reactive case, all rflows args must to be valid
+            # non-reactive case, all rflow args must to be valid
             valid_rflow_args <- rflow_args %>%
                 purrr::map_lgl(~ .$is_valid)
             if (any(!valid_rflow_args)) {
                 invalid_names <- names(rflow_args)[!valid_rflow_args]
                 invalid_names <- paste(invalid_names, collapse = ', ')
-                stop("Invalid input rflows: ", invalid_names)
+                stop("Invalid input rflow args: ", invalid_names)
             }
             rflow_hash <- rflow_args %>%
                 purrr::map(~ .$collect_hash(what = NULL))
@@ -124,7 +124,7 @@ R6Flow$set("public", "rf_fn", function(...) {
             mc[[nm]] <- rflow_obj$collect(what = NULL)
         }
         # need to preserve (and cache) the visibility of the return
-        # eval envir must be the parent.frame of this funct, not of withVisible
+        # eval envir must be the parent.frame of this func, not of withVisible
         out_data <- withVisible(eval(mc, envir = parent.frame()))
         
         # we store the out_hash to avoid (re)hashing for rflow objects
@@ -209,7 +209,7 @@ R6Flow$set("public", "initialize", function(fn,
 # collect ----
 R6Flow$set("public", "collect", function(what = NULL) {
     
-    # TODO: implement `what` when suplying a subset
+    # TODO: implement `what` when supplying a subset
     state <- private$get_state()
     if (nrow(state) == 0L) {
         NULL
@@ -223,7 +223,7 @@ R6Flow$set("public", "collect", function(what = NULL) {
 # collect_hash ----
 R6Flow$set("public", "collect_hash", function(what = NULL) {
     
-    # TODO: implement `what` when suplying a subset
+    # TODO: implement `what` when supplying a subset
     state <- private$get_state()
     if (nrow(state) == 0L) {
         NA_character_
