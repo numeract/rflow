@@ -5,12 +5,14 @@ keep_if_in <- function(x, y) {
     
     x[x %in% y]
 }
+`%if_in%` <- keep_if_in
 
 
 keep_if_not_in <- function(x, y) {
     
     x[!(x %in% y)]
 }
+`%if_not_in%` <- keep_if_not_in
 
 
 keep_at <- function(.x, .at) {
@@ -49,6 +51,8 @@ now_utc <- function(length = 1L) {
     if (len == 0L) {
         as.POSIXct(character(), tz = 'UTC')
     } else {
-        rep(lubridate::now('UTC'), len)
+        now <- Sys.time()
+        attr(now, "tzone") <- 'UTC'
+        rep(now, len)
     }
 }
