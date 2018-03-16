@@ -39,35 +39,6 @@ R6Flow <- R6::R6Class(
 )
 
 
-# Initialize ----
-R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
-    
-    if (eddy$exists_rflow(fn_name)) {
-        stop("overwriting / re-flowing function not yet implemented")
-        # TODO: common case: files were resourced and fn body changed
-    }
-    
-    # init self$
-    self$fn <- fn
-    self$fn_name <- fn_name
-    self$eddy <- eddy
-    
-    # R6 locks methods / functions found in public list
-    unlockBinding('rf_fn', self)
-    # rf_fn and fn have the same arguments
-    formals(self$rf_fn) <- formals(args(fn))
-    # the enclosing env of rn_fn is not changed to preserve access to self$
-    # all args of this initialize function are transfered to new R6 obj
-    lockBinding('rf_fn', self)
-    
-    self$eddy <- eddy
-    # register itself in eddy
-    eddy$add_rflow(fn_name, self)
-    
-    invisible(NULL)
-}, overwrite = TRUE)
-
-
 # rf_fn ----
 R6Flow$set("public", "rf_fn", function(...) {
     # when called, the formals already match the original fn
@@ -98,10 +69,9 @@ R6Flow$set("public", "rf_fn", function(...) {
         valid_rflow_args <- rflow_args %>%
             purrr::map_lgl(~ .$is_valid)
         if (any(!valid_rflow_args)) {
-            stop("invalid input rflows")
-            # TODO: better error message, which rflows?
+            msg <- paste(names(rflow_args)[valid_rflow_args], collapse = ', ')
+            stop("Invalid input rflows: ", msg)
         }
-        # TODO: implement collect_hash as public function
         rflow_hash <- rflow_args %>%
             purrr::map(~ .$collect_hash(what = NULL))
     }
@@ -148,11 +118,144 @@ R6Flow$set("public", "rf_fn", function(...) {
 }, overwrite = TRUE)
 
 
-# get_out_hash ----
-R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
-    # TODO: implement private get_out_hash (also check cache exists in eddy)
-    warning("`add_state` not yet implemented")
-    return(NA_character_)
+# Initialize ----
+R6Flow$set("public", "initialize", function(fn, fn_name, eddy) {
+    
+    if (eddy$exists_rflow(fn_name)) {
+        stop("overwriting / re-flowing function not yet implemented")
+        # TODO: common case: files were resourced and fn body changed
+        # TODO: load its former state from eddy
+    }
+    
+    # init self$
+    self$fn <- fn
+    self$fn_name <- fn_name
+    self$eddy <- eddy
+    
+    # R6 locks methods / functions found in public list
+    unlockBinding('rf_fn', self)
+    # rf_fn and fn have the same arguments
+    formals(self$rf_fn) <- formals(args(fn))
+    # the enclosing env of rn_fn is not changed to preserve access to self$
+    # all args of this initialize function are transfered to new R6 obj
+    lockBinding('rf_fn', self)
+    
+    # state
+    private$state <- tibble::data_frame(
+        in_hash = character(),
+        body_hash = character(),
+        out_hash = character(),
+        time_stamp = now_utc(0L)
+    )
+    private$state_index <- NA_integer_
+    
+    self$eddy <- eddy
+    # register itself in eddy
+    eddy$add_rflow(fn_name, self)
+    
+    invisible(NULL)
+}, overwrite = TRUE)
+
+
+# collect ----
+R6Flow$set("public", "collect", function(what = NULL) {
+    
+    # TODO: implement `what` when suplying a subset
+    state <- private$get_state()
+    if (nrow(state) == 0L) {
+        NULL
+    } else {
+        self$eddy$get_data(state$out_hash, self$fn_name)
+    }
+    
+}, overwrite = TRUE)
+
+
+
+# collect_hash ----
+R6Flow$set("public", "collect_hash", function(what = NULL) {
+    
+    # TODO: implement `what` when suplying a subset
+    state <- private$get_state()
+    if (nrow(state) == 0L) {
+        NA_character_
+    } else {
+        state$out_hash
+    }
+    
+}, overwrite = TRUE)
+
+
+# find_state_index ----
+R6Flow$set("private", "find_state_index", function(in_hash, body_hash) {
+    
+    # since we just looking for the index, we do not check if the 
+    # eddy contains the cache
+    found_state_idx <- which(
+        private$state$in_hash == in_hash && 
+        private$state$body_hash == body_hash
+    )
+    len <- length(found_state_idx)
+    stopifnot(len <= 1L)
+    
+    if (len == 0L) 0L else found_state_idx
+}, overwrite = TRUE)
+
+
+# get_state ----
+R6Flow$set("private", "get_state", function(index = NULL) {
+    
+    if (is.null(index)) index <- private$state_index
+    
+    if (is.na(index) || index < 1L || index > nrow(private$state)) {
+        # returns a zero row df if index not valid
+        private$state[0L, , drop = FALSE]
+    } else {
+        private$state[index, , drop = FALSE]
+    }
+    
+}, overwrite = TRUE)
+
+
+# check_state ----
+R6Flow$set("private", "check_state", function(index = NULL) {
+    
+    state <- private$get_state(index)
+    if (nrow(state) == 0L) {
+        if (is.null(index)) {
+            # zero rows for current state (index = NULL) --> is_invalid <- FALSE
+            if (is.na(private$state_index)) {
+                TRUE        # OK
+            } else {
+                # side effect: invalid state if cannot find row
+                private$state_index <- NA_integer_
+                FALSE       # had to make a change
+            }
+        } else {
+            # special request (invalid index provided)
+            TRUE            # OK
+        }
+    } else {
+        # we have an out_hash, does it exist in eddy?
+        in_eddy <- self$eddy$has_key(state$out_hash)
+        if (!in_eddy) {
+            # need to remove this state and maybe update the index
+            if (is.null(index)) {
+                # using state_index --> remove row and mark as invalid
+                private$state <- private$state[
+                    -private$state_index, , drop = FALSE]
+                private$state_index <- NA_integer_
+            } else {
+                private$state <- private$state[-index, , drop = FALSE]
+                if (index <= private$state_index) {
+                    state_index <- private$state_index - 1L
+                    if (state_index < 1L) state_index <- NA_integer_
+                    private$state_index <- state_index
+                }
+            }
+        }
+        in_eddy             # if not in eddy --> had to make a change
+    }
 }, overwrite = TRUE)
 
 
@@ -161,8 +264,42 @@ R6Flow$set("private", "add_state", function(in_hash,
                                             body_hash, 
                                             out_hash, 
                                             make_current = TRUE) {
-
-    # TODO: implement private add_state
-    warning("`add_state` not yet implemented")
+    
+    private$state <- 
+        private$state %>%
+        tibble::add_row(
+            in_hash = in_hash,
+            body_hash = body_hash,
+            out_hash = out_hash,
+            time_stamp = now_utc()
+        )
+    if (make_current) private$state_index <- nrow(private$state)
+    
 }, overwrite = TRUE)
+
+
+# get_out_hash ----
+R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
+    
+    index <- private$find_state_index(in_hash, body_hash)
+    if (index == 0L) {
+        NA_character_
+    } else {
+        # we have an index, does its put_hash exist in eddy?
+        if (private$check_state(index)) {
+            private$state$out_hash[index]
+        } else {
+            NA_character_
+        }
+    }
+    
+}, overwrite = TRUE)
+
+
+# is_valid ----
+R6Flow$set("active", "is_valid", function() {
+    
+    !is.na(private$state_index)
+}, overwrite = TRUE)
+
 
