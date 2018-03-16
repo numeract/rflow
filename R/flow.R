@@ -2,7 +2,7 @@
 
 
 make_rflow <- function(fn,
-                       hash_input = NULL,                # TODO
+                       hash_input_fn = NULL,
                        split_output_fn = NULL,
                        eddy = get_default_eddy()
 ) {
@@ -10,12 +10,21 @@ make_rflow <- function(fn,
     mc <- match.call()
     fn_name <- as.character(mc$fn)
     
+    # do input validation here, keep R6Flow initialize simpler
     stopifnot(is.function(fn))
+    if (!is.null(hash_input_fn)) {
+        stopifnot(is.function(hash_input_fn))
+        fn_formals <- formals(args(fn))
+        hash_input_fn_formals <- formals(args(hash_input_fn))
+        stopifnot(identical(fn_formals, hash_input_fn_formals))
+    }
     if (!is.null(split_output_fn)) stopifnot(is.function(split_output_fn))
+    stopifnot(inherits(eddy, 'R6Eddy'))
     
     r6flow <- R6Flow$new(
         fn = fn,
         fn_name = fn_name,
+        hash_input_fn = hash_input_fn,
         split_output_fn = split_output_fn,
         eddy = eddy
     )

@@ -12,12 +12,18 @@ R6Flow <- R6::R6Class(
         fn_name = character(),
         # rflow (cached) function
         rf_fn = function(...) {},
+        # callback to create a custom input hash, e.g. a subset of rflow output
+        hash_input_fn = NULL,
         # callback to split the output into a list to hash its elem separately
         split_output_fn = NULL,
         # link to R6Eddy obj were data is stored
         eddy = NULL,
         
-        initialize = function(fn, fn_name, split_output_fn, eddy) {},
+        initialize = function(fn,
+                              fn_name,
+                              hash_input_fn = NULL,
+                              split_output_fn = NULL,
+                              eddy = get_default_eddy()) {},
         collect = function(what = NULL) {},
         collect_hash = function(what = NULL) {}
     ),
@@ -34,7 +40,7 @@ R6Flow <- R6::R6Class(
                              make_current = TRUE) {},
         get_out_hash = function(in_hash, body_hash) {},
         
-        # data frame to store carved output elements
+        # data frame to store carved out elements
         output_state = NULL,
         add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
@@ -50,47 +56,56 @@ R6Flow$set("public", "rf_fn", function(...) {
     # when called, the formals already match the original fn
     mc <- match.call()
     
-    # R6Flow arguments are treated specially, identify them first
-    rflow_args <- as.list(formals()) %>%
-        purrr::keep(~ inherits(., 'R6Flow'))
-    # follow memoise logic to separate supplied and default arguments
-    # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
-    #     #Argument-evaluation
-    # supplied arguments
-    supplied_args <- as.list(mc)[-1] %>%
-        discard_at(names(rflow_args))
-    # default arguments that have not been supplied
-    default_args <- as.list(formals()) %>%
-        purrr::discard(~ identical(., quote(expr = ))) %>%
-        discard_at(names(rflow_args)) %>%
-        discard_at(names(supplied_args))
-    
-    # R6Flow args are eval for hashing by getting their hash (faster)
-    # and for data by getting thier data
-    if (self$eddy$is_reactive) {
-        # TODO: is_reactive case
-        stop("reactive eddies not yet implemented")
-    } else {
-        # non-reactive case, all rflows args must to be valid
-        valid_rflow_args <- rflow_args %>%
-            purrr::map_lgl(~ .$is_valid)
-        if (any(!valid_rflow_args)) {
-            msg <- paste(names(rflow_args)[valid_rflow_args], collapse = ', ')
-            stop("Invalid input rflows: ", msg)
+    if (is.null(self$hash_input_fn)) {
+        # R6Flow arguments are treated specially, identify them first
+        rflow_args <- as.list(formals()) %>%
+            purrr::keep(~ inherits(., 'R6Flow'))
+        # follow memoise logic to separate supplied and default arguments
+        # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
+        #     #Argument-evaluation
+        # supplied arguments
+        supplied_args <- as.list(mc)[-1] %>%
+            discard_at(names(rflow_args))
+        # default arguments that have not been supplied
+        default_args <- as.list(formals()) %>%
+            purrr::discard(~ identical(., quote(expr = ))) %>%
+            discard_at(names(rflow_args)) %>%
+            discard_at(names(supplied_args))
+        
+        # R6Flow args are eval for hashing by getting their hash (faster)
+        # and for data by getting thier data
+        if (self$eddy$is_reactive) {
+            # TODO: is_reactive case
+            stop("reactive eddies not yet implemented")
+        } else {
+            # non-reactive case, all rflows args must to be valid
+            valid_rflow_args <- rflow_args %>%
+                purrr::map_lgl(~ .$is_valid)
+            if (any(!valid_rflow_args)) {
+                invalid_names <- names(rflow_args)[!valid_rflow_args]
+                invalid_names <- paste(invalid_names, collapse = ', ')
+                stop("Invalid input rflows: ", invalid_names)
+            }
+            rflow_hash <- rflow_args %>%
+                purrr::map(~ .$collect_hash(what = NULL))
         }
-        rflow_hash <- rflow_args %>%
-            purrr::map(~ .$collect_hash(what = NULL))
+        
+        # non-rflow / static args use the data for hashing
+        # supplied args eval in the evaluation frame of the calling function
+        # default args eval in the evaluation frame of the original function
+        static_data <- c(
+            lapply(supplied_args, eval, envir = parent.frame()),
+            lapply(default_args, eval, envir = environment(self$fn))
+        )
+        
+        in_hash <- self$eddy$digest(c(rflow_hash, static_data))
+    } else {
+        # we already checked that fn and hash_input_fn have the same formals
+        mc[[1L]] <- self$hash_input_fn
+        res <- eval(mc, envir = parent.frame())
+        in_hash <- self$eddy$digest(res)
     }
     
-    # non-rflow / static args use the data for hashing
-    # supplied args eval in the evaluation frame of the calling function
-    # default args eval in the evaluation frame of the original function
-    static_data <- c(
-        lapply(supplied_args, eval, envir = parent.frame()),
-        lapply(default_args, eval, envir = environment(self$fn))
-    )
-    
-    in_hash <- self$eddy$digest(c(rflow_hash, static_data))
     # TODO: maybe cache body_hash? how can we tell if original fn body changed?
     body_hash <- self$eddy$digest(as.character(body(self$fn)))
     
@@ -142,6 +157,7 @@ R6Flow$set("public", "rf_fn", function(...) {
 # Initialize ----
 R6Flow$set("public", "initialize", function(fn,
                                             fn_name,
+                                            hash_input_fn = NULL,
                                             split_output_fn = NULL,
                                             eddy = get_default_eddy()) {
     
@@ -154,6 +170,7 @@ R6Flow$set("public", "initialize", function(fn,
     # init self$
     self$fn <- fn
     self$fn_name <- fn_name
+    self$hash_input_fn <- hash_input_fn
     self$split_output_fn <- split_output_fn
     self$eddy <- eddy
     
@@ -201,7 +218,6 @@ R6Flow$set("public", "collect", function(what = NULL) {
     }
     
 }, overwrite = TRUE)
-
 
 
 # collect_hash ----
@@ -360,3 +376,4 @@ R6Flow$set("active", "is_valid", function() {
     
     !is.na(private$state_index)
 }, overwrite = TRUE)
+
