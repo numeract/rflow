@@ -9,6 +9,9 @@ R6Flow <- R6::R6Class(
     public = list(
         # original fb (declare as obj to avoid locking of R6 methods)
         fn = NULL,
+        # hash of fn's defined arguments and body
+        fn_key = character(),
+        # original function name, mostly for debug
         fn_name = character(),
         # rflow (cached) function
         rf_fn = function(...) {},
@@ -20,7 +23,7 @@ R6Flow <- R6::R6Class(
         eddy = NULL,
         
         initialize = function(fn,
-                              fn_name,
+                              fn_name = 'no_name',
                               hash_input_fn = NULL,
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
@@ -31,16 +34,15 @@ R6Flow <- R6::R6Class(
         # data frame to store hashes and current state
         state = NULL,
         state_index = NA_integer_,
-        find_state_index = function(in_hash, body_hash) {},
+        find_state_index = function(in_hash) {},
         get_state = function(index = NULL) {},
         check_state = function(index = NULL) {},
-        add_state = function(in_hash, 
-                             body_hash, 
-                             out_hash, 
+        add_state = function(in_hash,
+                             out_hash,
                              make_current = TRUE) {},
-        get_out_hash = function(in_hash, body_hash) {},
+        get_out_hash = function(in_hash, fn_key) {},
         
-        # data frame to store carved out elements
+        # data frame to store elements of fn output
         output_state = NULL,
         add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
@@ -106,13 +108,10 @@ R6Flow$set("public", "rf_fn", function(...) {
         in_hash <- self$eddy$digest(res)
     }
     
-    # TODO: maybe cache body_hash? how can we tell if original fn body changed?
-    body_hash <- self$eddy$digest(as.character(body(self$fn)))
-    
-    # check self if there is an out_hash associated with in_hash & body_hash
-    out_hash <- private$get_out_hash(in_hash, body_hash)
+    # check self if there is an out_hash associated with in_hash and fn_key
+    out_hash <- private$get_out_hash(in_hash)
     if (!is.na(out_hash)) {
-        out_data <- self$eddy$get_data(out_hash, self$fn_name)
+        out_data <- self$eddy$get_data(out_hash, self$fn_key)
     } else {
         # not in cache, eval the function
         # replace the first arg to reconstruct the original fn match.call
@@ -129,11 +128,11 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
-        private$add_state(in_hash, body_hash, out_hash)
-        # store in cache
-        self$eddy$put_data(out_hash, out_data, self$fn_name)
+        private$add_state(in_hash, out_hash)
+        # store out_data in cache
+        self$eddy$put_data(out_hash, out_data, self$fn_key)
         
-        # carve the out_data and store its elements
+        # split the out_data and store its elements
         if (!is.null(self$split_output_fn)) {
             out_lst <- self$split_output_fn(out_data)
             if (!is.list(out_lst)) stop("split_output_fn must return a named list")
@@ -144,7 +143,7 @@ R6Flow$set("public", "rf_fn", function(...) {
                 elem_data <- out_lst[[elem_name]]
                 elem_hash <- self$eddy$digest(elem_data)
                 private$add_output_state(out_hash, elem_name, elem_hash)
-                self$eddy$put_data(elem_hash, elem_data, self$fn_name)
+                self$eddy$put_data(elem_hash, elem_data, self$fn_key)
             }
         }
     }
@@ -161,7 +160,16 @@ R6Flow$set("public", "initialize", function(fn,
                                             split_output_fn = NULL,
                                             eddy = get_default_eddy()) {
     
-    if (eddy$exists_rflow(fn_name)) {
+    # unique key = hash of fn's defined arguments and body
+    fn_formals <- formals(args(fn))
+    arg_chr <- paste(
+        paste(names(fn_formals), as.character(fn_formals), sep = '='),
+        collapse = ', '
+    )
+    body_chr <- as.character(body(fn))
+    fn_key <- eddy$digest(c(arg_chr, body_chr))
+    
+    if (eddy$exists_rflow(fn_key)) {
         stop("overwriting / re-flowing function not yet implemented")
         # TODO: common case: files were resourced and fn body changed
         # TODO: load its former state from eddy
@@ -169,6 +177,7 @@ R6Flow$set("public", "initialize", function(fn,
     
     # init self$
     self$fn <- fn
+    self$fn_key <- fn_key
     self$fn_name <- fn_name
     self$hash_input_fn <- hash_input_fn
     self$split_output_fn <- split_output_fn
@@ -177,7 +186,7 @@ R6Flow$set("public", "initialize", function(fn,
     # R6 locks methods / functions found in public list
     unlockBinding('rf_fn', self)
     # rf_fn and fn have the same arguments
-    formals(self$rf_fn) <- formals(args(fn))
+    formals(self$rf_fn) <- fn_formals
     # the enclosing env of rn_fn is not changed to preserve access to self$
     # all args of this initialize function are transfered to new R6 obj
     lockBinding('rf_fn', self)
@@ -185,8 +194,8 @@ R6Flow$set("public", "initialize", function(fn,
     # state
     private$state <- tibble::data_frame(
         in_hash = character(),
-        body_hash = character(),
         out_hash = character(),
+        fn_key = character(),
         time_stamp = now_utc(0L)
     )
     private$state_index <- NA_integer_
@@ -200,7 +209,7 @@ R6Flow$set("public", "initialize", function(fn,
     
     self$eddy <- eddy
     # register itself in eddy
-    eddy$add_rflow(fn_name, self)
+    eddy$add_rflow(fn_key, self)
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -214,7 +223,7 @@ R6Flow$set("public", "collect", function(what = NULL) {
     if (nrow(state) == 0L) {
         NULL
     } else {
-        self$eddy$get_data(state$out_hash, self$fn_name)
+        self$eddy$get_data(state$out_hash, self$fn_key)
     }
     
 }, overwrite = TRUE)
@@ -235,13 +244,13 @@ R6Flow$set("public", "collect_hash", function(what = NULL) {
 
 
 # find_state_index ----
-R6Flow$set("private", "find_state_index", function(in_hash, body_hash) {
+R6Flow$set("private", "find_state_index", function(in_hash) {
     
     # since we just looking for the index, we do not check if the 
     # eddy contains the cache
     found_state_idx <- which(
         private$state$in_hash == in_hash && 
-        private$state$body_hash == body_hash
+        private$state$fn_key == self$fn_key
     )
     len <- length(found_state_idx)
     stopifnot(len <= 1L)
@@ -309,7 +318,6 @@ R6Flow$set("private", "check_state", function(index = NULL) {
 
 # add_state ----
 R6Flow$set("private", "add_state", function(in_hash, 
-                                            body_hash, 
                                             out_hash, 
                                             make_current = TRUE) {
     
@@ -317,8 +325,8 @@ R6Flow$set("private", "add_state", function(in_hash,
         private$state %>%
         tibble::add_row(
             in_hash = in_hash,
-            body_hash = body_hash,
             out_hash = out_hash,
+            fn_key = self$fn_key,
             time_stamp = now_utc()
         )
     if (make_current) private$state_index <- nrow(private$state)
@@ -327,9 +335,9 @@ R6Flow$set("private", "add_state", function(in_hash,
 
 
 # get_out_hash ----
-R6Flow$set("private", "get_out_hash", function(in_hash, body_hash) {
+R6Flow$set("private", "get_out_hash", function(in_hash) {
     
-    index <- private$find_state_index(in_hash, body_hash)
+    index <- private$find_state_index(in_hash)
     if (index == 0L) {
         NA_character_
     } else {

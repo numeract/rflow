@@ -13,15 +13,15 @@ R6Eddy <- R6::R6Class(
                               cache_path = NULL, 
                               algo = "xxhash64") {},
         # rflow
-        exists_rflow = function(fn_name) {},
-        add_rflow = function(fn_name, rflow) {},
-        delete_rflow = function(fn_name) {},
+        exists_rflow = function(fn_key) {},
+        add_rflow = function(fn_key, rflow) {},
+        delete_rflow = function(fn_key) {},
         # cache
         digest = function(object, ...) {},
-        find_key = function(key, fn_name) {},
-        has_key = function(key, fn_name) {},
-        get_data = function(key, fn_name) {},
-        put_data = function(key, value, fn_name) {}
+        find_key = function(key, fn_key) {},
+        has_key = function(key, fn_key) {},
+        get_data = function(key, fn_key) {},
+        put_data = function(key, value, fn_key) {}
         # TODO: cache_reset()
         # TODO: flush_to_disk()
     ),
@@ -57,27 +57,27 @@ R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
 
 
 # exists ----
-R6Eddy$set("public", "exists_rflow", function(fn_name) {
+R6Eddy$set("public", "exists_rflow", function(fn_key) {
     
-    fn_name %in% names(self$rflow_lst)
+    fn_key %in% names(self$rflow_lst)
 }, overwrite = TRUE)
 
 
 # add_rflow ----
-R6Eddy$set("public", "add_rflow", function(fn_name, rflow) {
+R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     
-    if (self$exists_rflow(fn_name)) 
+    if (self$exists_rflow(fn_key)) 
         stop("overwriting not yet implemented")
-    self$rflow_lst[[fn_name]] <- rflow
+    self$rflow_lst[[fn_key]] <- rflow
     # TODO: update adjacency matrix
     
 }, overwrite = TRUE)
 
 
 # delete_rflow ----
-R6Eddy$set("public", "delete_rflow", function(fn_name) {
+R6Eddy$set("public", "delete_rflow", function(fn_key) {
     
-    self$rflow_lst[[fn_name]] <- NULL
+    self$rflow_lst[[fn_key]] <- NULL
     # TODO: do not remove the disk cache, but we should remove memory cache?
     # TODO: update adjacency matrix
     
@@ -92,7 +92,7 @@ R6Eddy$set("public", "digest", function(object, ...) {
 
 
 # find_key ----
-R6Eddy$set("public", "find_key", function(key, fn_name) {
+R6Eddy$set("public", "find_key", function(key, fn_key) {
     
     # where is the key (in which cache), if anywhere
     # first check in memory cache
@@ -101,7 +101,7 @@ R6Eddy$set("public", "find_key", function(key, fn_name) {
         "memory"
     } else {
         if (!is.null(private$path)) {
-            key_on_disk <- file.exists(file.path(private$path, fn_name, key))
+            key_on_disk <- file.exists(file.path(private$path, fn_key, key))
             if (key_on_disk) {
                 "disk"
             } else {
@@ -115,22 +115,22 @@ R6Eddy$set("public", "find_key", function(key, fn_name) {
 
 
 # has_key ----
-R6Eddy$set("public", "has_key", function(key, fn_name) {
+R6Eddy$set("public", "has_key", function(key, fn_key) {
     
-    found <- self$find_key(key, fn_name)
+    found <- self$find_key(key, fn_key)
     found != "missing"
 }, overwrite = TRUE)
 
 
 # get_data ----
-R6Eddy$set("public", "get_data", function(key, fn_name) {
+R6Eddy$set("public", "get_data", function(key, fn_key) {
     
     found <- self$find_key(key)
     if (found == "memory") {
         get(key, envir = private$cache, inherits = FALSE)
     } else if (found == "disk") {
         # private$cache_path is not null since key was found on disk
-        readRDS(file = file.path(private$cache_path, fn_name, key))
+        readRDS(file = file.path(private$cache_path, fn_key, key))
     } else {
         stop("key not found:", key)
     }
@@ -139,17 +139,17 @@ R6Eddy$set("public", "get_data", function(key, fn_name) {
 
 
 # put_data ----
-R6Eddy$set("public", "put_data", function(key, value, fn_name) {
+R6Eddy$set("public", "put_data", function(key, value, fn_key) {
     
     # we always overwrite data in cache (but there should not be the case)
     # for now, put it in memory and on disk
     assign(key, value, envir = private$cache)
     if (!is.null(private$path)) {
-        cache_path <- file.path(private$path, fn_name)
+        cache_path <- file.path(private$path, fn_key)
         if (!dir.exists(cache_path)) {
             dir.create(cache_path, showWarnings = FALSE)
         }
-        saveRDS(value, file = file.path(private$path, fn_name, key))
+        saveRDS(value, file = file.path(private$path, fn_key, key))
     }
     
 }, overwrite = TRUE)
