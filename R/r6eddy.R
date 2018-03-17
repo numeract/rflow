@@ -205,7 +205,7 @@ R6Eddy$set("public", "has_data", function(key, fn_key) {
 # get_data ----
 R6Eddy$set("public", "get_data", function(key, fn_key) {
     
-    found <- self$find_key(key)
+    found <- self$find_key(key, fn_key)
     if (found == "memory") {
         cache_env <- private$cache_lst[[fn_key]]
         get(key, envir = cache_env, inherits = FALSE)
@@ -224,7 +224,7 @@ R6Eddy$set("public", "get_data", function(key, fn_key) {
     } else {
         # cannot return NA / NULL since that can be the result of the function
         # the user should check that the key exists
-        stop("key not found:", key)
+        stop("key not found: ", key)
     }
     
 }, overwrite = TRUE)

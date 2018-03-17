@@ -23,10 +23,12 @@ R6Flow <- R6::R6Class(
         eddy = NULL,
         
         initialize = function(fn,
-                              fn_name = 'no_name',
+                              fn_key = NULL,
+                              fn_name = 'missing',
                               hash_input_fn = NULL,
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
+        save = function() {},
         element = function(what = NULL) {},
         collect = function(what = NULL) {},
         collect_hash = function(what = NULL) {}
@@ -157,6 +159,7 @@ R6Flow$set("public", "rf_fn", function(...) {
                 self$eddy$add_data(elem_hash, elem_data, self$fn_key)
             }
         }
+        self$save()
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
@@ -169,24 +172,23 @@ R6Flow$set("public", "rf_fn", function(...) {
 
 # Initialize ----
 R6Flow$set("public", "initialize", function(fn,
-                                            fn_name,
+                                            fn_key = NULL,
+                                            fn_name = 'missing',
                                             hash_input_fn = NULL,
                                             split_output_fn = NULL,
                                             eddy = get_default_eddy()) {
     
-    # unique key = hash of fn's defined arguments and body
-    fn_formals <- formals(args(fn))
-    arg_chr <- paste(
-        paste(names(fn_formals), as.character(fn_formals), sep = '='),
-        collapse = ', '
-    )
-    body_chr <- as.character(body(fn))
-    fn_key <- eddy$digest(c(arg_chr, body_chr))
+    if (is.null(fn_key)) fn_key <- make_fn_key(fn, eddy)
     
-    if (eddy$has_rflow(fn_key)) {
-        stop("overwriting / re-flowing function not yet implemented")
-        # TODO: common case: files were resourced and fn body changed
-        # TODO: load its former state from eddy
+    found <- eddy$find_rflow(fn_key)
+    if (found == 'memory')
+        stop("rflow object with key ", fn_key, " already present in eddy")
+    if (found == 'disk') {
+        # load previous state from disk (special key = fn_key)
+        # for now, it still needs fn, fn_name, hash_input_fn, split_output_fn
+        rflow_data <- eddy$get_data(fn_key, fn_key)
+    } else {
+        rflow_data <- NULL
     }
     
     # init self$
@@ -200,32 +202,50 @@ R6Flow$set("public", "initialize", function(fn,
     # R6 locks methods / functions found in public list
     unlockBinding('rf_fn', self)
     # rf_fn and fn have the same arguments
-    formals(self$rf_fn) <- fn_formals
+    formals(self$rf_fn) <- formals(args(fn))
     # the enclosing env of rn_fn is not changed to preserve access to self$
     # all args of this initialize function are transfered to new R6 obj
     lockBinding('rf_fn', self)
     
-    # state
-    private$state <- tibble::data_frame(
-        in_hash = character(),
-        out_hash = character(),
-        fn_key = character(),
-        time_stamp = now_utc(0L)
-    )
-    private$state_index <- NA_integer_
+    if (is.null(rflow_data)) {
+        # state
+        private$state <- tibble::data_frame(
+            in_hash = character(),
+            out_hash = character(),
+            fn_key = character(),
+            time_stamp = now_utc(0L)
+        )
+        private$state_index <- NA_integer_
+        # output state
+        private$output_state <- tibble::data_frame(
+            out_hash = character(),
+            elem_name = character(),
+            elem_hash = character()
+        )
+    } else {
+        private$state <- rflow_data$state
+        private$state_index <- rflow_data$state_index
+        private$output_state <- rflow_data$output_state
+    }
     
-    # output state
-    private$output_state <- tibble::data_frame(
-        out_hash = character(),
-        elem_name = character(),
-        elem_hash = character()
-    )
-    
-    self$eddy <- eddy
     # register itself in eddy
     eddy$add_rflow(fn_key, self)
     
     invisible(NULL)
+}, overwrite = TRUE)
+
+
+# save ----
+R6Flow$set("public", "save", function() {
+    
+    rflow_data <- list(
+        fn_key = self$fn_key,
+        fn_name = self$fn_name,
+        state = private$state,
+        state_index = private$state_index,
+        output_state = private$output_state
+    )
+    self$eddy$add_data(self$fn_key, rflow_data, self$fn_key)
 }, overwrite = TRUE)
 
 
@@ -291,7 +311,7 @@ R6Flow$set("public", "collect_hash", function(what = NULL) {
     } else {
         found_state_idx <- which(
             private$output_state$out_hash == state$out_hash && 
-                private$output_state$elem_name == what
+            private$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
             stop("Cannot find output element: ", what)
@@ -335,7 +355,7 @@ R6Flow$set("private", "get_state", function(index = NULL) {
 R6Flow$set("private", "check_state", function(index = NULL) {
     
     state <- private$get_state(index)
-    if (nrow(state) == 0L) {
+    changed <- if (nrow(state) == 0L) {
         if (is.null(index)) {
             # zero rows for current state (index = NULL) --> is_invalid <- FALSE
             if (is.na(private$state_index)) {
@@ -370,6 +390,9 @@ R6Flow$set("private", "check_state", function(index = NULL) {
         }
         in_eddy             # if not in eddy --> had to make a change
     }
+    if (changed) self$save()
+    
+    changed
 }, overwrite = TRUE)
 
 
