@@ -140,7 +140,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         out_hash <- self$eddy$digest(out_data)
         private$add_state(in_hash, out_hash)
         # store out_data in cache
-        self$eddy$put_data(out_hash, out_data, self$fn_key)
+        self$eddy$add_data(out_hash, out_data, self$fn_key)
         
         # split the out_data and store its elements
         if (!is.null(self$split_output_fn)) {
@@ -154,7 +154,7 @@ R6Flow$set("public", "rf_fn", function(...) {
                 elem_data <- out_lst[[elem_name]]
                 elem_hash <- self$eddy$digest(elem_data)
                 private$add_output_state(out_hash, elem_name, elem_hash)
-                self$eddy$put_data(elem_hash, elem_data, self$fn_key)
+                self$eddy$add_data(elem_hash, elem_data, self$fn_key)
             }
         }
     }
@@ -183,7 +183,7 @@ R6Flow$set("public", "initialize", function(fn,
     body_chr <- as.character(body(fn))
     fn_key <- eddy$digest(c(arg_chr, body_chr))
     
-    if (eddy$exists_rflow(fn_key)) {
+    if (eddy$has_rflow(fn_key)) {
         stop("overwriting / re-flowing function not yet implemented")
         # TODO: common case: files were resourced and fn body changed
         # TODO: load its former state from eddy
@@ -351,7 +351,7 @@ R6Flow$set("private", "check_state", function(index = NULL) {
         }
     } else {
         # we have an out_hash, does it exist in eddy?
-        in_eddy <- self$eddy$has_key(state$out_hash)
+        in_eddy <- self$eddy$has_data(state$out_hash, self$fn_key)
         if (!in_eddy) {
             # need to remove this state and maybe update the index
             if (is.null(index)) {
