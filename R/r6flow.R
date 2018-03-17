@@ -77,7 +77,6 @@ R6Flow$set("public", "rf_fn", function(...) {
         # R6Flow args are eval for hashing by getting their hash (faster)
         # and for data by getting their data
         if (self$eddy$is_reactive) {
-            # TODO: is_reactive case
             stop("reactive eddies not yet implemented")
         } else {
             # non-reactive case, all rflow args must to be valid
@@ -218,28 +217,41 @@ R6Flow$set("public", "initialize", function(fn,
 # collect ----
 R6Flow$set("public", "collect", function(what = NULL) {
     
-    # TODO: implement `what` when supplying a subset
     state <- private$get_state()
     if (nrow(state) == 0L) {
         NULL
-    } else {
+    } else if (is.null(what)) {
         self$eddy$get_data(state$out_hash, self$fn_key)
+    } else {
+        found_state_idx <- which(
+            private$output_state$out_hash == state$out_hash && 
+            private$output_state$elem_name == what
+        )
+        if (length(found_state_idx) != 1L) 
+            stop("Cannot find output element: ", what)
+        elem_hash <- private$output_state$elem_hash[found_state_idx]
+        self$eddy$get_data(elem_hash, self$fn_key)
     }
-    
 }, overwrite = TRUE)
 
 
 # collect_hash ----
 R6Flow$set("public", "collect_hash", function(what = NULL) {
     
-    # TODO: implement `what` when supplying a subset
     state <- private$get_state()
     if (nrow(state) == 0L) {
         NA_character_
-    } else {
+    } else if (is.null(what)) {
         state$out_hash
+    } else {
+        found_state_idx <- which(
+            private$output_state$out_hash == state$out_hash && 
+                private$output_state$elem_name == what
+        )
+        if (length(found_state_idx) != 1L) 
+            stop("Cannot find output element: ", what)
+        private$output_state$elem_hash[found_state_idx]
     }
-    
 }, overwrite = TRUE)
 
 

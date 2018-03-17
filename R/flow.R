@@ -39,7 +39,3 @@ make_rflow <- function(fn,
     
     rf_fn
 }
-
-
-# TODO: is already rflowed
-# TODO: forget_rflow
