@@ -27,6 +27,7 @@ R6Flow <- R6::R6Class(
                               hash_input_fn = NULL,
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
+        element = function(what = NULL) {},
         collect = function(what = NULL) {},
         collect_hash = function(what = NULL) {}
     ),
@@ -58,38 +59,48 @@ R6Flow$set("public", "rf_fn", function(...) {
     # when called, the formals already match the original fn
     mc <- match.call()
     
+    # R6Flow arguments are treated specially, identify them first
+    # for consitency, transform R6Flow into a R6FlowElement
+    rflow_args <- 
+        as.list(formals()) %>%
+        purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
+        purrr::map_if(
+            .p = ~ inherits(., "R6Flow"), 
+            .f = ~ .$element(what = NULL)
+        )
+    rflow_args_names <- names(rflow_args)
+    
     if (is.null(self$hash_input_fn)) {
-        # R6Flow arguments are treated specially, identify them first
-        rflow_args <- as.list(formals()) %>%
-            purrr::keep(~ inherits(., 'R6Flow'))
         # follow memoise logic to separate supplied and default arguments
         # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
         #     #Argument-evaluation
         # supplied arguments
-        supplied_args <- as.list(mc)[-1] %>%
-            discard_at(names(rflow_args))
+        supplied_args <- 
+            as.list(mc)[-1] %>%
+            discard_at(rflow_args_names)
         # default arguments that have not been supplied
-        default_args <- as.list(formals()) %>%
+        default_args <- 
+            as.list(formals()) %>%
             purrr::discard(~ identical(., quote(expr = ))) %>%
-            discard_at(names(rflow_args)) %>%
+            discard_at(rflow_args_names) %>%
             discard_at(names(supplied_args))
         
-        # R6Flow args are eval for hashing by getting their hash (faster)
+        # R6FlowElement args are eval for hashing by getting their hash (faster)
         # and for data by getting their data
-        if (self$eddy$is_reactive) {
-            stop("reactive eddies not yet implemented")
-        } else {
+        rflow_hash <- NULL
+        if (length(rflow_args) > 0L && !self$eddy$is_reactive) {
             # non-reactive case, all rflow args must to be valid
-            valid_rflow_args <- rflow_args %>%
-                purrr::map_lgl(~ .$is_valid)
+            valid_rflow_args <- purrr::map_lgl(rflow_args, "is_valid")
             if (any(!valid_rflow_args)) {
                 invalid_names <- names(rflow_args)[!valid_rflow_args]
-                invalid_names <- paste(invalid_names, collapse = ', ')
+                invalid_names <- paste(invalid_names, collapse = ", ")
                 stop("Invalid input rflow args: ", invalid_names)
             }
-            rflow_hash <- rflow_args %>%
-                purrr::map(~ .$collect_hash(what = NULL))
+            rflow_hash <- purrr::map(rflow_args, "elem_hash")
         }
+        if (length(rflow_args) > 0L && self$eddy$is_reactive) {
+            stop("reactive eddies not yet implemented")
+        } 
         
         # non-rflow / static args use the data for hashing
         # supplied args eval in the evaluation frame of the calling function
@@ -118,8 +129,8 @@ R6Flow$set("public", "rf_fn", function(...) {
         # we also need to replace R6Flow args with their data
         # avoid purrr to guarantee no unexpected effects since we have a call
         for (nm in names(rflow_args)) {
-            rflow_obj <- rflow_args[[nm]] 
-            mc[[nm]] <- rflow_obj$collect(what = NULL)
+            rflow_elem <- rflow_args[[nm]]
+            mc[[nm]] <- rflow_elem$self$collect(what = rflow_elem$what)
         }
         # need to preserve (and cache) the visibility of the return
         # eval envir must be the parent.frame of this func, not of withVisible
@@ -134,10 +145,11 @@ R6Flow$set("public", "rf_fn", function(...) {
         # split the out_data and store its elements
         if (!is.null(self$split_output_fn)) {
             out_lst <- self$split_output_fn(out_data)
-            if (!is.list(out_lst)) stop("split_output_fn must return a named list")
+            if (!is.list(out_lst)) 
+                stop("split_output_fn() must return a named list")
             out_nms <- names(out_lst) %if_not_in% ""
             if (length(out_nms) != length(out_lst))
-                stop("split_output_fn must provide a name for each element")
+                stop("split_output_fn() must provide a name for each element")
             for (elem_name in out_nms) {
                 elem_data <- out_lst[[elem_name]]
                 elem_hash <- self$eddy$digest(elem_data)
@@ -148,6 +160,9 @@ R6Flow$set("public", "rf_fn", function(...) {
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
+    # we could have returned a structure similar to $element(), but 
+    # - $collect() would require $self$collect(), or
+    # - adding a new collect function preserves its encl envir, takes memory
     self
 }, overwrite = TRUE)
 
@@ -211,6 +226,36 @@ R6Flow$set("public", "initialize", function(fn,
     eddy$add_rflow(fn_key, self)
     
     invisible(NULL)
+}, overwrite = TRUE)
+
+
+# element ----
+R6Flow$set("public", "element", function(what = NULL) {
+    
+    state <- private$get_state()
+    if (nrow(state) == 0L) {
+        is_valid <- FALSE
+        elem_hash <- NULL
+    } else if (is.null(what)) {
+        is_valid <- TRUE
+        elem_hash <- state$out_hash
+    } else {
+        is_valid <- TRUE
+        found_state_idx <- which(
+            private$output_state$out_hash == state$out_hash && 
+            private$output_state$elem_name == what
+        )
+        if (length(found_state_idx) != 1L) 
+            stop("Cannot find output element: ", what)
+        elem_hash <- private$output_state$elem_hash[found_state_idx]
+    }
+    
+    structure(list(
+        self = self,
+        is_valid = is_valid,
+        elem_name = what,
+        elem_hash = elem_hash
+    ), class = "R6FlowElement")
 }, overwrite = TRUE)
 
 
