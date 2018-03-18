@@ -291,11 +291,13 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
 # create a separate environment to keep eddies
 .EDDY_ENV <- new.env(parent = emptyenv())
 
+#' @export
 get_default_env <- function() {
     .EDDY_ENV
 }
 
 
+#' @export
 get_default_eddy <- function(cache_path = NULL,
                              envir = get_default_env()) {
     

@@ -267,7 +267,7 @@ R6Flow$set("public", "element", function(what = NULL) {
     } else {
         is_valid <- TRUE
         found_state_idx <- which(
-            self$output_state$out_hash == state$out_hash && 
+            self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
@@ -297,7 +297,7 @@ R6Flow$set("public", "collect", function(what = NULL) {
         vis_out_lst <- self$eddy$get_data(state$out_hash, self$fn_key)
     } else {
         found_state_idx <- which(
-            self$output_state$out_hash == state$out_hash && 
+            self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
@@ -325,7 +325,7 @@ R6Flow$set("public", "collect_hash", function(what = NULL) {
         state$out_hash
     } else {
         found_state_idx <- which(
-            self$output_state$out_hash == state$out_hash && 
+            self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
@@ -341,7 +341,7 @@ R6Flow$set("private", "find_state_index", function(in_hash) {
     # since we just looking for the index, we do not check if the 
     # eddy contains the cache
     found_state_idx <- which(
-        self$state$in_hash == in_hash && 
+        self$state$in_hash == in_hash &
         self$state$fn_key == self$fn_key
     )
     len <- length(found_state_idx)
@@ -453,7 +453,7 @@ R6Flow$set("private", "add_output_state", function(out_hash,
                                                    elem_hash) {
     
     found_state_idx <- which(
-        self$output_state$out_hash == out_hash && 
+        self$output_state$out_hash == out_hash &
         self$output_state$elem_name == elem_name
     )
     len <- length(found_state_idx)

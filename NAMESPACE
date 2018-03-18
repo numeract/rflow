@@ -2,5 +2,9 @@
 
 export("%>%")
 export("%||%")
+export(collect)
+export(get_default_eddy)
+export(get_default_env)
+export(make_rflow)
 importFrom(magrittr,"%>%")
 importFrom(purrr,"%||%")

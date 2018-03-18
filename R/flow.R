@@ -16,6 +16,7 @@ make_fn_key <- function(fn, eddy = get_default_eddy()) {
 }
 
 
+#' @export
 make_rflow <- function(fn,
                        hash_input_fn = NULL,
                        split_output_fn = NULL,
@@ -61,6 +62,7 @@ make_rflow <- function(fn,
 }
 
 
+#' @export
 collect <- function(rf_fn, what = NULL) {
     
     if (inherits(rf_fn, "R6FlowElement")) {
