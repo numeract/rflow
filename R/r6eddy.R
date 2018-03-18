@@ -289,15 +289,10 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
 # Env ----
 
 # create a separate environment to keep eddies
+.EDDY_ENV <- new.env(parent = emptyenv())
+
 get_default_env <- function() {
-    
-    # encl_env is package env if package is loaded, GlobalEnv if run outside 
-    encl_env <- parent.env(environment())
-    if (!base::exists('.EDDY_ENV', where = encl_env, inherits = FALSE)) {
-        assign('.EDDY_ENV', new.env(parent = emptyenv()), envir = encl_env)
-    }
-    
-    encl_env$.EDDY_ENV
+    .EDDY_ENV
 }
 
 
