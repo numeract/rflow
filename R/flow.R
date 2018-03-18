@@ -59,3 +59,15 @@ make_rflow <- function(fn,
     
     rflow$rf_fn
 }
+
+
+collect <- function(rf_fn, what = NULL) {
+    
+    if (inherits(rf_fn, "R6FlowElement")) {
+        rf_fn$self$collect(what = what)
+    } else if (inherits(rf_fn, "R6Flow")) {
+        rf_fn$collect(what = what)
+    } else {
+        stop("Not an rflow object or element of an rflow output")
+    }
+}

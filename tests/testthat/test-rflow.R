@@ -10,17 +10,17 @@ test_that("rflow works", {
     
     expect_equal(f(1), 10)
     expect_equal(f(2), 11)
-    expect_equal(rf(1)$collect(), f(1))
-    expect_equal(rf(2)$collect(), f(2))
+    expect_equal(collect(rf(1)), f(1))
+    expect_equal(collect(rf(2)), f(2))
     expect_identical(rf(1), rflow)
     
     w <- 5
     expect_equal(f(1), 12)
-    expect_equal(rf(1)$collect(), f(1))
+    expect_equal(collect(rf(1)), f(1))
 
     q <- 9
     expect_equal(f(1), 17)
-    expect_equal(rf(1)$collect(), f(1))
+    expect_equal(collect(rf(1)), f(1))
     
     expect_equal(f(1), 17)
     expect_equal(f(1), 17)
