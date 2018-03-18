@@ -301,10 +301,11 @@ get_default_env <- function() {
 }
 
 
-get_default_eddy <- function(envir = get_default_env()) {
+get_default_eddy <- function(cache_path = NULL,
+                             envir = get_default_env()) {
     
     if (!base::exists('.EDDY', where = envir, inherits = FALSE)) {
-        assign('.EDDY', R6Eddy$new(cache_path = "cache"), envir = envir)
+        assign('.EDDY', R6Eddy$new(cache_path = cache_path), envir = envir)
     }
     
     envir$.EDDY
