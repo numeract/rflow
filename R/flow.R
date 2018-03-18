@@ -1,4 +1,7 @@
-#' @include r6flow.R
+# wrappers around R6Flow following standard R functionality
+
+
+# !diagnostics suppress=.
 
 
 make_fn_key <- function(fn, eddy = get_default_eddy()) {

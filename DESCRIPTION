@@ -24,10 +24,3 @@ Imports:
     tibble
 Suggests:
     testthat
-Collate: 
-    'package.R'
-    'helper.R'
-    'r6eddy.R'
-    'r6flow.R'
-    'flow.R'
-    'working.R'

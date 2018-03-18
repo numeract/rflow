@@ -1,4 +1,5 @@
-#' @include helper.R
+# R6Eddy class and methods
+
 
 # !diagnostics suppress=self, private
 
@@ -285,26 +286,3 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     # check if data exists
     !self$has_data(key, fn_key)
 }, overwrite = TRUE)
-
-
-# Env ----
-
-# create a separate environment to keep eddies
-.EDDY_ENV <- new.env(parent = emptyenv())
-
-#' @export
-get_default_env <- function() {
-    .EDDY_ENV
-}
-
-
-#' @export
-get_default_eddy <- function(cache_path = NULL,
-                             envir = get_default_env()) {
-    
-    if (!base::exists('.EDDY', where = envir, inherits = FALSE)) {
-        assign('.EDDY', R6Eddy$new(cache_path = cache_path), envir = envir)
-    }
-    
-    envir$.EDDY
-}

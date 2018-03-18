@@ -1,4 +1,5 @@
-#' @include r6eddy.R
+# R6Flow class and methods
+
 
 # !diagnostics suppress=self, private
 

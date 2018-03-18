@@ -1,4 +1,4 @@
-#' @include package.R 
+# functions from Nmisc
 
 
 keep_if_in <- function(x, y) {
