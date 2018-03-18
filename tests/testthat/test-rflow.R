@@ -1,5 +1,23 @@
 context("rflow")
 
+
+test_that("memoisation works", {
+    
+    # no arguments, just a side effect to determine when f ran
+    i <- 0
+    f <- function() { i <<- i + 1; i }
+    rf <- make_rflow(f)
+    
+    expect_equal(f(), 1)
+    expect_equal(f(), 2)
+    # +1 due to f running one more time
+    expect_equal(collect(rf()), 3)
+    # +0 due to remembering previous value
+    expect_equal(collect(rf()), 3)
+    
+})
+
+
 test_that("rflow works", {
     
     w <- 3

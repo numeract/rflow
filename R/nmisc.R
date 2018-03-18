@@ -17,6 +17,8 @@ keep_if_not_in <- function(x, y) {
 
 keep_at <- function(.x, .at) {
     
+    if (length(.at) == 0L) return(.x[0L])
+    
     .p <- if (is.character(.at)) {
         names(.x) %in% .at
     } else if (is.numeric(.at)) {
@@ -30,6 +32,8 @@ keep_at <- function(.x, .at) {
 
 
 discard_at <- function(.x, .at) {
+    
+    if (length(.at) == 0L) return(.x)
     
     .p <- if (is.character(.at)) {
         names(.x) %in% .at
