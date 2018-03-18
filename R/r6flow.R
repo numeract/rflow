@@ -31,12 +31,15 @@ R6Flow <- R6::R6Class(
         save = function() {},
         element = function(what = NULL) {},
         collect = function(what = NULL) {},
-        collect_hash = function(what = NULL) {}
+        collect_hash = function(what = NULL) {},
+        # internal states
+        state = NULL,
+        state_index = NA_integer_,
+        # data frame to store elements of fn output
+        output_state = NULL
     ),
     private = list(
         # data frame to store hashes and current state
-        state = NULL,
-        state_index = NA_integer_,
         find_state_index = function(in_hash) {},
         get_state = function(index = NULL) {},
         check_state = function(index = NULL) {},
@@ -44,9 +47,6 @@ R6Flow <- R6::R6Class(
                              out_hash,
                              make_current = TRUE) {},
         get_out_hash = function(in_hash, fn_key) {},
-        
-        # data frame to store elements of fn output
-        output_state = NULL,
         add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
     active = list(
@@ -146,14 +146,19 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # split the out_data and store its elements
         if (!is.null(self$split_output_fn)) {
-            out_lst <- self$split_output_fn(out_data)
+            vis_out_lst <- withVisible(self$split_output_fn(out_data))
+            out_lst <- vis_out_lst$value
             if (!is.list(out_lst)) 
                 stop("split_output_fn() must return a named list")
             out_nms <- names(out_lst) %if_not_in% ""
             if (length(out_nms) != length(out_lst))
                 stop("split_output_fn() must provide a name for each element")
             for (elem_name in out_nms) {
-                elem_data <- out_lst[[elem_name]]
+                # reconstruct the withVisible list for each element
+                elem_data <- list(
+                    value = out_lst[[elem_name]],
+                    visible = vis_out_lst$visible
+                )
                 elem_hash <- self$eddy$digest(elem_data)
                 private$add_output_state(out_hash, elem_name, elem_hash)
                 self$eddy$add_data(elem_hash, elem_data, self$fn_key)
@@ -209,23 +214,23 @@ R6Flow$set("public", "initialize", function(fn,
     
     if (is.null(rflow_data)) {
         # state
-        private$state <- tibble::data_frame(
+        self$state <- tibble::data_frame(
             in_hash = character(),
             out_hash = character(),
             fn_key = character(),
             time_stamp = now_utc(0L)
         )
-        private$state_index <- NA_integer_
+        self$state_index <- NA_integer_
         # output state
-        private$output_state <- tibble::data_frame(
+        self$output_state <- tibble::data_frame(
             out_hash = character(),
             elem_name = character(),
             elem_hash = character()
         )
     } else {
-        private$state <- rflow_data$state
-        private$state_index <- rflow_data$state_index
-        private$output_state <- rflow_data$output_state
+        self$state <- rflow_data$state
+        self$state_index <- rflow_data$state_index
+        self$output_state <- rflow_data$output_state
     }
     
     # register itself in eddy
@@ -241,9 +246,9 @@ R6Flow$set("public", "save", function() {
     rflow_data <- list(
         fn_key = self$fn_key,
         fn_name = self$fn_name,
-        state = private$state,
-        state_index = private$state_index,
-        output_state = private$output_state
+        state = self$state,
+        state_index = self$state_index,
+        output_state = self$output_state
     )
     self$eddy$add_data(self$fn_key, rflow_data, self$fn_key)
 }, overwrite = TRUE)
@@ -262,12 +267,12 @@ R6Flow$set("public", "element", function(what = NULL) {
     } else {
         is_valid <- TRUE
         found_state_idx <- which(
-            private$output_state$out_hash == state$out_hash && 
-            private$output_state$elem_name == what
+            self$output_state$out_hash == state$out_hash && 
+            self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
             stop("Cannot find output element: ", what)
-        elem_hash <- private$output_state$elem_hash[found_state_idx]
+        elem_hash <- self$output_state$elem_hash[found_state_idx]
     }
     
     structure(list(
@@ -284,18 +289,28 @@ R6Flow$set("public", "collect", function(what = NULL) {
     
     state <- private$get_state()
     if (nrow(state) == 0L) {
-        NULL
+        vis_out_lst <- list(
+            value = NULL,
+            visible = TRUE
+        )
     } else if (is.null(what)) {
-        self$eddy$get_data(state$out_hash, self$fn_key)
+        vis_out_lst <- self$eddy$get_data(state$out_hash, self$fn_key)
     } else {
         found_state_idx <- which(
-            private$output_state$out_hash == state$out_hash && 
-            private$output_state$elem_name == what
+            self$output_state$out_hash == state$out_hash && 
+            self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
             stop("Cannot find output element: ", what)
-        elem_hash <- private$output_state$elem_hash[found_state_idx]
-        self$eddy$get_data(elem_hash, self$fn_key)
+        elem_hash <- self$output_state$elem_hash[found_state_idx]
+        vis_out_lst <- self$eddy$get_data(elem_hash, self$fn_key)
+    }
+    
+    # preserve the output visibility of the original fn
+    if (vis_out_lst$visible) {
+        vis_out_lst$value
+    } else {
+        invisible(vis_out_lst$value)
     }
 }, overwrite = TRUE)
 
@@ -310,12 +325,12 @@ R6Flow$set("public", "collect_hash", function(what = NULL) {
         state$out_hash
     } else {
         found_state_idx <- which(
-            private$output_state$out_hash == state$out_hash && 
-            private$output_state$elem_name == what
+            self$output_state$out_hash == state$out_hash && 
+            self$output_state$elem_name == what
         )
         if (length(found_state_idx) != 1L) 
             stop("Cannot find output element: ", what)
-        private$output_state$elem_hash[found_state_idx]
+        self$output_state$elem_hash[found_state_idx]
     }
 }, overwrite = TRUE)
 
@@ -326,8 +341,8 @@ R6Flow$set("private", "find_state_index", function(in_hash) {
     # since we just looking for the index, we do not check if the 
     # eddy contains the cache
     found_state_idx <- which(
-        private$state$in_hash == in_hash && 
-        private$state$fn_key == self$fn_key
+        self$state$in_hash == in_hash && 
+        self$state$fn_key == self$fn_key
     )
     len <- length(found_state_idx)
     stopifnot(len <= 1L)
@@ -339,13 +354,13 @@ R6Flow$set("private", "find_state_index", function(in_hash) {
 # get_state ----
 R6Flow$set("private", "get_state", function(index = NULL) {
     
-    if (is.null(index)) index <- private$state_index
+    if (is.null(index)) index <- self$state_index
     
-    if (is.na(index) || index < 1L || index > nrow(private$state)) {
+    if (is.na(index) || index < 1L || index > nrow(self$state)) {
         # returns a zero row df if index not valid
-        private$state[0L, , drop = FALSE]
+        self$state[0L, , drop = FALSE]
     } else {
-        private$state[index, , drop = FALSE]
+        self$state[index, , drop = FALSE]
     }
     
 }, overwrite = TRUE)
@@ -358,11 +373,11 @@ R6Flow$set("private", "check_state", function(index = NULL) {
     changed <- if (nrow(state) == 0L) {
         if (is.null(index)) {
             # zero rows for current state (index = NULL) --> is_invalid <- FALSE
-            if (is.na(private$state_index)) {
+            if (is.na(self$state_index)) {
                 TRUE        # OK
             } else {
                 # side effect: invalid state if cannot find row
-                private$state_index <- NA_integer_
+                self$state_index <- NA_integer_
                 FALSE       # had to make a change
             }
         } else {
@@ -376,15 +391,15 @@ R6Flow$set("private", "check_state", function(index = NULL) {
             # need to remove this state and maybe update the index
             if (is.null(index)) {
                 # using state_index --> remove row and mark as invalid
-                private$state <- private$state[
-                    -private$state_index, , drop = FALSE]
-                private$state_index <- NA_integer_
+                self$state <- self$state[
+                    -self$state_index, , drop = FALSE]
+                self$state_index <- NA_integer_
             } else {
-                private$state <- private$state[-index, , drop = FALSE]
-                if (index <= private$state_index) {
-                    state_index <- private$state_index - 1L
+                self$state <- self$state[-index, , drop = FALSE]
+                if (index <= self$state_index) {
+                    state_index <- self$state_index - 1L
                     if (state_index < 1L) state_index <- NA_integer_
-                    private$state_index <- state_index
+                    self$state_index <- state_index
                 }
             }
         }
@@ -401,15 +416,15 @@ R6Flow$set("private", "add_state", function(in_hash,
                                             out_hash, 
                                             make_current = TRUE) {
     
-    private$state <- 
-        private$state %>%
+    self$state <- 
+        self$state %>%
         tibble::add_row(
             in_hash = in_hash,
             out_hash = out_hash,
             fn_key = self$fn_key,
             time_stamp = now_utc()
         )
-    if (make_current) private$state_index <- nrow(private$state)
+    if (make_current) self$state_index <- nrow(self$state)
     
 }, overwrite = TRUE)
 
@@ -423,7 +438,7 @@ R6Flow$set("private", "get_out_hash", function(in_hash) {
     } else {
         # we have an index, does its put_hash exist in eddy?
         if (private$check_state(index)) {
-            private$state$out_hash[index]
+            self$state$out_hash[index]
         } else {
             NA_character_
         }
@@ -438,17 +453,17 @@ R6Flow$set("private", "add_output_state", function(out_hash,
                                                    elem_hash) {
     
     found_state_idx <- which(
-        private$output_state$out_hash == out_hash && 
-        private$output_state$elem_name == elem_name
+        self$output_state$out_hash == out_hash && 
+        self$output_state$elem_name == elem_name
     )
     len <- length(found_state_idx)
     stopifnot(len <= 1L)
-    output_state <- private$output_state
+    output_state <- self$output_state
     if (len == 1L) {
         output_state <- output_state[-found_state_idx, , drop = FALSE]
     } 
     
-    private$output_state <- 
+    self$output_state <- 
         output_state %>%
         tibble::add_row(
             out_hash = out_hash,
@@ -462,6 +477,5 @@ R6Flow$set("private", "add_output_state", function(out_hash,
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
     
-    !is.na(private$state_index)
+    !is.na(self$state_index)
 }, overwrite = TRUE)
-
