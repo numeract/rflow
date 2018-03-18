@@ -62,40 +62,43 @@ R6Flow$set("public", "rf_fn", function(...) {
     # when called, the formals already match the original fn
     mc <- match.call()
     
-    # R6Flow arguments are treated specially, identify them first
+    # follow memoise logic to separate supplied and default arguments
+    # we are still at symbolic stage, have not evaluated them yet
+    # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
+    #     #Argument-evaluation
+    # supplied arguments
+    supplied_args <- as.list(mc)[-1]
+    # default arguments that have not been supplied
+    default_args <- 
+        as.list(formals()) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>%
+        discard_at(names(supplied_args))
+    # supplied args eval in the evaluation frame of the calling function
+    # default args eval in the evaluation frame of the original function
+    eval_args <- c(
+        lapply(supplied_args, eval, envir = parent.frame()),
+        lapply(default_args, eval, envir = environment(self$fn))
+    )
+    
+    # R6FlowElement/R6Flow args are treated different
     # for consistency, transform R6Flow into a R6FlowElement
     rflow_args <- 
-        as.list(formals()) %>%
+        eval_args %>%
         purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
         purrr::map_if(
             .p = ~ inherits(., "R6Flow"), 
             .f = ~ .$element(what = NULL)
         )
-    rflow_args_names <- names(rflow_args)
     
     if (is.null(self$hash_input_fn)) {
-        # follow memoise logic to separate supplied and default arguments
-        # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
-        #     #Argument-evaluation
-        # supplied arguments
-        supplied_args <- 
-            as.list(mc)[-1] %>%
-            discard_at(rflow_args_names)
-        # default arguments that have not been supplied
-        default_args <- 
-            as.list(formals()) %>%
-            purrr::discard(~ identical(., quote(expr = ))) %>%
-            discard_at(rflow_args_names) %>%
-            discard_at(names(supplied_args))
-        
         # R6FlowElement args are eval for hashing by getting their hash (faster)
         # and for data by getting their data
         rflow_hash <- NULL
         if (length(rflow_args) > 0L && !self$eddy$is_reactive) {
             # non-reactive case, all rflow args must to be valid
-            valid_rflow_args <- purrr::map_lgl(rflow_args, "is_valid")
-            if (any(!valid_rflow_args)) {
-                invalid_names <- names(rflow_args)[!valid_rflow_args]
+            invalid_rflow_args <- !purrr::map_lgl(rflow_args, "is_valid")
+            if (any(invalid_rflow_args)) {
+                invalid_names <- names(rflow_args)[invalid_rflow_args]
                 invalid_names <- paste(invalid_names, collapse = ", ")
                 stop("Invalid input rflow args: ", invalid_names)
             }
@@ -105,13 +108,9 @@ R6Flow$set("public", "rf_fn", function(...) {
             stop("reactive eddies not yet implemented")
         } 
         
-        # non-rflow / static args use the data for hashing
-        # supplied args eval in the evaluation frame of the calling function
-        # default args eval in the evaluation frame of the original function
-        static_data <- c(
-            lapply(supplied_args, eval, envir = parent.frame()),
-            lapply(default_args, eval, envir = environment(self$fn))
-        )
+        # non-rflow / static args use their data for hashing
+        static_data <- eval_args %>%
+            discard_at(names(rflow_args))
         
         in_hash <- self$eddy$digest(c(rflow_hash, static_data))
     } else {

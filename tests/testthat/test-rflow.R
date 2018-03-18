@@ -48,3 +48,28 @@ test_that("rflow works", {
     expect_equal(nrow(rflow$state), 3L)
     expect_equal(nrow(rflow$output_state), 0L)
 })
+
+
+test_that("rflow chaining works", {
+    
+    x0 <- 10
+    x1 <- 0.5
+    x2 <- 2
+    
+    f <- function(a, b, c = 1) {a * b + c}
+    rf <- make_rflow(f)
+    rflow <- environment(rf)$self
+    
+    f1 <- f(x0, x1)
+    r1 <- rf(x0, x1)
+    expect_equal(f1, 6)
+    expect_equal(collect(r1), 6)
+    
+    f2 <- f(f1, x2)
+    r2 <- rf(r1, x2)
+    expect_equal(f2, 13)
+    expect_equal(collect(r2), 13)
+    
+    expect_equal(rflow$state_index, 2L)
+    expect_equal(nrow(rflow$state), 2L)
+})
