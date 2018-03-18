@@ -7,7 +7,7 @@
 R6Flow <- R6::R6Class(
     classname = 'R6Flow',
     public = list(
-        # original fb (declare as obj to avoid locking of R6 methods)
+        # original fn (declare as obj to avoid locking of R6 methods)
         fn = NULL,
         # hash of fn's defined arguments and body
         fn_key = character(),
@@ -62,7 +62,7 @@ R6Flow$set("public", "rf_fn", function(...) {
     mc <- match.call()
     
     # R6Flow arguments are treated specially, identify them first
-    # for consitency, transform R6Flow into a R6FlowElement
+    # for consistency, transform R6Flow into a R6FlowElement
     rflow_args <- 
         as.list(formals()) %>%
         purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
@@ -208,7 +208,7 @@ R6Flow$set("public", "initialize", function(fn,
     unlockBinding('rf_fn', self)
     # rf_fn and fn have the same arguments
     formals(self$rf_fn) <- formals(args(fn))
-    # the enclosing env of rn_fn is not changed to preserve access to self$
+    # the enclosing envir of rn_fn is not changed to preserve access to self$
     # all args of this initialize function are transfered to new R6 obj
     lockBinding('rf_fn', self)
     

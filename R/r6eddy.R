@@ -121,7 +121,7 @@ R6Eddy$set("public", "delete_rflow", function(
     
     if (!self$has_rflow(fn_key)) {
         warning("rflow not found for key: ", fn_key)
-        # delete considered succesfull
+        # delete considered successful
         TRUE
     } else {
         self$rflow_lst[[fn_key]] <- NULL
@@ -140,7 +140,7 @@ R6Eddy$set("public", "forget_rflow", function(fn_key) {
     
     if (!self$has_rflow(fn_key)) {
         warning("rflow not found for key: ", fn_key)
-        # delete considered succesfull
+        # delete considered successful
         TRUE
     } else {
         # TODO: remove data from all cache levels, but keep fn_key in rflow_lst
@@ -180,7 +180,7 @@ R6Eddy$set("public", "find_key", function(key, fn_key) {
     } else {
         if (!is.null(private$cache_path)) {
             key_on_disk <- file.exists(
-                file.path(private$cache_path, fn_key, key))
+                file.path(private$cache_path, fn_key, paste0(key, ".rds")))
             if (key_on_disk) {
                 "disk"
             } else {
@@ -211,7 +211,8 @@ R6Eddy$set("public", "get_data", function(key, fn_key) {
         get(key, envir = cache_env, inherits = FALSE)
     } else if (found == "disk") {
         # private$cache_path is not null since key was found on disk
-        value <- readRDS(file = file.path(private$cache_path, fn_key, key))
+        value <- readRDS(
+            file = file.path(private$cache_path, fn_key, paste0(key, ".rds")))
         # copy value (data) to memory too
         if (fn_key %in% names(private$cache_lst)) {
             cache_env <- private$cache_lst[[fn_key]]
@@ -251,7 +252,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
         if (!dir.exists(fn_path)) {
             dir.create(fn_path, showWarnings = FALSE)
         }
-        saveRDS(value, file = file.path(fn_path, key))
+        saveRDS(value, file = file.path(fn_path, paste0(key, ".rds")))
     }
     
     # check if data exists
@@ -275,7 +276,7 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     # disk
     if (from == "disk" && !is.null(private$cache_path)) {
-        key_path <- file.path(private$cache_path, fn_key, key)
+        key_path <- file.path(private$cache_path, fn_key, paste0(key, ".rds"))
         if (file.exists(key_path)) {
             unlink(key_path)
         }
