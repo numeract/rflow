@@ -1,4 +1,6 @@
 # rflow - Flexible R Pipelines with Caching
+[![Travis build status](https://travis-ci.org/numeract/rflow.svg?branch=master)](https://travis-ci.org/numeract/rflow)
+[![Coverage status](https://codecov.io/gh/numeract/rflow/branch/master/graph/badge.svg)](https://codecov.io/github/numeract/rflow?branch=master)
 
 **The package is currently under active development, please expect major 
 changes while the API stabilizes.**
@@ -6,17 +8,17 @@ changes while the API stabilizes.**
 
 ## Motivation
 
-A common problem when processing data part of a pipeline is avoiding 
+A common problem when processing data as part of a pipeline is avoiding 
 unnecessary calculations. For example, if a function is called over and
 over with the same arguments, it should not recalculate the result each time
-but it should provided the cached (pre-computed) result.
+but it should provide the cached (pre-computed) result.
 
 While caching of the function output resolves the first problem, a second
 issue occurs when large data sets are being processed. In this case, hashing
 of the input arguments might take too long. This issue can be solved
 by hashing the data only once (as output) and then by noticing changes 
-in the hash when in the downstream function. In other words, it is not 
-the data the flows through the pipeline (as is the case with standard function),
+in the hash in the downstream function. In other words, it is not 
+the data that flows through the pipeline (as is the case with standard function),
 but hashes of the data.
 
 A third issue is output sub-setting. When working with a pipeline there is
@@ -28,7 +30,7 @@ can be done by introducing additional intermediate functions in the pipeline.
 However, there is a loss of efficiency due to excessive rehashing as the 
 main data frame passes through many functions.
 
-The package `rflow` address these inefficiencies and makes pipelines as easy
+The package `rflow` addresses these inefficiencies and makes pipelines as easy
 to use as in tidyverse.
 
 
@@ -67,7 +69,7 @@ collect(r2)         # 13
 
 1. Create your function, e.g. `f <- function(...) {...}`
 - `rflow` works best with pure functions, i.e. functions
-that depended only on their inputs (and not on variables outside the function 
+that depend only on their inputs (and not on variables outside the function 
 frame) and do not produce any side effects (e.g. printing,  modifying variables 
 in the global environment).
 
@@ -134,7 +136,7 @@ Memoise is elegant, fast, simple to use, but it suffers from certain limitations
 that we hope to overcome in this package:
 
 - excessive [rehashing of inputs](https://github.com/r-lib/memoise/issues/31)
-- only one cache layer (although the cache frameworks is extensible)
+- only one cache layer (although its cache framework is extensible)
 - no input/output sub-setting, it uses the complete set of arguments provided
 - no reactivity (yet to be implemented in `rflow`)
 

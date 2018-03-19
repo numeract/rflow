@@ -4,6 +4,8 @@ Title: Flexible R Pipelines with Caching
 Version: 0.1.0
 Author: c(
     person("Mike", "Badescu", email = "mike.badescu@numeract.com", role = c("aut", "cre")),
+    person("Ana-Maria", "Niculescu", role = "aut"),
+    person("Teodor", "Ciuraru", role = "aut"),
     person("Numeract LLC", role = "cph")
     )
 Maintainer: Mike Badescu <mike.badescu@numeract.com>
@@ -24,5 +26,6 @@ Imports:
     purrr,
     R6,
     tibble
-Suggests:
-    testthat
+Suggests: 
+    testthat,
+    covr
