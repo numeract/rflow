@@ -50,7 +50,7 @@ test_that("rflow works", {
 })
 
 
-test_that("rflow chaining works", {
+test_that("rflow cacheing works", {
     
     x0 <- 10
     x1 <- 0.5
@@ -72,4 +72,28 @@ test_that("rflow chaining works", {
     
     expect_equal(rflow$state_index, 2L)
     expect_equal(nrow(rflow$state), 2L)
+})
+
+
+test_that("interface of wrapper matches interface of memoised function", {
+    fn <- function(j) { i <<- i + 1; i }
+    i <- 0
+    
+    expect_equal(formals(fn), formals(make_rflow(fn)))
+    expect_equal(formals(runif), formals(make_rflow(runif)))
+    expect_equal(formals(paste), formals(make_rflow(paste)))
+})
+
+
+test_that("default arguments are used for hash", {
+    f <- function(j = 1) { i <<- i + 1; i }
+    i <- 0
+    
+    expect_warning(rf <- make_rflow(f), NA)
+    expect_equal(f(), 1)
+    expect_equal(f(), 2)
+    # +1 due to f running one more time
+    expect_equal(collect(rf()), 3)
+    # +0 due to remembering previous value
+    expect_equal(collect(rf()), 3)
 })
