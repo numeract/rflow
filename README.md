@@ -1,9 +1,11 @@
 # rflow
 
+
 # Flexible R Pipelines with Caching
 
 **The package is currently under active development, please expect major 
 changes while the API stabilizes.**
+
 
 ## Motivation
 
@@ -41,7 +43,10 @@ devtools::install_github("numeract/rflow")
 ```
 
 
-## Example
+## Use
+
+
+### Simple Example
 
 ```
 x0 <- 10
@@ -59,3 +64,103 @@ collect(r1)         # 6
 r2 <- rf(r1, x2) 
 collect(r2)         # 13
 ```
+
+
+### Pipeline
+
+1. Create your function, e.g. `f <- function(...) ...`
+- `rflow` works best with pure functions, i.e. functions
+that depended only on their inputs (and not on variables outside the function 
+frame) and do not produce any side effects (e.g. printing,  modifying variables 
+in the global environment).
+
+2. `rflow` the function using `make_rflow`: `rf <- make_rflow(f))`
+
+3. When pipelining `rf` into another `rflow` function, simply supply `rf()`
+as an argument, for example: `rf(x) %>% rf2(y) %>% rf3(z)`
+
+4. At the end of the `rflow` pipeline you must use `collect()` to collect
+the actual data and not just the cache structure.
+
+
+### Shiny
+
+Shiny uses reactive values to know what changes took place and what to 
+recompute. It is thus possible to use a series of reactive elements in Shiny 
+to prevent expensive re-computations from taking place. Example:
+
+```
+rv1 <- reactive({ 
+    ... input$x ... 
+})
+
+rv2 <- reactive({ 
+    ... rv1() .... input$y ... 
+})
+
+rv3 <- reactive({ 
+    ... rv2() .... input$z ... 
+})
+```
+
+The downside is that we need one reactive element for each function in the 
+pipeline - this makes data processing dependent on UI / Shiny. Using `rflow`, 
+we can separate the UI from the data processing, maintaining the caching
+not only for the current state but for all previously computed states.
+
+```
+rv <- reactive({ 
+    rf1(input$x, ...) %>%
+    rf2(input$y, ...) %>%
+    rf3(input$z, ...) %>%
+    collect()
+})
+```
+
+While a similar workflow can be achieved with package `memoise`, it suffers from
+several disadvantages (below).
+
+
+### Output Subset 
+
+(TODO)
+
+
+## Other frameworks
+
+
+### Memoise
+
+Package [memoise](https://github.com/r-lib/memoise/graphs/contributors) 
+by Hadley Wickham, Jim Hester and others was the main source of inspiration.
+Memoise is elegant, fast, simple to use, but it suffers from certain limitations 
+that we hope to overcome in this package:
+
+- excessive [rehashing of inputs](https://github.com/r-lib/memoise/issues/31)
+- only one cache layer (although the cache frameworks is extensible)
+- no input/output sub-setting, it uses the complete set of arguments provided
+- no reactivity (yet to be implemented in `rflow`)
+
+
+### Drake
+
+Package [drake](https://github.com/ropensci/drake) by Will Landau and others 
+provides a complete framework for large data sets, including using
+files as inputs and outputs. The downside is that it requires additional 
+overhead to get started and its focus is on the pipeline as a whole. If your
+work requires many hours of computations (which increases the value of each 
+result), the overhead due to the setup has a relatively lower cost - in this
+scenario `drake` is an excellent choice.
+
+Package `rflow` is somewhere between `memoise` and `drake`:
+
+- one can start using `rflow` right away, with minimal overhead
+- allows focusing on the data processing (e.g., EDA) and not on the framework
+
+
+## On the `rflow` TODO list
+
+- reactivity 
+- multi-layer cache (with file locking)
+- files as inputs and outputs
+- parallel processing
