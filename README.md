@@ -1,4 +1,6 @@
 # rflow - Flexible R Pipelines with Caching
+[![Travis build status](https://travis-ci.org/numeract/rflow.svg?branch=master)](https://travis-ci.org/numeract/rflow)
+[![Coverage status](https://codecov.io/gh/numeract/rflow/branch/master/graph/badge.svg)](https://codecov.io/github/numeract/rflow?branch=master)
 
 **The package is currently under active development, please expect major 
 changes while the API stabilizes.**

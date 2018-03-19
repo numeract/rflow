@@ -24,5 +24,6 @@ Imports:
     purrr,
     R6,
     tibble
-Suggests:
-    testthat
+Suggests: 
+    testthat,
+    covr
