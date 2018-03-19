@@ -130,7 +130,7 @@ several disadvantages (below).
 
 ### Memoise
 
-Package [memoise](https://github.com/r-lib/memoise/graphs/contributors) 
+Package [memoise](https://github.com/r-lib/memoise) 
 by Hadley Wickham, Jim Hester and others was the main source of inspiration.
 Memoise is elegant, fast, simple to use, but it suffers from certain limitations 
 that we hope to overcome in this package:

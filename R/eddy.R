@@ -20,7 +20,7 @@ get_default_env <- function() {
 }
 
 
-#' Get the defulat eddy for the default environment.
+#' Get the default eddy for the default environment.
 #'
 #' @param cache_path A valid path of a directory to store the cache.
 #'   Use \code{NULL} (default) for no disk cache.
