@@ -7,13 +7,23 @@
 # create a separate environment to keep eddies
 .EDDY_ENV <- new.env(parent = emptyenv())
 
-
+#' Get the default environment that keeps the eddies.
+#'
+#' @return An environment object.
+#' 
+#' @seealso \code{\link{get_default_eddy}}
+#' 
 #' @export
 get_default_env <- function() {
     .EDDY_ENV
 }
 
-
+#' Get the eddy associated with the default environment.
+#'
+#' @return An R6Eddy object.
+#' 
+#' @seealso \code{\link{get_default_env}}
+#' 
 #' @export
 get_default_eddy <- function(cache_path = NULL,
                              envir = get_default_env()) {
@@ -24,3 +34,4 @@ get_default_eddy <- function(cache_path = NULL,
     
     envir$.EDDY
 }
+

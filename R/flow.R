@@ -18,7 +18,16 @@ make_fn_key <- function(fn, eddy = get_default_eddy()) {
     fn_key
 }
 
-
+#' Cache a function.
+#'
+#' @param fn Function to be cached.
+#' @param hash_input_fn Custom input hash function (e.g. a subset of RFlow output)
+#' @param split_output_fn Function to split the output into a list,
+#'  in order to hash its elements separately.
+#' @param eddy R6Eddy object were the data should be stored.
+#' 
+#' @return The cached version of the inputted function.
+#'
 #' @export
 make_rflow <- function(fn,
                        hash_input_fn = NULL,
@@ -64,7 +73,13 @@ make_rflow <- function(fn,
     rflow$rf_fn
 }
 
-
+#' Get data from an RFlow object.
+#'
+#' @param rf_fn Function cached with RFlow.
+#' @param what Element of the output data to be selected.
+#' 
+#' @return Data associated with the output of the function.
+#'
 #' @export
 collect <- function(rf_fn, what = NULL) {
     
