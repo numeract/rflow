@@ -1,7 +1,7 @@
 # R6Flow class and methods
 
 
-# !diagnostics suppress=self, private
+# !diagnostics suppress=self, public
 
 
 # R6Flow ----
@@ -37,9 +37,8 @@ R6Flow <- R6::R6Class(
         state = NULL,
         state_index = NA_integer_,
         # data frame to store elements of fn output
-        output_state = NULL
-    ),
-    private = list(
+        output_state = NULL,
+        
         # data frame to store hashes and current state
         find_state_index = function(in_hash) {},
         get_state = function(index = NULL) {},
@@ -121,7 +120,7 @@ R6Flow$set("public", "rf_fn", function(...) {
     }
     
     # check self if there is an out_hash associated with in_hash and fn_key
-    out_hash <- private$get_out_hash(in_hash)
+    out_hash <- self$get_out_hash(in_hash)
     if (!is.na(out_hash)) {
         out_data <- self$eddy$get_data(out_hash, self$fn_key)
     } else {
@@ -140,7 +139,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
-        private$add_state(in_hash, out_hash)
+        self$add_state(in_hash, out_hash)
         # store out_data in cache
         self$eddy$add_data(out_hash, out_data, self$fn_key)
         
@@ -160,7 +159,7 @@ R6Flow$set("public", "rf_fn", function(...) {
                     visible = vis_out_lst$visible
                 )
                 elem_hash <- self$eddy$digest(elem_data)
-                private$add_output_state(out_hash, elem_name, elem_hash)
+                self$add_output_state(out_hash, elem_name, elem_hash)
                 self$eddy$add_data(elem_hash, elem_data, self$fn_key)
             }
         }
@@ -257,7 +256,7 @@ R6Flow$set("public", "save", function() {
 # element ----
 R6Flow$set("public", "element", function(what = NULL) {
     
-    state <- private$get_state()
+    state <- self$get_state()
     if (nrow(state) == 0L) {
         is_valid <- FALSE
         elem_hash <- NULL
@@ -287,7 +286,7 @@ R6Flow$set("public", "element", function(what = NULL) {
 # collect ----
 R6Flow$set("public", "collect", function(what = NULL) {
     
-    state <- private$get_state()
+    state <- self$get_state()
     if (nrow(state) == 0L) {
         vis_out_lst <- list(
             value = NULL,
@@ -318,7 +317,7 @@ R6Flow$set("public", "collect", function(what = NULL) {
 # collect_hash ----
 R6Flow$set("public", "collect_hash", function(what = NULL) {
     
-    state <- private$get_state()
+    state <- self$get_state()
     if (nrow(state) == 0L) {
         NA_character_
     } else if (is.null(what)) {
@@ -336,7 +335,7 @@ R6Flow$set("public", "collect_hash", function(what = NULL) {
 
 
 # find_state_index ----
-R6Flow$set("private", "find_state_index", function(in_hash) {
+R6Flow$set("public", "find_state_index", function(in_hash) {
     
     # since we just looking for the index, we do not check if the 
     # eddy contains the cache
@@ -352,7 +351,7 @@ R6Flow$set("private", "find_state_index", function(in_hash) {
 
 
 # get_state ----
-R6Flow$set("private", "get_state", function(index = NULL) {
+R6Flow$set("public", "get_state", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
     
@@ -367,9 +366,9 @@ R6Flow$set("private", "get_state", function(index = NULL) {
 
 
 # check_state ----
-R6Flow$set("private", "check_state", function(index = NULL) {
+R6Flow$set("public", "check_state", function(index = NULL) {
     
-    state <- private$get_state(index)
+    state <- self$get_state(index)
     changed <- if (nrow(state) == 0L) {
         if (is.null(index)) {
             # zero rows for current state (index = NULL) --> is_invalid <- FALSE
@@ -412,7 +411,7 @@ R6Flow$set("private", "check_state", function(index = NULL) {
 
 
 # add_state ----
-R6Flow$set("private", "add_state", function(in_hash, 
+R6Flow$set("public", "add_state", function(in_hash, 
                                             out_hash, 
                                             make_current = TRUE) {
     
@@ -430,14 +429,14 @@ R6Flow$set("private", "add_state", function(in_hash,
 
 
 # get_out_hash ----
-R6Flow$set("private", "get_out_hash", function(in_hash) {
+R6Flow$set("public", "get_out_hash", function(in_hash) {
     
-    index <- private$find_state_index(in_hash)
+    index <- self$find_state_index(in_hash)
     if (index == 0L) {
         NA_character_
     } else {
         # we have an index, does its put_hash exist in eddy?
-        if (private$check_state(index)) {
+        if (self$check_state(index)) {
             self$state$out_hash[index]
         } else {
             NA_character_
@@ -448,7 +447,7 @@ R6Flow$set("private", "get_out_hash", function(in_hash) {
 
 
 # add_output_state ----
-R6Flow$set("private", "add_output_state", function(out_hash, 
+R6Flow$set("public", "add_output_state", function(out_hash, 
                                                    elem_name, 
                                                    elem_hash) {
     
