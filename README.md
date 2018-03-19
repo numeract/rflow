@@ -1,7 +1,4 @@
-# rflow
-
-
-# Flexible R Pipelines with Caching
+# rflow - Flexible R Pipelines with Caching
 
 **The package is currently under active development, please expect major 
 changes while the API stabilizes.**
@@ -66,28 +63,28 @@ collect(r2)         # 13
 ```
 
 
-### Pipeline
+### Pipelines
 
-1. Create your function, e.g. `f <- function(...) ...`
+1. Create your function, e.g. `f <- function(...) {...}`
 - `rflow` works best with pure functions, i.e. functions
 that depended only on their inputs (and not on variables outside the function 
 frame) and do not produce any side effects (e.g. printing,  modifying variables 
 in the global environment).
 
-2. `rflow` the function using `make_rflow`: `rf <- make_rflow(f))`
+2. `rflow` the function: `rf <- make_rflow(f))`
 
 3. When pipelining `rf` into another `rflow` function, simply supply `rf()`
 as an argument, for example: `rf(x) %>% rf2(y) %>% rf3(z)`
 
 4. At the end of the `rflow` pipeline you must use `collect()` to collect
-the actual data and not just the cache structure.
+the actual data (and not just the cache structure).
 
 
 ### Shiny
 
-Shiny uses reactive values to know what changes took place and what to 
-recompute. It is thus possible to use a series of reactive elements in Shiny 
-to prevent expensive re-computations from taking place. Example:
+Shiny from RStudio uses reactive values to know what changes took place and 
+what to recompute. It is thus possible to use a series of reactive elements 
+in Shiny to prevent expensive re-computations from taking place. Example:
 
 ```
 rv1 <- reactive({ 
@@ -123,7 +120,7 @@ several disadvantages (below).
 
 ### Output Subset 
 
-(TODO)
+(to be updated)
 
 
 ## Other frameworks
@@ -158,7 +155,7 @@ Package `rflow` is somewhere between `memoise` and `drake`:
 - allows focusing on the data processing (e.g., EDA) and not on the framework
 
 
-## On the `rflow` TODO list
+## TODO list
 
 - reactivity 
 - multi-layer cache (with file locking)
