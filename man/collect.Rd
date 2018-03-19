@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow.R
 \name{collect}
 \alias{collect}
-\title{Get data from an RFlow object.}
+\title{Get the data from an RFlow object.}
 \usage{
 collect(rf_fn, what = NULL)
 }
@@ -15,5 +15,5 @@ collect(rf_fn, what = NULL)
 Data associated with the output of the function.
 }
 \description{
-Get data from an RFlow object.
+Get the data from an RFlow object.
 }

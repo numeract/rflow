@@ -7,9 +7,10 @@
 # create a separate environment to keep eddies
 .EDDY_ENV <- new.env(parent = emptyenv())
 
+
 #' Get the default environment that keeps the eddies.
 #'
-#' @return An environment object.
+#' @return An environment.
 #' 
 #' @seealso \code{\link{get_default_eddy}}
 #' 
@@ -18,9 +19,14 @@ get_default_env <- function() {
     .EDDY_ENV
 }
 
-#' Get the eddy associated with the default environment.
+
+#' Get the defulat eddy for the default environment.
 #'
-#' @return An R6Eddy object.
+#' @param cache_path A valid path of a directory to store the cache.
+#'   Use \code{NULL} (default) for no disk cache.
+#' @param envir An environment where to find the default eddy.
+#' 
+#' @return An R6Eddy object to be used when creating an rflow.
 #' 
 #' @seealso \code{\link{get_default_env}}
 #' 
@@ -34,4 +40,3 @@ get_default_eddy <- function(cache_path = NULL,
     
     envir$.EDDY
 }
-

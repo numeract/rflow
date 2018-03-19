@@ -7,7 +7,7 @@
 get_default_env()
 }
 \value{
-An environment object.
+An environment.
 }
 \description{
 Get the default environment that keeps the eddies.
