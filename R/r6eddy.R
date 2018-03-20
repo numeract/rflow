@@ -266,17 +266,17 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     if (from == "all") 
         from <- c("memory", "disk")
-    browser()
-    # memory
-    if (from == "memory" && fn_key %in% names(self$cache_lst)) {
+
+        # memory
+    if ("memory" %in% from && fn_key %in% names(self$cache_lst)) {
         cache_env <- self$cache_lst[[fn_key]]
         if (base::exists(key, where = cache_env, inherits = FALSE)) {
-            rm(key, envir = cache_env, inherits = FALSE)
+            rm(list = key, envir = cache_env, inherits = FALSE)
         }
     }
     
     # disk
-    if (from == "disk" && !is.null(self$cache_path)) {
+    if ("disk" %in% from && !is.null(self$cache_path)) {
         key_path <- file.path(self$cache_path, fn_key, paste0(key, ".rds"))
         if (file.exists(key_path)) {
             unlink(key_path)

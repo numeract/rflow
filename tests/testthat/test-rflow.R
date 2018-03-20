@@ -38,6 +38,7 @@ test_that("make_rflow works with function with one argument", {
 
 
 test_that("make_rflow works with function with one default argument", {
+    
     f <- function(j = 1) { i <<- i + 1; i }
     i <- 0
     
@@ -52,6 +53,7 @@ test_that("make_rflow works with function with one default argument", {
 
 
 test_that("make_rflow works with function with one default function argument", {
+    
     expect_false(exists("g"))
     g <- function() 1
     f <- function(j = g()) { i <<- i + 1; i }
@@ -68,6 +70,7 @@ test_that("make_rflow works with function with one default function argument", {
 
 
 test_that("make_rflow works with anonymous function", {
+    
     expect_warning(rf <- make_rflow(function(a = 1) a), NA)
     expect_equal(names(formals(rf))[[1]], "a")
 
@@ -78,6 +81,7 @@ test_that("make_rflow works with anonymous function", {
 
 
 test_that("make_rflow works with primitive function", {
+    
     expect_warning(rf <- make_rflow(`+`), NA)
     expect_equal(names(formals(rf)), names(formals(args(`+`))))
 
@@ -88,6 +92,7 @@ test_that("make_rflow works with primitive function", {
 
 
 test_that("make_rflow works with missing arguments", {
+    
     f <- function(x, y) {
         i <<- i + 1
         if (missing(y)) {
@@ -107,6 +112,7 @@ test_that("make_rflow works with missing arguments", {
 
 
 test_that("make_rflow evaluates arguments in proper environment", {
+    
     e <- new.env(parent = baseenv())
     e$a <- 5
     f <- function(x, y = a) { x + y }
@@ -119,6 +125,7 @@ test_that("make_rflow evaluates arguments in proper environment", {
 
 
 test_that("make_rflow function's arguments are evaluated before hashing", {
+    
     i <- 1
     
     rf <- make_rflow(function(x, y, z = 3) { x + y + z })
@@ -192,6 +199,7 @@ test_that("rflow caching works", {
 
 
 test_that("interface of wrapper matches interface of memoised function", {
+    
     fn <- function(j) { i <<- i + 1; i }
     i <- 0
     

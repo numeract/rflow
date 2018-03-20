@@ -1,6 +1,7 @@
 context("key functions")
 
 test_that("initialize works when cache_path not valid", {
+    
     cache_path <- 'folder'
     eddy <- R6Eddy$new(is_reactive = FALSE, 
                        cache_path = cache_path, 
@@ -11,6 +12,7 @@ test_that("initialize works when cache_path not valid", {
 
 
 test_that("find_rflow works with memory", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     eddy <- get_default_eddy()
@@ -20,6 +22,7 @@ test_that("find_rflow works with memory", {
 
 
 test_that("add_data works", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
@@ -34,22 +37,24 @@ test_that("add_data works", {
 })
 
 
-# test_that("delete_data works", {
-#     rf <- make_rflow(sum)
-#     rflow <- environment(rf)$self
-# 
-#     rflow$eddy$cache_path <- 'folder'
-#     
-#     rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
-#     rflow$eddy$delete_data("sum_result", rflow$fn_key)
-# 
-#     expect_equal(rflow$eddy$find_key("sum_result", rflow$fn_key), "missing")
-# 
-#     rflow$eddy$cache_path <- NULL
-# })
+test_that("delete_data works", {
+    
+    rf <- make_rflow(sum)
+    rflow <- environment(rf)$self
+
+    rflow$eddy$cache_path <- 'folder'
+
+    rflow$eddy$add_data("sum_result", 3, rflow$fn_key)
+    rflow$eddy$delete_data("sum_result", rflow$fn_key)
+
+    expect_equal(rflow$eddy$find_key("sum_result", rflow$fn_key), "missing")
+
+    rflow$eddy$cache_path <- NULL
+})
 
 
 test_that("get_data works", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
@@ -89,21 +94,27 @@ test_that("get_data works", {
 
 context("rflow functions")
 
+
 test_that("add_rflow stops if already exist", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
     expect_error(rflow$eddy$add_rflow(rflow$fn_key))
 })
 
+
 test_that("get_flow throws warning if not found", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
     expect_warning(rflow$eddy$get_rflow("111111"))
 })
 
+
 test_that("find_rflow doesn't find", {
+    
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
@@ -120,4 +131,3 @@ test_that("find_rflow doesn't find", {
 
     rflow$eddy$cache_path <- NULL
 })
-
