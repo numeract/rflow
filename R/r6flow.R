@@ -119,10 +119,13 @@ R6Flow$set("public", "rf_fn", function(...) {
         in_hash <- self$eddy$digest(res)
     }
     
-    # check self if there is an out_hash associated with in_hash and fn_key
-    out_hash <- self$get_out_hash(in_hash)
-    if (!is.na(out_hash)) {
-        out_data <- self$eddy$get_data(out_hash, self$fn_key)
+    # check if there is a state associated with in_hash
+    found_state_idx <- self$find_state_index(in_hash)
+    if (found_state_idx > 0L) {
+        # no need to get the data, but need to update the state index
+        self$state_index <- found_state_idx
+        # TODO: here just the index is changed, not a good idea to save all
+        self$save()
     } else {
         # not in cache, eval the function
         # replace the first arg to reconstruct the original fn match.call
@@ -139,6 +142,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
+        # adding a new state makes the new state current
         self$add_state(in_hash, out_hash)
         # store out_data in cache
         self$eddy$add_data(out_hash, out_data, self$fn_key)
