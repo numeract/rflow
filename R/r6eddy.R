@@ -237,7 +237,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
     
     # we always overwrite data in cache (but there should not be the case)
     # for now, put it in memory and on disk
-    
+
     # memory
     if (fn_key %in% names(self$cache_lst)) {
         cache_env <- self$cache_lst[[fn_key]]
@@ -266,7 +266,7 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     if (from == "all") 
         from <- c("memory", "disk")
-    
+    browser()
     # memory
     if (from == "memory" && fn_key %in% names(self$cache_lst)) {
         cache_env <- self$cache_lst[[fn_key]]
@@ -286,3 +286,4 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     # check if data exists
     !self$has_data(key, fn_key)
 }, overwrite = TRUE)
+

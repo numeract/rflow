@@ -67,29 +67,6 @@ test_that("make_rflow works with function with one default function argument", {
 })
 
 
-# test_that("symbol collision", {
-#     f <- function(j = 1) { i <<- i + 1; i }
-#     i <- 0
-#     rf <- make_rflow(f)
-#     
-#     expect_equal(f(), 1)
-#     expect_equal(f(), 2)
-#     expect_equal(collect(rf()), 3)
-#     expect_equal(collect(rf()), 3)
-#     expect_equal(f(), 4)
-#     expect_equal(collect(rf()), 3)
-#     
-#     expect_true(rf$eddy$forget_rflow(rf$fn_key))
-#     expect_equal(collect(rf()), 5)
-# })
-
-# test_that("is.memoised", {
-#     i <- 0
-#     expect_false(is.memoised(i))
-#     expect_false(is.memoised(is.memoised))
-#     expect_true(is.memoised(memoise(identical)))
-# })
-
 test_that("make_rflow works with anonymous function", {
     expect_warning(rf <- make_rflow(function(a = 1) a), NA)
     expect_equal(names(formals(rf))[[1]], "a")
@@ -99,6 +76,7 @@ test_that("make_rflow works with anonymous function", {
     expect_equal(collect(rf(1)), 1)
 })
 
+
 test_that("make_rflow works with primitive function", {
     expect_warning(rf <- make_rflow(`+`), NA)
     expect_equal(names(formals(rf)), names(formals(args(`+`))))
@@ -107,6 +85,7 @@ test_that("make_rflow works with primitive function", {
     expect_equal(collect(rf(2, 3)), 2 + 3)
     expect_equal(collect(rf(1, 2)), 1 + 2)
 })
+
 
 test_that("make_rflow works with missing arguments", {
     f <- function(x, y) {
@@ -125,27 +104,6 @@ test_that("make_rflow works with missing arguments", {
     rf(1)
     expect_equal(i, 4) # i doesn't increment, which is ok
 })
-
-# test_that("printing a memoised function prints the original definition", {
-#     
-#     browser()
-#     f <- function(j) { i <<- i + 1; i }
-#     
-#     rf <- make_rflow(f)
-#     
-#     f_output <- capture.output(f)
-#     rf_output <- capture.output(rf)
-#     
-#     expect_equal(rf_output[1], "Memoised Function:")
-#     
-#     expect_equal(rf_output[-1], fn_output)
-# })
-
-# test_that("make_rflow work with already cached function", {
-#     browser()
-#     rf_sum <- make_rflow(sum)
-#     expect_error(make_rflow(rf_sum), "`rf_sum` must not be memoised.")
-# })
 
 
 test_that("make_rflow evaluates arguments in proper environment", {
@@ -172,6 +130,7 @@ test_that("make_rflow function's arguments are evaluated before hashing", {
     
     expect_equal(collect(rf2(2, 2)), 7)
 })
+
 
 test_that("rflow works", {
     
@@ -206,20 +165,6 @@ test_that("rflow works", {
 
 
 context("Caching")
-# test_that("has_data works", {
-#     
-#     rf <- make_rflow(sum)
-#     rflow <- environment(rf)$self
-#     
-#     browser()
-#     
-#     eddy <- rflow$eddy
-#     
-#     eddy$has_data(rflow$fn_key)
-#     
-#     expect_equal(f(1), 17)
-#     
-# })
 
 test_that("rflow caching works", {
     
