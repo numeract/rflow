@@ -1,8 +1,10 @@
 context("key functions")
 
+# default cache folder used for tests
+cache_path <- 'cache_folder'
+
 test_that("initialize works when cache_path not valid", {
-    
-    cache_path <- 'folder'
+
     eddy <- R6Eddy$new(is_reactive = FALSE, 
                        cache_path = cache_path, 
                        algo = "xxhash64")
@@ -26,7 +28,7 @@ test_that("add_data works", {
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
-    rflow$eddy$cache_path <- 'folder'
+    rflow$eddy$cache_path <- cache_path
     rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
     
     expect_true(rflow$fn_key %in% names(rflow$eddy$cache_lst))
@@ -42,7 +44,7 @@ test_that("delete_data works", {
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
 
-    rflow$eddy$cache_path <- 'folder'
+    rflow$eddy$cache_path <- cache_path
 
     rflow$eddy$add_data("sum_result", 3, rflow$fn_key)
     rflow$eddy$delete_data("sum_result", rflow$fn_key)
@@ -58,7 +60,7 @@ test_that("get_data works", {
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
-    rflow$eddy$cache_path <- 'folder'
+    rflow$eddy$cache_path <- cache_path
     
     rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
     
@@ -118,7 +120,7 @@ test_that("find_rflow doesn't find", {
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
     
-    rflow$eddy$cache_path <- 'folder'
+    rflow$eddy$cache_path <- cache_path
 
     # Simulate deletion from memory (delete_rflow is not ready yet)
     rflow$eddy$rflow_lst[[rflow$fn_key]] <- NULL
@@ -131,3 +133,6 @@ test_that("find_rflow doesn't find", {
 
     rflow$eddy$cache_path <- NULL
 })
+
+# clean up test cache folder created
+unlink(cache_path, recursive = TRUE)
