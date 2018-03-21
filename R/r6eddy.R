@@ -48,7 +48,7 @@ R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
     
     if (!is.null(cache_path)) {
         if (!dir.exists(cache_path)) {
-            dir.create(cache_path, showWarnings = FALSE)
+            dir.create(cache_path, showWarnings = FALSE)  # nocov
         }
         self$cache_path <- normalizePath(
             cache_path, winslash = '/', mustWork = TRUE)
@@ -251,7 +251,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
     if (!is.null(self$cache_path)) {
         fn_path <- file.path(self$cache_path, fn_key)
         if (!dir.exists(fn_path)) {
-            dir.create(fn_path, showWarnings = FALSE)
+            dir.create(fn_path, showWarnings = FALSE) # nocov
         }
         saveRDS(value, file = file.path(fn_path, paste0(key, ".rds")))
     }

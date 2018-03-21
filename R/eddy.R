@@ -16,7 +16,7 @@
 #' 
 #' @export
 get_default_env <- function() {
-    .EDDY_ENV
+    .EDDY_ENV # nocov
 }
 
 
@@ -38,5 +38,5 @@ get_default_eddy <- function(cache_path = NULL,
         assign('.EDDY', R6Eddy$new(cache_path = cache_path), envir = envir)
     }
     
-    envir$.EDDY
+    envir$.EDDY  
 }
