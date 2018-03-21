@@ -76,7 +76,7 @@ make_rflow <- function(fn,
 }
 
 
-#' Get the data from an RFlow object.
+#' Get the data from an R6Flow object.
 #'
 #' @param rf_fn Function cached with RFlow.
 #' @param what Element of the output data to be selected.
