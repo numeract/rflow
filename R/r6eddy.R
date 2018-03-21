@@ -18,7 +18,7 @@ R6Eddy <- R6::R6Class(
         has_rflow = function(fn_key) {},
         get_rflow = function(fn_key) {},
         add_rflow = function(fn_key, rflow) {},
-        delete_rflow = function(fn_key, remove_from) {},
+        delete_rflow = function(fn_key, from) {},
         forget_rflow = function(fn_key) {},
         # cache
         digest = function(object, ...) {},
@@ -30,9 +30,11 @@ R6Eddy <- R6::R6Class(
         
         cache_path = NULL,
         cache_lst = list(),
-        algo = NULL
+        algo = NULL,
         
-        # TODO: cache_reset() ?
+        # TODO: delete data from all layers, rm dir, clean rflow_lst & cache_lst
+        reset = function() {}
+        
         # TODO: flush/copy to cache level ?
     )
 )
@@ -48,7 +50,7 @@ R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
     
     if (!is.null(cache_path)) {
         if (!dir.exists(cache_path)) {
-            dir.create(cache_path, showWarnings = FALSE)  # nocov
+            dir.create(cache_path, showWarnings = FALSE)
         }
         self$cache_path <- normalizePath(
             cache_path, winslash = '/', mustWork = TRUE)
@@ -128,7 +130,7 @@ R6Eddy$set("public", "delete_rflow", function(
         self$rflow_lst[[fn_key]] <- NULL
         # TODO: remove from specified cache level and all lower levels
         # example: if remove from L2 = disk, also remove from memory
-        # valid values for remove_from: TBD
+        # valid values for from: TBD
         # TODO: reactive: update adjacency matrix
         
         TRUE

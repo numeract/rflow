@@ -1,7 +1,10 @@
 context("R6Eddy functions")
 
-# default cache folder used for tests
-cache_path <- 'cache_folder'
+# default cache folder used for tests, listed in .gitignore
+# R CMD does not like it, build fails with warning if folder present
+# tests should delete this folder if already present, to achieve corverage 
+# test must delete this folder by deleting the eddy
+cache_path <- 'cache'
 key <- "sum_result"
 test_that("initialize works when cache_path not valid", {
 
