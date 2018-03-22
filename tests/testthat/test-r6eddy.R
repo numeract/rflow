@@ -1,8 +1,13 @@
-context("key functions")
+context("R6Eddy functions")
 
+# default cache folder used for tests, listed in .gitignore
+# R CMD does not like it, build fails with warning if folder present
+# tests should delete this folder if already present, to achieve corverage 
+# test must delete this folder by deleting the eddy
+cache_path <- 'cache'
+key <- "sum_result"
 test_that("initialize works when cache_path not valid", {
-    
-    cache_path <- 'folder'
+
     eddy <- R6Eddy$new(is_reactive = FALSE, 
                        cache_path = cache_path, 
                        algo = "xxhash64")
@@ -24,16 +29,12 @@ test_that("find_rflow works with memory", {
 test_that("add_data works", {
     
     rf <- make_rflow(sum)
-    rflow <- environment(rf)$self
+    rflow <- environment(rf)$self 
+    eddy <- rflow$eddy
     
-    rflow$eddy$cache_path <- 'folder'
-    rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
+    eddy$add_data(key, rflow, rflow$fn_key)
     
-    expect_true(rflow$fn_key %in% names(rflow$eddy$cache_lst))
-    expect_error(readRDS(file = file.path(rflow$eddy$cache_path,
-                        rflow$fn_key, paste0("sum_result", ".rds"))), NA)
-    
-    rflow$eddy$cache_path <- NULL
+    expect_true(rflow$fn_key %in% names(eddy$cache_lst))
 })
 
 
@@ -41,15 +42,12 @@ test_that("delete_data works", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
-
-    rflow$eddy$cache_path <- 'folder'
-
-    rflow$eddy$add_data("sum_result", 3, rflow$fn_key)
-    rflow$eddy$delete_data("sum_result", rflow$fn_key)
-
-    expect_equal(rflow$eddy$find_key("sum_result", rflow$fn_key), "missing")
-
-    rflow$eddy$cache_path <- NULL
+    eddy <- rflow$eddy
+    
+    eddy$add_data(key, 3, rflow$fn_key)
+    eddy$delete_data(key, rflow$fn_key)
+    
+    expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
 })
 
 
@@ -57,38 +55,12 @@ test_that("get_data works", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
+    eddy <- rflow$eddy
     
-    rflow$eddy$cache_path <- 'folder'
+    eddy$add_data(key, rflow, rflow$fn_key)
+    data <- eddy$get_data(key, rflow$fn_key)
     
-    rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
-    
-    data <- rflow$eddy$get_data("sum_result", rflow$fn_key)
     expect_equal(data, rflow)
-    
-    # delete data from memory
-    cache_env <- rflow$eddy$cache_lst[[rflow$fn_key]]
-    rm("sum_result", envir = cache_env, inherits = TRUE)
-
-    # check from disk
-    data <- rflow$eddy$get_data("sum_result", rflow$fn_key)
-    path <- file.path(rflow$eddy$cache_path, rflow$fn_key, "sum_result.rds")
-    expect_equal(data, readRDS(file = path))
-    
-    # delete from disk and memory
-    cache_env <- rflow$eddy$cache_lst[[rflow$fn_key]]
-    rm("sum_result", envir = cache_env, inherits = TRUE)
-    unlink(path)
-    
-    expect_error(rflow$eddy$get_data("sum_result", rflow$fn_key))
-
-    rflow$eddy$add_data("sum_result", rflow, rflow$fn_key)
-    
-    rflow$eddy$cache_lst <- NULL
-    
-    data <- rflow$eddy$get_data("sum_result", rflow$fn_key)
-    expect_equal(data, rflow)
-    
-    rflow$eddy$cache_path <- NULL
 })
 
 
@@ -99,8 +71,9 @@ test_that("add_rflow stops if already exist", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
+    eddy <- rflow$eddy
     
-    expect_error(rflow$eddy$add_rflow(rflow$fn_key))
+    expect_error(eddy$add_rflow(rflow$fn_key, rflow))
 })
 
 
@@ -108,26 +81,10 @@ test_that("get_flow throws warning if not found", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
+    eddy <- rflow$eddy
     
-    expect_warning(rflow$eddy$get_rflow("111111"))
+    expect_warning(eddy$get_rflow("111111"))
 })
 
-
-test_that("find_rflow doesn't find", {
-    
-    rf <- make_rflow(sum)
-    rflow <- environment(rf)$self
-    
-    rflow$eddy$cache_path <- 'folder'
-
-    # Simulate deletion from memory (delete_rflow is not ready yet)
-    rflow$eddy$rflow_lst[[rflow$fn_key]] <- NULL
-
-    expect_equal(rflow$eddy$find_rflow(rflow$fn_key), 'disk')
-
-    rflow$eddy$cache_path <- "wrong_path"
-
-    expect_equal(rflow$eddy$find_rflow(rflow$fn_key), 'missing')
-
-    rflow$eddy$cache_path <- NULL
-})
+# clean up test cache folder created
+unlink(cache_path, recursive = TRUE)

@@ -2,21 +2,18 @@
 % Please edit documentation in R/eddy.R
 \name{get_default_eddy}
 \alias{get_default_eddy}
-\title{Get the default eddy for the default environment.}
+\title{Get the default, in memory, eddy for a given (or default) environment.}
 \usage{
-get_default_eddy(cache_path = NULL, envir = get_default_env())
+get_default_eddy(envir = get_default_env())
 }
 \arguments{
-\item{cache_path}{A valid path of a directory to store the cache.
-Use \code{NULL} (default) for no disk cache.}
-
 \item{envir}{An environment where to find the default eddy.}
 }
 \value{
 An R6Eddy object to be used when creating an rflow.
 }
 \description{
-Get the default eddy for the default environment.
+Get the default, in memory, eddy for a given (or default) environment.
 }
 \seealso{
 \code{\link{get_default_env}}

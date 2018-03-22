@@ -4,7 +4,7 @@
 # !diagnostics suppress=.
 
 
-make_fn_key <- function(fn, eddy = get_default_eddy()) {
+make_fn_key <- function(fn, eddy) {
     
     # unique fn_key = hash of fn's defined arguments and body
     fn_formals <- formals(args(fn))
