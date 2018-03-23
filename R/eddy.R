@@ -63,7 +63,8 @@ new_eddy <- function(cache_path = NULL,
     
     eddy <- R6Eddy$new(
         # this will be updated when we have more options for eddies
-        cache_path = cache_path
+        cache_path = cache_path,
+        name = eddy_name
     )
     assign(eddy_name, eddy, envir = envir)
     
@@ -117,16 +118,21 @@ get_default_eddy <- function(envir = get_default_env()) {
 #' Delete eddy and ALL its data from ALL cache layers
 #'
 #' @export
-delete_eddy <- function(cache_path = NULL,
+delete_eddy <- function(eddy = NULL,
+                        cache_path = NULL,
                         eddy_name = NULL,
                         envir = get_default_env()) {
     
-    eddy_name <- make_eddy_name(eddy_name, cache_path)
+    if (is.null(eddy)) {
+        eddy_name <- make_eddy_name(eddy_name, cache_path)
+    } else {
+        eddy_name = eddy$name
+    }
+    
     if (!base::exists(eddy_name, where = envir, inherits = FALSE)) {
         stop("Cannot find eddy with name: ", eddy_name)
     } else {
         eddy <- envir[[eddy_name]]
-        # TODO: finish `reset` in R6Eddy
         eddy$reset()
         rm(list = eddy_name, envir = envir, inherits = FALSE)
     }

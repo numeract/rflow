@@ -31,8 +31,8 @@ R6Eddy <- R6::R6Class(
         cache_path = NULL,
         cache_lst = list(),
         algo = NULL,
+        name = NULL,
         
-        # TODO: delete data from all layers, rm dir, clean rflow_lst & cache_lst
         reset = function() {}
         
         # TODO: flush/copy to cache level ?
@@ -43,6 +43,7 @@ R6Eddy <- R6::R6Class(
 # Initialize ----
 R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
                                             cache_path = NULL,
+                                            name = NULL,
                                             algo = "xxhash64") {
     if (isTRUE(is_reactive)) 
         stop("reactive eddies not yet implemented")
@@ -57,6 +58,7 @@ R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
     }
     
     self$algo <- algo
+    self$name <- name
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -122,16 +124,33 @@ R6Eddy$set("public", "delete_rflow", function(
 ) {
     from <- match.arg(from)
     
+    if (from == "all") 
+        from <- c("memory", "disk")
+    
     if (!self$has_rflow(fn_key)) {
         warning("rflow not found for key: ", fn_key)
         # delete considered successful
         TRUE
     } else {
-        self$rflow_lst[[fn_key]] <- NULL
         # TODO: remove from specified cache level and all lower levels
         # example: if remove from L2 = disk, also remove from memory
         # valid values for from: TBD
+        
+        if ("disk" %in% from) {
+            fn_path <- file.path(self$cache_path, fn_key)
+            res <- TRUE
+            for (key in list.files(fn_path)) {
+                res <- res && self$delete_data(key, fn_key, from = "all")
+            }
+            res
+            
+            unlink(fn_path)
+        }
+        
+        self$rflow_lst[[fn_key]] <- NULL
+        
         # TODO: reactive: update adjacency matrix
+        
         
         TRUE
     }
@@ -239,7 +258,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
     
     # we always overwrite data in cache (but there should not be the case)
     # for now, put it in memory and on disk
-
+    
     # memory
     if (fn_key %in% names(self$cache_lst)) {
         cache_env <- self$cache_lst[[fn_key]]
@@ -268,8 +287,8 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     if (from == "all") 
         from <- c("memory", "disk")
-
-        # memory
+    
+    # memory
     if ("memory" %in% from && fn_key %in% names(self$cache_lst)) {
         cache_env <- self$cache_lst[[fn_key]]
         if (base::exists(key, where = cache_env, inherits = FALSE)) {
@@ -289,3 +308,21 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     !self$has_data(key, fn_key)
 }, overwrite = TRUE)
 
+# reset ----
+R6Eddy$set("public", "reset", function() {
+    
+    self$rflow_lst <- list()
+    self$cache_lst <- list()
+    
+    if (!is.null(self$cache_path)) {
+        unlink(self$cache_path, recursive = TRUE)
+        
+        Sys.sleep(1)
+        
+        if (dir.exists(self$cache_path)) {
+            stop("cache folder couldn't be deleted.")
+        }
+    }
+    
+    TRUE
+}, overwrite = TRUE)
