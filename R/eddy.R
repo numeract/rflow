@@ -13,8 +13,6 @@ DEFAULT_EDDY_NAME = "eddy_memory"
 #'
 #' @return An environment.
 #' 
-#' @seealso \code{\link{get_default_eddy}}
-#' 
 #' @export
 get_default_env <- function() {
     .EDDY_ENV
@@ -36,16 +34,17 @@ make_eddy_name <- function(eddy_name = NULL,
 }
 
 
-# TODO: review and add / complete doc
 # TODO: tests
 
-#' Create or retrieves an eddy
+#' Create or retrieves an eddy.
 #' 
 #' @param cache_path A valid path of a directory to store the cache.
 #'   Use \code{NULL} (default) for no disk cache.
 #' @param envir An environment where to find the default eddy.
 #' 
-#' @return An R6Eddy object to be used when creating an rflow.
+#' @family eddy functions
+#' 
+#' @return An R6Eddy object to be used for storing data and rflows.
 #' 
 #' @export
 new_eddy <- function(cache_path = NULL,
@@ -74,6 +73,9 @@ new_eddy <- function(cache_path = NULL,
 
 
 #' @export
+#' 
+#' @family eddy functions
+#' 
 #' @rdname new_eddy
 get_eddy <- function(cache_path = NULL,
                      eddy_name = NULL,
@@ -96,15 +98,13 @@ get_eddy <- function(cache_path = NULL,
 }
 
 
-# TODO: doc on the same help page as new_eddy and get_eddy
-
 #' Get the default, in memory, eddy for a given (or default) environment.
 #'
 #' @param envir An environment where to find the default eddy.
 #' 
-#' @return An R6Eddy object to be used when creating an rflow.
+#' @return An R6Eddy object to be used for storing data and rflows.
 #' 
-#' @seealso \code{\link{get_default_env}}
+#' @family eddy functions
 #' 
 #' @export
 get_default_eddy <- function(envir = get_default_env()) {
@@ -113,11 +113,10 @@ get_default_eddy <- function(envir = get_default_env()) {
 }
 
 
-# TODO: doc on different page
-
-
-#' Delete eddy and ALL its data from ALL cache layers
+#' Delete eddy and ALL its data from ALL cache layers.
 #'
+#' @family eddy functions
+#' 
 #' @export
 delete_eddy <- function(eddy,
                         envir = get_default_env()) {

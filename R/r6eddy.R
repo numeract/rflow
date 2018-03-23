@@ -32,7 +32,7 @@ R6Eddy <- R6::R6Class(
         cache_lst = list(),
         algo = NULL,
         name = NULL,
-        
+
         reset = function() {}
         
         # TODO: flush/copy to cache level ?
@@ -309,7 +309,7 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     !self$has_data(key, fn_key)
 }, overwrite = TRUE)
 
-# reset ----
+
 R6Eddy$set("public", "reset", function() {
     
     self$rflow_lst <- list()

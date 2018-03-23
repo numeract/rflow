@@ -5,7 +5,7 @@ key <- "sum_result"
 eddy_name <- "new_eddy"
 
 test_that("new_eddy() creates cache path folder", {
-
+    
     eddy <- new_eddy(cache_path = cache_path)
     
     expect_true(dir.exists(cache_path))
@@ -123,4 +123,25 @@ test_that("reset() works", {
     expect_false(dir.exists(fn_path))
     
     delete_eddy(eddy)
+})
+
+
+context("eddy.R (R6Eddy public wrappers)")
+
+test_that("delete_eddy() works", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name)
+    
+    expect_true(exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+    
+    delete_eddy(eddy)
+    
+    expect_false(exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+})
+
+
+test_that("new_eddy() checks for already existing eddy", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name)
+    expect_error(new_eddy(eddy_name = eddy_name))
 })
