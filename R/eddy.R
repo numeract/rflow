@@ -89,7 +89,8 @@ get_eddy <- function(cache_path = NULL,
         # new eddy object, it may reuse cache_path if already on disk
         eddy <- R6Eddy$new(
             # this will be updated when we have more options for eddies
-            cache_path = cache_path
+            cache_path = cache_path,
+            name = eddy_name
         )
         assign(eddy_name, eddy, envir = envir)
     }
@@ -118,7 +119,7 @@ get_default_eddy <- function(envir = get_default_env()) {
 #' @family eddy functions
 #' 
 #' @export
-delete_eddy <- function(eddy,
+delete_eddy <- function(eddy = get_default_eddy(),
                         envir = get_default_env()) {
     
     if (!base::exists(eddy$name, where = envir, inherits = FALSE)) {
