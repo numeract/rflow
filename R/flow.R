@@ -79,17 +79,17 @@ make_rflow <- function(fn,
 #' Get the data from an R6Flow object.
 #'
 #' @param rf_fn Function cached with RFlow.
-#' @param what Element of the output data to be selected.
+#' @param name Element of the output data to be selected.
 #' 
 #' @return Data associated with the output of the function.
 #'
 #' @export
-collect <- function(rf_fn, what = NULL) {
+collect <- function(rf_fn, name = NULL) {
     
     if (inherits(rf_fn, "R6FlowElement")) {
-        rf_fn$self$collect(what = what)
+        rf_fn$self$collect(name = name)
     } else if (inherits(rf_fn, "R6Flow")) {
-        rf_fn$collect(what = what)
+        rf_fn$collect(name = name)
     } else {
         stop("Not an rflow object or element of an rflow output")
     }

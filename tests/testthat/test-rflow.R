@@ -279,7 +279,7 @@ test_that("new() checks if self was already stored in memory or disk", {
 })
 
 
-test_that("element() checks for state", {
+test_that("getElement() checks for state", {
 
     f <- function(a, b, c = 1) { a * b + c }
 
@@ -289,12 +289,12 @@ test_that("element() checks for state", {
     rf(1, 2)
     
     # TODO: test for split output
-    # result <- rflow$element(what = "foo")
+    # result <- rflow$getElement(name = "foo")
     #
     # expect_equal(is_valid, true)
     # expect_equal(result$element_hash, rflow$output_state$elem_hash[found_state_idx])
 
-    result <- rflow$element()
+    result <- rflow$getElement()
 
     expect_equal(result$elem_hash, rflow$state$out_hash)
 
@@ -303,7 +303,7 @@ test_that("element() checks for state", {
     rflow$state = data.frame()
     rflow$state_index = NA_integer_
 
-    result <- rflow$element()
+    result <- rflow$getElement()
     expect_equal(result$is_valid, FALSE)
     
     delete_eddy()
@@ -320,7 +320,7 @@ test_that("collect() works", {
     rf(1, 2)
     
     # TODO: test for split output
-    # result <- rflow$element(what = "foo")
+    # result <- rflow$getElement(name = "foo")
     #
     # expect_equal(is_valid, true)
     # expect_equal(result$element_hash, rflow$output_state$elem_hash[found_state_idx])
