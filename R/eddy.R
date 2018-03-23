@@ -3,6 +3,7 @@
 
 # @include r6eddy.R
 
+DEFAULT_EDDY_NAME = "eddy_memory"
 
 # create a separate environment to keep eddies
 .EDDY_ENV <- new.env(parent = emptyenv())
@@ -25,7 +26,7 @@ make_eddy_name <- function(eddy_name = NULL,
     
     if (length(eddy_name) == 0L) {
         if (length(cache_path) == 0L) {
-            'eddy_memory'
+            DEFAULT_EDDY_NAME
         } else {
             cache_path
         }
@@ -52,7 +53,7 @@ new_eddy <- function(cache_path = NULL,
                      envir = get_default_env()) {
     # use the name `new_eddy`, not `add_eddy` to convey fresh/empty idea
     # new guarantees a clean eddy (for tests)
-    
+
     eddy_name <- make_eddy_name(eddy_name, cache_path)
     if (base::exists(eddy_name, where = envir, inherits = FALSE)) {
         stop("Cannot create a new eddy, name already present: ", eddy_name)
@@ -118,22 +119,14 @@ get_default_eddy <- function(envir = get_default_env()) {
 #' Delete eddy and ALL its data from ALL cache layers
 #'
 #' @export
-delete_eddy <- function(eddy = NULL,
-                        cache_path = NULL,
-                        eddy_name = NULL,
+delete_eddy <- function(eddy,
                         envir = get_default_env()) {
     
-    if (is.null(eddy)) {
-        eddy_name <- make_eddy_name(eddy_name, cache_path)
+    if (!base::exists(eddy$name, where = envir, inherits = FALSE)) {
+        stop("Cannot find eddy with name: ", eddy$name)
     } else {
-        eddy_name = eddy$name
-    }
-    
-    if (!base::exists(eddy_name, where = envir, inherits = FALSE)) {
-        stop("Cannot find eddy with name: ", eddy_name)
-    } else {
-        eddy <- envir[[eddy_name]]
+        eddy <- envir[[eddy$name]]
         eddy$reset()
-        rm(list = eddy_name, envir = envir, inherits = FALSE)
+        rm(list = eddy$name, envir = envir, inherits = FALSE)
     }
 }

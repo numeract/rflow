@@ -111,6 +111,7 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     } else {
         self$rflow_lst[[fn_key]] <- rflow
         # TODO: update adjacency matrix
+        # TODO: Add rflow to disk as well
         
         TRUE
     }

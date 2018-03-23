@@ -1,69 +1,74 @@
 context("R6Eddy functions")
 
-# default cache folder used for tests, listed in .gitignore
-# R CMD does not like it, build fails with warning if folder present
-# tests should delete this folder if already present, to achieve corverage 
-# test must delete this folder by deleting the eddy
 cache_path <- 'cache'
 key <- "sum_result"
-test_that("initialize works when cache_path not valid", {
+eddy_name <- "new_eddy"
 
-    eddy <- R6Eddy$new(is_reactive = FALSE, 
-                       cache_path = cache_path, 
-                       algo = "xxhash64")
+test_that("new_eddy() creates cache path folder", {
+
+    eddy <- new_eddy(cache_path = cache_path)
     
     expect_true(dir.exists(cache_path))
+    
+    delete_eddy(eddy)
 })
 
 
-test_that("find_rflow works with memory", {
+test_that("find_rflow() works", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
-    eddy <- get_default_eddy()
+    
+    eddy <- new_eddy(eddy_name = eddy_name)
+    
+    eddy$add_rflow(rflow$fn_key, rflow)
     
     expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+    # TODO: Test for disk as well
+    
+    delete_eddy(eddy)
 })
 
 
-test_that("add_data works", {
+test_that("add_data() works", {
     
-    rf <- make_rflow(sum)
-    rflow <- environment(rf)$self 
-    eddy <- rflow$eddy
+    eddy <- new_eddy(eddy_name = eddy_name)
     
-    eddy$add_data(key, rflow, rflow$fn_key)
+    fn_key <- make_fn_key(sum, eddy)
     
-    expect_true(rflow$fn_key %in% names(eddy$cache_lst))
+    eddy$add_data(key, "foo", fn_key)
     
-    eddy$delete_data(key, rflow$fn_key)
+    expect_true(fn_key %in% names(eddy$cache_lst))
+    
+    delete_eddy(eddy)
 })
 
 
-test_that("delete_data works", {
+test_that("delete_data() works", {
     
-    rf <- make_rflow(sum)
-    rflow <- environment(rf)$self
-    eddy <- rflow$eddy
+    eddy <- new_eddy(eddy_name = eddy_name)
     
-    eddy$add_data(key, 3, rflow$fn_key)
-    eddy$delete_data(key, rflow$fn_key)
+    fn_key <- make_fn_key(sum, eddy)
     
-    expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
+    eddy$add_data(key, "foo", fn_key)
+    eddy$delete_data(key, fn_key)
+    
+    expect_equal(eddy$find_key(key, fn_key), "missing")
+    
+    delete_eddy(eddy)
 })
 
 
 test_that("get_data() works", {
     
-    rf <- make_rflow(sum)
-    rflow <- environment(rf)$self
+    eddy <- new_eddy(eddy_name = eddy_name)
     
-    eddy <- new_eddy(eddy_name = "custom")
+    fn_key <- make_fn_key(sum, eddy)
     
-    eddy$add_data(key, 4, rflow$fn_key)
-    data <- eddy$get_data(key, rflow$fn_key)
+    eddy$add_data(key, "foo", fn_key)
+    data <- eddy$get_data(key, fn_key)
     
-    expect_equal(data, 4)
+    expect_equal(data, "foo")
     
     delete_eddy(eddy)
 })
@@ -71,27 +76,27 @@ test_that("get_data() works", {
 
 context("rflow functions")
 
-test_that("add_rflow stops if already exist", {
+test_that("add_rflow() stops if already exist", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
-    eddy <- rflow$eddy
+    eddy <- new_eddy(eddy_name = eddy_name)
     
+    expect_error(eddy$add_rflow(rflow$fn_key, rflow), NA)
     expect_error(eddy$add_rflow(rflow$fn_key, rflow))
+    
+    delete_eddy(eddy)
 })
 
 
-test_that("get_flow throws warning if not found", {
+test_that("get_rflow() throws warning if not found", {
     
-    rf <- make_rflow(sum)
-    rflow <- environment(rf)$self
-    eddy <- rflow$eddy
+    eddy <- new_eddy(eddy_name = eddy_name)
     
     expect_warning(eddy$get_rflow("111111"))
+    
+    delete_eddy(eddy)
 })
-
-# clean up test cache folder created
-unlink(cache_path, recursive = TRUE)
 
 
 test_that("reset() works", {
