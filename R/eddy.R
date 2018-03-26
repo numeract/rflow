@@ -1,12 +1,11 @@
 # wrappers around R6Eddy following standard R functionality
 
 
-# @include r6eddy.R
-
-DEFAULT_EDDY_NAME = "eddy_memory"
-
 # create a separate environment to keep eddies
 .EDDY_ENV <- new.env(parent = emptyenv())
+
+
+.EDDY_DEFAULT_NAME = "eddy_memory"
 
 
 #' Get the default environment that keeps the eddies.
@@ -24,7 +23,7 @@ make_eddy_name <- function(eddy_name = NULL,
     
     if (length(eddy_name) == 0L) {
         if (length(cache_path) == 0L) {
-            DEFAULT_EDDY_NAME
+            .EDDY_DEFAULT_NAME
         } else {
             cache_path
         }
@@ -36,7 +35,7 @@ make_eddy_name <- function(eddy_name = NULL,
 
 # TODO: tests
 
-#' Create or retrieves an eddy.
+#' Create or retrieve an eddy.
 #' 
 #' @param cache_path A valid path of a directory to store the cache.
 #'   Use \code{NULL} (default) for no disk cache.
@@ -44,13 +43,13 @@ make_eddy_name <- function(eddy_name = NULL,
 #' 
 #' @family eddy functions
 #' 
-#' @return An R6Eddy object to be used for storing data and rflows.
+#' @return An R6Eddy object to be used for storing rflows and their data.
 #' 
 #' @export
 new_eddy <- function(cache_path = NULL,
                      eddy_name = NULL,
                      envir = get_default_env()) {
-    # use the name `new_eddy`, not `add_eddy` to convey fresh/empty idea
+    # using the name `new_eddy`, not `add_eddy` to convey fresh/empty idea
     # new guarantees a clean eddy (for tests)
 
     eddy_name <- make_eddy_name(eddy_name, cache_path)
@@ -127,6 +126,7 @@ delete_eddy <- function(eddy = get_default_eddy(),
     } else {
         eddy <- envir[[eddy$name]]
         eddy$reset()
+        unlink(eddy$cache_path, recursive = TRUE)
         rm(list = eddy$name, envir = envir, inherits = FALSE)
     }
 }

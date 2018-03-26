@@ -8,11 +8,17 @@
 R6Eddy <- R6::R6Class(
     classname = 'R6Eddy',
     public = list(
-        rflow_lst = list(),
+        name = NULL,
+        cache_path = NULL,
         is_reactive = NULL,
+        algo = NULL,
+        rflow_lst = list(),
+        cache_lst = list(),
+        # init
         initialize = function(is_reactive = FALSE, 
                               cache_path = NULL, 
                               algo = "xxhash64") {},
+        reset = function() {},
         # rflow
         find_rflow = function(fn_key) {},
         has_rflow = function(fn_key) {},
@@ -26,14 +32,7 @@ R6Eddy <- R6::R6Class(
         has_data = function(key, fn_key) {},
         get_data = function(key, fn_key) {},
         add_data = function(key, value, fn_key) {},
-        delete_data = function(key, fn_key, from) {},
-        
-        cache_path = NULL,
-        cache_lst = list(),
-        algo = NULL,
-        name = NULL,
-
-        reset = function() {}
+        delete_data = function(key, fn_key, from) {}
         
         # TODO: flush/copy to cache level ?
     )
@@ -41,9 +40,9 @@ R6Eddy <- R6::R6Class(
 
 
 # Initialize ----
-R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
-                                            cache_path = NULL,
+R6Eddy$set("public", "initialize", function(cache_path = NULL,
                                             name = NULL,
+                                            is_reactive = FALSE,
                                             algo = "xxhash64") {
     if (isTRUE(is_reactive)) 
         stop("reactive eddies not yet implemented")
@@ -61,6 +60,25 @@ R6Eddy$set("public", "initialize", function(is_reactive = FALSE,
     self$name <- name
     
     invisible(NULL)
+}, overwrite = TRUE)
+
+
+# reset ----
+R6Eddy$set("public", "reset", function() {
+    # brings eddy in the same state as just after $new()
+    self$rflow_lst <- list()
+    self$cache_lst <- list()
+    
+    if (!is.null(self$cache_path)) {
+        unlink(self$cache_path, recursive = TRUE)
+        Sys.sleep(1)
+        if (dir.exists(self$cache_path)) {
+            stop("cache folder couldn't be deleted.")
+        }
+        dir.create(cache_path, showWarnings = FALSE)
+    }
+    
+    TRUE
 }, overwrite = TRUE)
 
 
@@ -111,7 +129,7 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     } else {
         self$rflow_lst[[fn_key]] <- rflow
         # TODO: update adjacency matrix
-        # TODO: Add rflow to disk as well
+        # TODO: Add rflow to disk as well (?)
         
         TRUE
     }
@@ -124,9 +142,7 @@ R6Eddy$set("public", "delete_rflow", function(
     from = c("memory", "disk", "all")
 ) {
     from <- match.arg(from)
-    
-    if (from == "all") 
-        from <- c("memory", "disk")
+    if (from == "all") from <- c("memory", "disk")
     
     if (!self$has_rflow(fn_key)) {
         warning("rflow not found for key: ", fn_key)
@@ -144,14 +160,14 @@ R6Eddy$set("public", "delete_rflow", function(
                 res <- res && self$delete_data(key, fn_key, from = "all")
             }
             res
-            
+            # delete folder on disk
             unlink(fn_path)
         }
-        
+        # delete cache envir from memory
+        self$cache_lst[[fn_key]] <- NULL
         self$rflow_lst[[fn_key]] <- NULL
         
         # TODO: reactive: update adjacency matrix
-        
         
         TRUE
     }
@@ -167,10 +183,15 @@ R6Eddy$set("public", "forget_rflow", function(fn_key) {
         TRUE
     } else {
         # TODO: remove data from all cache levels, but keep fn_key in rflow_lst
-        # for now, find keys based on disk fn_key
-        fn_path <- file.path(self$cache_path, fn_key)
+        keys <- ls(self$cache_lst[[fn_key]])
+        if (!is.null(self$cache_path)) {
+            # for now, find keys based on disk fn_key
+            fn_path <- file.path(self$cache_path, fn_key)
+            keys <- c(keys, list.files(fn_path))
+            keys <- unique(keys)
+        }
         res <- TRUE
-        for (key in list.files(fn_path)) {
+        for (key in keys) {
             res <- res && self$delete_data(key, fn_key, from = "all")
         }
         res
@@ -307,23 +328,4 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     # check if data exists
     !self$has_data(key, fn_key)
-}, overwrite = TRUE)
-
-
-R6Eddy$set("public", "reset", function() {
-    
-    self$rflow_lst <- list()
-    self$cache_lst <- list()
-    
-    if (!is.null(self$cache_path)) {
-        unlink(self$cache_path, recursive = TRUE)
-        
-        Sys.sleep(1)
-        
-        if (dir.exists(self$cache_path)) {
-            stop("cache folder couldn't be deleted.")
-        }
-    }
-    
-    TRUE
 }, overwrite = TRUE)
