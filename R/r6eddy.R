@@ -75,7 +75,6 @@ R6Eddy$set("public", "reset", function() {
         if (dir.exists(self$cache_path)) {
             stop("cache folder couldn't be deleted.")
         }
-        dir.create(cache_path, showWarnings = FALSE)
     }
     
     TRUE

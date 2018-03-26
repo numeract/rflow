@@ -124,7 +124,6 @@ delete_eddy <- function(eddy = get_default_eddy(),
     if (!base::exists(eddy$name, where = envir, inherits = FALSE)) {
         stop("Cannot find eddy with name: ", eddy$name)
     } else {
-        eddy <- envir[[eddy$name]]
         eddy$reset()
         unlink(eddy$cache_path, recursive = TRUE)
         rm(list = eddy$name, envir = envir, inherits = FALSE)

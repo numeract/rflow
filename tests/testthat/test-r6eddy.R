@@ -20,13 +20,13 @@ test_that("find_rflow() works", {
     rflow <- environment(rf)$self
     
     eddy <- new_eddy(eddy_name = eddy_name)
-    
     eddy$add_rflow(rflow$fn_key, rflow)
     
     expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
     # TODO: Test for disk as well
     
     delete_eddy(eddy)
+    delete_eddy()
 })
 
 
@@ -80,12 +80,14 @@ test_that("add_rflow() stops if already exist", {
     
     rf <- make_rflow(sum)
     rflow <- environment(rf)$self
+    
     eddy <- new_eddy(eddy_name = eddy_name)
     
     expect_error(eddy$add_rflow(rflow$fn_key, rflow), NA)
     expect_error(eddy$add_rflow(rflow$fn_key, rflow))
     
     delete_eddy(eddy)
+    delete_eddy()
 })
 
 
@@ -123,6 +125,7 @@ test_that("reset() works", {
     expect_false(dir.exists(fn_path))
     
     delete_eddy(eddy)
+    delete_eddy()
 })
 
 
@@ -132,16 +135,19 @@ test_that("delete_eddy() works", {
     
     eddy <- new_eddy(eddy_name = eddy_name)
     
-    expect_true(exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+    expect_true(base::exists(eddy_name, envir = get_default_env(), inherits = FALSE))
     
     delete_eddy(eddy)
     
-    expect_false(exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+    expect_false(base::exists(eddy_name, envir = get_default_env(), inherits = FALSE))
 })
 
 
 test_that("new_eddy() checks for already existing eddy", {
     
     eddy <- new_eddy(eddy_name = eddy_name)
+    
     expect_error(new_eddy(eddy_name = eddy_name))
+    
+    delete_eddy(eddy)
 })
