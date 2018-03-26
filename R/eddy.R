@@ -51,7 +51,7 @@ new_eddy <- function(cache_path = NULL,
                      envir = get_default_env()) {
     # using the name `new_eddy`, not `add_eddy` to convey fresh/empty idea
     # new guarantees a clean eddy (for tests)
-
+    
     eddy_name <- make_eddy_name(eddy_name, cache_path)
     if (base::exists(eddy_name, where = envir, inherits = FALSE)) {
         stop("Cannot create a new eddy, name already present: ", eddy_name)
@@ -62,8 +62,7 @@ new_eddy <- function(cache_path = NULL,
     
     eddy <- R6Eddy$new(
         # this will be updated when we have more options for eddies
-        cache_path = cache_path,
-        name = eddy_name
+        cache_path = cache_path
     )
     assign(eddy_name, eddy, envir = envir)
     
@@ -88,8 +87,7 @@ get_eddy <- function(cache_path = NULL,
         # new eddy object, it may reuse cache_path if already on disk
         eddy <- R6Eddy$new(
             # this will be updated when we have more options for eddies
-            cache_path = cache_path,
-            name = eddy_name
+            cache_path = cache_path
         )
         assign(eddy_name, eddy, envir = envir)
     }
@@ -118,14 +116,16 @@ get_default_eddy <- function(envir = get_default_env()) {
 #' @family eddy functions
 #' 
 #' @export
-delete_eddy <- function(eddy = get_default_eddy(),
+delete_eddy <- function(cache_path = NULL,
+                        eddy_name = NULL,
                         envir = get_default_env()) {
     
-    if (!base::exists(eddy$name, where = envir, inherits = FALSE)) {
-        stop("Cannot find eddy with name: ", eddy$name)
+    if (!base::exists(eddy_name, where = envir, inherits = FALSE)) {
+        stop("Cannot find eddy with name: ", eddy_name)
     } else {
+        eddy <- envir[[eddy_name]]
         eddy$reset()
         unlink(eddy$cache_path, recursive = TRUE)
-        rm(list = eddy$name, envir = envir, inherits = FALSE)
+        rm(list = eddy_name, envir = envir, inherits = FALSE)
     }
 }

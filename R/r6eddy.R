@@ -8,7 +8,6 @@
 R6Eddy <- R6::R6Class(
     classname = 'R6Eddy',
     public = list(
-        name = NULL,
         cache_path = NULL,
         is_reactive = NULL,
         algo = NULL,
@@ -41,7 +40,6 @@ R6Eddy <- R6::R6Class(
 
 # Initialize ----
 R6Eddy$set("public", "initialize", function(cache_path = NULL,
-                                            name = NULL,
                                             is_reactive = FALSE,
                                             algo = "xxhash64") {
     if (isTRUE(is_reactive)) 
@@ -57,8 +55,7 @@ R6Eddy$set("public", "initialize", function(cache_path = NULL,
     }
     
     self$algo <- algo
-    self$name <- name
-    
+
     invisible(NULL)
 }, overwrite = TRUE)
 
