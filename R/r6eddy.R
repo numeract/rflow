@@ -11,6 +11,8 @@ R6Eddy <- R6::R6Class(
         cache_path = NULL,
         is_reactive = NULL,
         algo = NULL,
+        name = NULL,
+        
         rflow_lst = list(),
         cache_lst = list(),
         # init
@@ -18,6 +20,8 @@ R6Eddy <- R6::R6Class(
                               cache_path = NULL, 
                               algo = "xxhash64") {},
         reset = function() {},
+        print = function() {},
+        
         # rflow
         find_rflow = function(fn_key) {},
         has_rflow = function(fn_key) {},
@@ -38,8 +42,9 @@ R6Eddy <- R6::R6Class(
 )
 
 
-# Initialize ----
+# initialize ----
 R6Eddy$set("public", "initialize", function(cache_path = NULL,
+                                            name = NULL,
                                             is_reactive = FALSE,
                                             algo = "xxhash64") {
     if (isTRUE(is_reactive)) 
@@ -55,7 +60,8 @@ R6Eddy$set("public", "initialize", function(cache_path = NULL,
     }
     
     self$algo <- algo
-
+    self$name <- name
+    
     invisible(NULL)
 }, overwrite = TRUE)
 
@@ -75,6 +81,40 @@ R6Eddy$set("public", "reset", function() {
     }
     
     TRUE
+}, overwrite = TRUE)
+
+
+# print ----
+R6Eddy$set("public", "print", function() {
+    
+    no_rflows <- paste0("\033[1m", "no RFlows", "\033[0m")
+    cached_fn <- "NA"
+    
+    if (is.null(self$cache_path)) {
+        self$cache_path = "NA"
+    } else {
+        self$cache_path = paste0("\"", self$cache_path, "\"")
+    }
+    
+    if (length(self$rflow_lst) != 0) {
+        no_rflows <- paste0("\033[1m", length(self$rflow_lst), "\033[0m rflow")
+        fn <- sapply(self$rflow_lst, "[[", "fn_name")
+        cached_fn <- paste0(unname(fn), sep="", collapse=", ")
+    }
+    
+    emph_R6Eddy <- paste0("<\033[3m", "R6Eddy", "\033[0m>")
+    emph_name <- paste0("\033[3m", self$name, "\033[0m")
+    emph_cachePath <- paste0("\033[3m", self$cache_path, "\033[0m")
+    emph_algo <- paste0("\033[3m", self$algo, "\033[0m")
+    emph_fn <- paste0("\033[1m", cached_fn,  "\033[0m")
+    
+    cat(emph_R6Eddy, " with ", no_rflows, ":\n",
+        "  ∙ name: ", emph_name, "\n",
+        "  ∙ cache_path: ", emph_cachePath, "\n",
+        "  ∙ algorithm: ", emph_algo, "\n", 
+        "  ∙ Cached functions: ", emph_fn, "\n", sep = "")
+    
+    invisible(self)
 }, overwrite = TRUE)
 
 

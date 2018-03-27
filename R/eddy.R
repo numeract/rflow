@@ -62,7 +62,8 @@ new_eddy <- function(cache_path = NULL,
     
     eddy <- R6Eddy$new(
         # this will be updated when we have more options for eddies
-        cache_path = cache_path
+        cache_path = cache_path,
+        name = eddy_name
     )
     assign(eddy_name, eddy, envir = envir)
     
@@ -87,7 +88,8 @@ get_eddy <- function(cache_path = NULL,
         # new eddy object, it may reuse cache_path if already on disk
         eddy <- R6Eddy$new(
             # this will be updated when we have more options for eddies
-            cache_path = cache_path
+            cache_path = cache_path,
+            name = eddy_name
         )
         assign(eddy_name, eddy, envir = envir)
     }

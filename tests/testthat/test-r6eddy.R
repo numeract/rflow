@@ -5,7 +5,7 @@ key <- "sum_result"
 eddy_name <- "new_eddy"
 
 test_that("new_eddy() creates cache path folder", {
-    
+
     eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
     
     expect_true(dir.exists(cache_path))

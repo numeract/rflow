@@ -30,6 +30,7 @@ R6Flow <- R6::R6Class(
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
         save = function() {},
+        print = function() {},
         getElement = function(name = NULL) {},
         collect = function(name = NULL) {},
         collect_hash = function(name = NULL) {},
@@ -178,7 +179,7 @@ R6Flow$set("public", "rf_fn", function(...) {
 }, overwrite = TRUE)
 
 
-# Initialize ----
+# initialize ----
 R6Flow$set("public", "initialize", function(fn,
                                             fn_key = NULL,
                                             fn_name = 'missing',
@@ -254,6 +255,26 @@ R6Flow$set("public", "save", function() {
         output_state = self$output_state
     )
     self$eddy$add_data(self$fn_key, rflow_data, self$fn_key)
+}, overwrite = TRUE)
+
+
+# print ----
+R6Flow$set("public", "print", function() {
+    
+    name = ifelse(is.null(self$fn_name), "an anonymous function", 
+                  paste0("\033[1m", self$fn_name, "\033[0m"))
+    
+    emph_R6Flow <- paste0("<", "\033[3m","R6Flow","\033[0m",">")
+    emph_state_index <- paste0("\033[3m",
+                               self$state_index, " / ", length(self$state),
+                               "\033[0m")
+    emph_is_valid <- paste0("\033[3m", self$is_valid, "\033[0m")
+    
+    cat(emph_R6Flow, " describing ", name, ": \n",
+        "  ∙ current state: ", emph_state_index, "\n",
+        "  ∙ is valid: ", emph_is_valid, sep = "")
+    
+    invisible(self)
 }, overwrite = TRUE)
 
 
