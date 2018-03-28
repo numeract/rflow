@@ -99,6 +99,7 @@ test_that("get_data() works", {
 
 context("rflow functions")
 
+
 test_that("add_rflow() stops if already exist", {
 
     rf <- make_rflow(sum)

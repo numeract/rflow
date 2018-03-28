@@ -12,6 +12,3 @@ An environment.
 \description{
 Get the default environment that keeps the eddies.
 }
-\seealso{
-\code{\link{get_default_eddy}}
-}

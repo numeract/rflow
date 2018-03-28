@@ -40,6 +40,7 @@ make_eddy_name <- function(eddy_name = NULL,
 #' @param cache_path A valid path of a directory to store the cache.
 #'   Use \code{NULL} (default) for no disk cache.
 #' @param envir An environment where to find the default eddy.
+#' @param eddy_name Name for the eddy folder.
 #' 
 #' @family eddy functions
 #' 
@@ -115,6 +116,11 @@ get_default_eddy <- function(envir = get_default_env()) {
 
 #' Delete eddy and ALL its data from ALL cache layers.
 #'
+#' @param cache_path A valid path of a directory to store the cache.
+#'   Use \code{NULL} (default) for no disk cache.
+#' @param eddy_name Name for the eddy folder.
+#' @param envir An environment where to find the default eddy.
+#' 
 #' @family eddy functions
 #' 
 #' @export

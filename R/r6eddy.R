@@ -107,9 +107,9 @@ R6Eddy$set("public", "print", function() {
     emph_fn <- paste0("\033[1m", cached_fn,  "\033[0m")
     
     cat(emph_R6Eddy, " with ", no_rflows, ":\n",
-        "  ∙ name: ", self$name, "\n",
-        "  ∙ cache path: ", cache_path, "\n",
-        "  ∙ RFlow cached functions: ", emph_fn, "\n", sep = "")
+        "  \u2219 name: ", self$name, "\n",
+        "  \u2219 cache path: ", cache_path, "\n",
+        "  \u2219 RFlow cached functions: ", emph_fn, "\n", sep = "")
     
     file_list <- list.files(self$cache_path)
     

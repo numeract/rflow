@@ -266,9 +266,9 @@ R6Flow$set("public", "print", function() {
     
     emph_R6Flow <- paste0("<", "\033[3m","R6Flow","\033[0m",">")
     cat(emph_R6Flow, " describing ", name, ": \n",
-        "  ∙ number of states: ", nrow(self$state), "\n",
-        "  ∙ current state: ", self$state_index, "\n",
-        "  ∙ is_valid: ", self$is_valid, "\n\n",
+        "  \u2219 number of states: ", nrow(self$state), "\n",
+        "  \u2219 current state: ", self$state_index, "\n",
+        "  \u2219 is_valid: ", self$is_valid, "\n\n",
         "States info: ", "\n",
         sep = "")
     

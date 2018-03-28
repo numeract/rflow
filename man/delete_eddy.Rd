@@ -2,11 +2,23 @@
 % Please edit documentation in R/eddy.R
 \name{delete_eddy}
 \alias{delete_eddy}
-\title{Delete eddy and ALL its data from ALL cache layers}
+\title{Delete eddy and ALL its data from ALL cache layers.}
 \usage{
 delete_eddy(cache_path = NULL, eddy_name = NULL,
   envir = get_default_env())
 }
+\arguments{
+\item{cache_path}{A valid path of a directory to store the cache.
+Use \code{NULL} (default) for no disk cache.}
+
+\item{eddy_name}{Name for the eddy folder.}
+
+\item{envir}{An environment where to find the default eddy.}
+}
 \description{
-Delete eddy and ALL its data from ALL cache layers
+Delete eddy and ALL its data from ALL cache layers.
+}
+\seealso{
+Other eddy functions: \code{\link{get_default_eddy}},
+  \code{\link{new_eddy}}
 }
