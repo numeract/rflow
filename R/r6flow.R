@@ -282,7 +282,7 @@ R6Flow$set("public", "print", function() {
 R6Flow$set("public", "getElement", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         is_valid <- FALSE
         elem_hash <- NULL
     } else if (is.null(name)) {
@@ -312,7 +312,7 @@ R6Flow$set("public", "getElement", function(name = NULL) {
 R6Flow$set("public", "collect", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         vis_out_lst <- list(
             value = NULL,
             visible = TRUE
@@ -343,7 +343,7 @@ R6Flow$set("public", "collect", function(name = NULL) {
 R6Flow$set("public", "collect_hash", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         NA_character_
     } else if (is.null(name)) {
         state$out_hash
@@ -394,7 +394,7 @@ R6Flow$set("public", "get_state", function(index = NULL) {
 R6Flow$set("public", "check_state", function(index = NULL) {
     
     state <- self$get_state(index)
-    changed <- if (nrow(state) == 0L) {
+    changed <- if (is.null(state) || nrow(state) == 0L) {
         if (is.null(index)) {
             # zero rows for current state (index = NULL) --> is_invalid <- FALSE
             if (is.na(self$state_index)) {

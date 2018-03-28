@@ -38,6 +38,7 @@ test_that("make_rflow() works with function with one argument", {
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
 
+
 test_that("make_rflow() works with function with variadic arguments", {
 
     # no arguments, just a side effect to determine when f ran
@@ -54,6 +55,23 @@ test_that("make_rflow() works with function with variadic arguments", {
     expect_equal(collect(rf()), 3)
 
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+test_that("make_rflow() works with function with variadic arguments", {
+
+    # no arguments, just a side effect to determine when f ran
+    i <- 0
+    f <- function(...) { i <<- i + 1; i }
+    rf <- make_rflow(f)
+    
+    expect_warning(rf <- make_rflow(f), NA)
+    expect_equal(f(), 1)
+    expect_equal(f(), 2)
+    # +1 due to f running one more time
+    expect_equal(collect(rf()), 3)
+    # +0 due to remembering previous value
+    expect_equal(collect(rf()), 3)
 })
 
 
@@ -201,6 +219,17 @@ test_that("interface of wrapper matches interface of cached function", {
 })
 
 
+test_that("interface of wrapper matches interface of cached function", {
+
+    fn <- function(j) { i <<- i + 1; i }
+    i <- 0
+
+    expect_equal(formals(fn), formals(make_rflow(fn)))
+    expect_equal(formals(runif), formals(make_rflow(runif)))
+    expect_equal(formals(paste), formals(make_rflow(paste)))
+})
+
+
 test_that("make_rflow() states work", {
 
     w <- 3
@@ -266,6 +295,25 @@ test_that("rflow caching works", {
 
 context("R6Flow functions")
 
+
+test_that("new() handles missing fn_key case", {
+    
+    rf <- R6Flow$new(fn = diff)
+    expect_true(!is.null(rf$fn_key))
+})
+
+
+test_that("new() checks if self was already stored in memory or disk", {
+    
+    rf <- make_rflow(diff)
+    rflow <- environment(rf)$self
+    
+    expect_error(R6Flow$new(fn = diff, fn_key = rflow$fn_key))
+    
+    #TODO: Remove from memory and expect "already found on" disk error
+})
+
+
 test_that("new() checks if self was already stored in memory or disk", {
 
     rf <- make_rflow(diff)
@@ -326,6 +374,7 @@ test_that("collect() works", {
     # expect_equal(result$element_hash, rflow$output_state$elem_hash[found_state_idx])
 
     result <- rflow$collect()
+
     expect_equal(result, 2)
 
     rflow$state = data.frame()
