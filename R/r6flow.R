@@ -265,14 +265,14 @@ R6Flow$set("public", "print", function() {
                   paste0("\033[1m", self$fn_name, "\033[0m"))
     
     emph_R6Flow <- paste0("<", "\033[3m","R6Flow","\033[0m",">")
-    emph_state_index <- paste0("\033[3m",
-                               self$state_index, " / ", length(self$state),
-                               "\033[0m")
-    emph_is_valid <- paste0("\033[3m", self$is_valid, "\033[0m")
-    
     cat(emph_R6Flow, " describing ", name, ": \n",
-        "  ∙ current state: ", emph_state_index, "\n",
-        "  ∙ is valid: ", emph_is_valid, sep = "")
+        "  ∙ number of states: ", nrow(self$state), "\n",
+        "  ∙ current state: ", self$state_index, "\n",
+        "  ∙ is_valid: ", self$is_valid, "\n\n",
+        "States info: ", "\n",
+        sep = "")
+    
+    print(as.data.frame(self$state))
     
     invisible(self)
 }, overwrite = TRUE)

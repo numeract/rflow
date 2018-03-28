@@ -56,6 +56,27 @@ test_that("delete_data() works", {
     delete_eddy(eddy_name = eddy_name)
 })
 
+test_that("delete_data() works with rflow", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
+    
+    rf <- make_rflow(sum, eddy = eddy) 
+    rflow <- environment(rf)$self
+    
+    fn_key <- make_fn_key(diff, eddy)
+
+    eddy$add_data(key, "foo", rflow$fn_key)
+    eddy$add_data(key, "bar", fn_key)
+    
+    eddy$delete_data(key, rflow$fn_key)
+    eddy$delete_data(key, "bar", fn_key)
+    
+    expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
+    
+    
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
+})
+
 
 test_that("get_data() works", {
 
@@ -146,4 +167,8 @@ test_that("new_eddy() checks for already existing eddy", {
     expect_error(new_eddy(eddy_name = eddy_name))
 
     delete_eddy(eddy_name = eddy_name)
+})
+
+teardown({
+    unlink(cache_path, recursive = TRUE)
 })
