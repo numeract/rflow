@@ -309,8 +309,6 @@ test_that("new() checks if self was already stored in memory or disk", {
     rflow <- environment(rf)$self
     
     expect_error(R6Flow$new(fn = diff, fn_key = rflow$fn_key))
-    
-    #TODO: Remove from memory and expect "already found on" disk error
 })
 
 
@@ -320,9 +318,7 @@ test_that("new() checks if self was already stored in memory or disk", {
     rflow <- environment(rf)$self
 
     expect_error(R6Flow$new(fn = diff, fn_key = rflow$fn_key))
-
-    # TODO: Remove from memory and expect "already found on" disk error
-
+    
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
 

@@ -16,15 +16,18 @@ test_that("new_eddy() creates cache path folder", {
 
 test_that("find_rflow() works", {
 
-    eddy <- new_eddy(eddy_name = eddy_name)
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
 
     rf <- make_rflow(sum, eddy = eddy)
     rflow <- environment(rf)$self
 
     expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
-    # TODO: Test for disk as well
-
-    delete_eddy(eddy_name = eddy_name)
+    
+    eddy$delete_rflow(rflow$fn_key, "memory")
+    
+    expect_equal(eddy$find_rflow(rflow$fn_key), "disk")
+    
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
 })
 
 
@@ -55,6 +58,7 @@ test_that("delete_data() works", {
 
     delete_eddy(eddy_name = eddy_name)
 })
+
 
 test_that("delete_data() works with rflow", {
     
@@ -168,6 +172,29 @@ test_that("new_eddy() checks for already existing eddy", {
 
     delete_eddy(eddy_name = eddy_name)
 })
+
+
+test_that("get_eddy() works with memory", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name)
+    
+    expect_equal(get_eddy(eddy_name), eddy)
+    
+    delete_eddy(eddy_name = eddy_name)
+})
+
+
+test_that("get_eddy() works with disk", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path)
+    # Delete only from memory
+    delete_eddy(eddy_name = eddy_name)
+    
+    # Test if right eddy can still be found on disk
+    expect_equal(get_eddy(cache_path, eddy_name), eddy)
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
+})
+
 
 teardown({
     unlink(cache_path, recursive = TRUE)

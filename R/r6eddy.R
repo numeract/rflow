@@ -118,16 +118,16 @@ R6Eddy$set("public", "print", function() {
     
     for (i in seq_along(file_list)) {
         file <- file_list[[i]]
-
+        
         in_memory <- 0
         cache_env <- self$cache_lst[[file]]
         if (!is.null(cache_env)) {
             in_memory <- length(ls(cache_env))
         }
-
+        
         on_disk <- length(list.files(file.path(self$cache_path, file)))
         is_rflow <- !is.null(self$rflow_lst[[file]])
-
+        
         state <- NA
         if (is_rflow) {
             rflow <- self$rflow_lst[[file]]
@@ -135,14 +135,14 @@ R6Eddy$set("public", "print", function() {
         }
         
         m[i, ] = c(file,
-                  is_rflow,
-                  state,
-                  in_memory,
-                  on_disk)
+                   is_rflow,
+                   state,
+                   in_memory,
+                   on_disk)
     }
-
+    
     print(as.data.frame(m), justify = "centre")
-
+    
     invisible(self)
 }, overwrite = TRUE)
 
@@ -194,7 +194,9 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     } else {
         self$rflow_lst[[fn_key]] <- rflow
         # TODO: update adjacency matrix
-        # TODO: Add rflow to disk as well (?)
+        if (!is.null(self$cache_path)) {
+            dir.create(file.path(self$cache_path, fn_key), showWarnings = FALSE) # nocov
+        }
         
         TRUE
     }
