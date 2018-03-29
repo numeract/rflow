@@ -1,3 +1,5 @@
+library(crayon)
+
 # R6Eddy class and methods
 
 
@@ -87,61 +89,70 @@ R6Eddy$set("public", "reset", function() {
 # print ----
 R6Eddy$set("public", "print", function() {
     
-    no_rflows <- paste0("\033[1m", "no RFlows", "\033[0m")
+    no_rflows <- "no RFlows"
     cached_fn <- "NA"
-    
     cache_path = "NA"
+    
     if (!is.null(self$cache_path)) {
         cache_path = paste0("\"", self$cache_path, "\"")
     }
     
-    if (length(self$rflow_lst) != 0) {
-        no_rflows <- paste0("\033[1m", length(self$rflow_lst), "\033[0m rflow")
-        fn <- sapply(self$rflow_lst, "[[", "fn_name")
-        cached_fn <- paste0(unname(fn), sep="", collapse=", ")
+    no_rflows <- paste0(length(self$rflow_lst), " rflow")
+    
+    cat(italic("R6Eddy"), " with ", bold(no_rflows), ":\n",
+        "  - name: ", italic(self$name), "\n",
+        "  - cache path: ", italic(cache_path), "\n", sep = "")
+    
+    rflow_list <- names(self$rflow_lst)
+    cache_list <- names(self$cache_lst)
+    
+    file_list <- list()
+    if (!is.null(self$cache_path)) {
+        file_list <- list.files(self$cache_path)
     }
     
-    emph_R6Eddy <- paste0("<\033[3m", "R6Eddy", "\033[0m>")
-    emph_name <- paste0("\033[3m", self$name, "\033[0m")
-    emph_cachePath <- paste0("\033[3m", cache_path, "\033[0m")
-    emph_fn <- paste0("\033[1m", cached_fn,  "\033[0m")
+    folder_lst <- unique(c(rflow_list, cache_list, file_list))
     
-    cat(emph_R6Eddy, " with ", no_rflows, ":\n",
-        "  \u2219 name: ", self$name, "\n",
-        "  \u2219 cache path: ", cache_path, "\n",
-        "  \u2219 RFlow cached functions: ", emph_fn, "\n", sep = "")
+    m <- matrix(nrow = length(folder_lst), ncol = 6)
+    colnames(m) <- c("function", "folder", "is_rflow", "states", "in_memory", "on_disk")
     
-    file_list <- list.files(self$cache_path)
-    
-    m <- matrix(nrow = length(file_list), ncol = 5)
-    colnames(m) <- c("file", "is_rflow?", "states", "in memory", "on disk")
-    
-    for (i in seq_along(file_list)) {
-        file <- file_list[[i]]
-        
+    for (i in seq_along(folder_lst)) {
+        folder <- folder_lst[[i]]
+        func <- "NA"
+        is_rflow <- FALSE
         in_memory <- 0
-        cache_env <- self$cache_lst[[file]]
-        if (!is.null(cache_env)) {
-            in_memory <- length(ls(cache_env))
+        on_disk <- 0
+        
+        if (!is.null(self$rflow_lst[[folder]])) {
+            is_rflow <- TRUE
+            in_memory <- in_memory + 1
         }
         
-        on_disk <- length(list.files(file.path(self$cache_path, file)))
-        is_rflow <- !is.null(self$rflow_lst[[file]])
+        cache_env <- self$cache_lst[[folder]]
+        if (!is.null(cache_env)) {
+            in_memory <- in_memory + length(ls(cache_env))
+        }
+        
+        if (!is.null(self$cache_path)) {
+            on_disk <- length(list.files(file.path(self$cache_path, folder)))
+        }
         
         state <- NA
         if (is_rflow) {
-            rflow <- self$rflow_lst[[file]]
+            rflow <- self$rflow_lst[[folder]]
             state <- nrow(rflow$state)
+            func <- rflow$fn_name
         }
         
-        m[i, ] = c(file,
+        m[i, ] = c(func,
+                   folder,
                    is_rflow,
                    state,
                    in_memory,
                    on_disk)
     }
     
-    print(as.data.frame(m), justify = "centre")
+    print(as.data.frame(m))
     
     invisible(self)
 }, overwrite = TRUE)
@@ -194,9 +205,6 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     } else {
         self$rflow_lst[[fn_key]] <- rflow
         # TODO: update adjacency matrix
-        if (!is.null(self$cache_path)) {
-            dir.create(file.path(self$cache_path, fn_key), showWarnings = FALSE) # nocov
-        }
         
         TRUE
     }

@@ -7,7 +7,7 @@ eddy_name <- "new_eddy"
 test_that("new_eddy() creates cache path folder", {
 
     eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
-    
+
     expect_true(dir.exists(cache_path))
     
     delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
@@ -17,12 +17,14 @@ test_that("new_eddy() creates cache path folder", {
 test_that("find_rflow() works", {
 
     eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
-
+    
     rf <- make_rflow(sum, eddy = eddy)
     rflow <- environment(rf)$self
 
-    expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+    rf(1, 2) # save some state data to disk
     
+    expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+
     eddy$delete_rflow(rflow$fn_key, "memory")
     
     expect_equal(eddy$find_rflow(rflow$fn_key), "disk")
@@ -34,7 +36,6 @@ test_that("find_rflow() works", {
 test_that("add_data() works", {
 
     eddy <- new_eddy(eddy_name = eddy_name)
-
     fn_key <- make_fn_key(sum, eddy)
 
     eddy$add_data(key, "foo", fn_key)
@@ -52,6 +53,7 @@ test_that("delete_data() works", {
     fn_key <- make_fn_key(sum, eddy)
 
     eddy$add_data(key, "foo", fn_key)
+    
     eddy$delete_data(key, fn_key)
 
     expect_equal(eddy$find_key(key, fn_key), "missing")
@@ -76,7 +78,6 @@ test_that("delete_data() works with rflow", {
     eddy$delete_data(key, "bar", fn_key)
     
     expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
-    
     
     delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
 })

@@ -261,15 +261,15 @@ R6Flow$set("public", "save", function() {
 # print ----
 R6Flow$set("public", "print", function() {
     
-    name = ifelse(is.null(self$fn_name), "an anonymous function", 
-                  paste0("\033[1m", self$fn_name, "\033[0m"))
+    name = ifelse(is.null(self$fn_name),
+                  "an anonymous function", 
+                  bold(self$fn_name))
     
-    emph_R6Flow <- paste0("<", "\033[3m","R6Flow","\033[0m",">")
+    emph_R6Flow <- paste0("<", italic("R6Flow"), ">")
     cat(emph_R6Flow, " describing ", name, ": \n",
-        "  \u2219 number of states: ", nrow(self$state), "\n",
-        "  \u2219 current state: ", self$state_index, "\n",
-        "  \u2219 is_valid: ", self$is_valid, "\n\n",
-        "States info: ", "\n",
+        "  - number of states: ", nrow(self$state), "\n",
+        "  - current state: ", self$state_index, "\n",
+        "  - is_valid: ", self$is_valid, "\n",
         sep = "")
     
     print(as.data.frame(self$state))
