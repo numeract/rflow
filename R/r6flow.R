@@ -263,9 +263,9 @@ R6Flow$set("public", "print", function() {
     
     name = ifelse(is.null(self$fn_name),
                   "an anonymous function", 
-                  bold(self$fn_name))
+                  crayon::bold(self$fn_name))
     
-    emph_R6Flow <- paste0("<", italic("R6Flow"), ">")
+    emph_R6Flow <- paste0("<", crayon::italic("R6Flow"), ">")
     cat(emph_R6Flow, " describing ", name, ": \n",
         "  - number of states: ", nrow(self$state), "\n",
         "  - current state: ", self$state_index, "\n",

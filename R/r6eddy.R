@@ -99,53 +99,51 @@ R6Eddy$set("public", "print", function() {
     
     no_rflows <- paste0(length(self$rflow_lst), " rflow")
     
-    cat(italic("R6Eddy"), " with ", bold(no_rflows), ":\n",
-        "  - name: ", italic(self$name), "\n",
-        "  - cache path: ", italic(cache_path), "\n", sep = "")
+    cat(italic("R6Eddy"), " with ", crayon::bold(no_rflows), ":\n",
+        "  - name: ", crayon::italic(self$name), "\n",
+        "  - cache path: ", crayon::italic(cache_path), "\n", sep = "")
     
-    rflow_list <- names(self$rflow_lst)
-    cache_list <- names(self$cache_lst)
+    rflow_names <- names(self$rflow_lst)
+    cache_names <- names(self$cache_lst)
     
-    file_list <- list()
+    file_names <- c()
     if (!is.null(self$cache_path)) {
-        file_list <- list.files(self$cache_path)
+        file_names <- list.files(self$cache_path)
     }
     
-    folder_lst <- unique(c(rflow_list, cache_list, file_list))
+    fn_keys <- unique(c(rflow_names, cache_names, file_names))
     
-    m <- matrix(nrow = length(folder_lst), ncol = 6)
-    colnames(m) <- c("function", "folder", "is_rflow", "states", "in_memory", "on_disk")
+    m <- matrix(nrow = length(fn_keys), ncol = 6)
+    colnames(m) <-
+        c("fn_name", "fn_key", "is_rflow", "n_states", "in_memory", "on_disk")
     
-    for (i in seq_along(folder_lst)) {
-        folder <- folder_lst[[i]]
-        func <- "NA"
+    for (i in seq_along(fn_keys)) {
+        fn_key <- fn_keys[[i]]
+        func <- NA
         is_rflow <- FALSE
-        in_memory <- 0
-        on_disk <- 0
+        in_memory <- NA
+        on_disk <- NA
         
-        if (!is.null(self$rflow_lst[[folder]])) {
-            is_rflow <- TRUE
-            in_memory <- in_memory + 1
-        }
-        
-        cache_env <- self$cache_lst[[folder]]
+        is_rflow <- inherits(self$rflow_lst[[fn_key]], "R6Flow")
+
+        cache_env <- self$cache_lst[[fn_key]]
         if (!is.null(cache_env)) {
-            in_memory <- in_memory + length(ls(cache_env))
+            in_memory <- length(ls(cache_env))
         }
         
         if (!is.null(self$cache_path)) {
-            on_disk <- length(list.files(file.path(self$cache_path, folder)))
+            on_disk <- length(list.files(file.path(self$cache_path, fn_key)))
         }
         
         state <- NA
         if (is_rflow) {
-            rflow <- self$rflow_lst[[folder]]
+            rflow <- self$rflow_lst[[fn_key]]
             state <- nrow(rflow$state)
             func <- rflow$fn_name
         }
         
         m[i, ] = c(func,
-                   folder,
+                   fn_key,
                    is_rflow,
                    state,
                    in_memory,

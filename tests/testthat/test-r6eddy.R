@@ -49,7 +49,7 @@ test_that("add_data() works", {
 test_that("delete_data() works", {
 
     eddy <- new_eddy(eddy_name = eddy_name)
-
+    
     fn_key <- make_fn_key(sum, eddy)
 
     eddy$add_data(key, "foo", fn_key)
@@ -75,7 +75,7 @@ test_that("delete_data() works with rflow", {
     eddy$add_data(key, "bar", fn_key)
     
     eddy$delete_data(key, rflow$fn_key)
-    eddy$delete_data(key, "bar", fn_key)
+    eddy$delete_data(key, fn_key)
     
     expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
     
