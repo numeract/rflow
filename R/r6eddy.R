@@ -1,5 +1,3 @@
-library(crayon)
-
 # R6Eddy class and methods
 
 
@@ -87,6 +85,9 @@ R6Eddy$set("public", "reset", function() {
 
 
 # print ----
+#'
+#' @importFrom crayon bold italic
+#' 
 R6Eddy$set("public", "print", function() {
     
     no_rflows <- "no RFlows"
