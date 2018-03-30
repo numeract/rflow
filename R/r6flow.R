@@ -5,9 +5,6 @@
 
 
 # R6Flow ----
-#'
-#' @importFrom crayon bold italic
-#'
 R6Flow <- R6::R6Class(
     classname = 'R6Flow',
     public = list(

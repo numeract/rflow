@@ -85,9 +85,6 @@ R6Eddy$set("public", "reset", function() {
 
 
 # print ----
-#'
-#' @importFrom crayon bold italic
-#' 
 R6Eddy$set("public", "print", function() {
     
     no_rflows <- "no RFlows"
@@ -100,7 +97,7 @@ R6Eddy$set("public", "print", function() {
     
     no_rflows <- paste0(length(self$rflow_lst), " rflow")
     
-    cat(italic("R6Eddy"), " with ", crayon::bold(no_rflows), ":\n",
+    cat(crayon::italic("R6Eddy"), " with ", crayon::bold(no_rflows), ":\n",
         "  - name: ", crayon::italic(self$name), "\n",
         "  - cache path: ", crayon::italic(cache_path), "\n", sep = "")
     
