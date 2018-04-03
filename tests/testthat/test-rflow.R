@@ -92,7 +92,8 @@ test_that("make_rflow() works with function with one default argument", {
 })
 
 
-test_that("make_rflow() works with function with one default function argument", {
+test_that(
+    "make_rflow() works with function with one default function argument", {
 
     expect_false(exists("g"))
     g <- function() 1
@@ -336,7 +337,8 @@ test_that("getElement() checks for state", {
     # result <- rflow$getElement(name = "foo")
     #
     # expect_equal(is_valid, true)
-    # expect_equal(result$element_hash, rflow$output_state$elem_hash[found_state_idx])
+    # expect_equal(result$element_hash,
+    # rflow$output_state$elem_hash[found_state_idx])
 
     result <- rflow$getElement()
 
@@ -344,8 +346,8 @@ test_that("getElement() checks for state", {
 
     tmp_state <- rflow$state
 
-    rflow$state = data.frame()
-    rflow$state_index = NA_integer_
+    rflow$state <- data.frame()
+    rflow$state_index <- NA_integer_
 
     result <- rflow$getElement()
     expect_equal(result$is_valid, FALSE)
@@ -367,14 +369,15 @@ test_that("collect() works", {
     # result <- rflow$getElement(name = "foo")
     #
     # expect_equal(is_valid, true)
-    # expect_equal(result$element_hash, rflow$output_state$elem_hash[found_state_idx])
+    # expect_equal(result$element_hash,
+    # rflow$output_state$elem_hash[found_state_idx])
 
     result <- rflow$collect()
 
     expect_equal(result, 2)
 
-    rflow$state = data.frame()
-    rflow$state_index = NA_integer_
+    rflow$state <- data.frame()
+    rflow$state_index <- NA_integer_
 
     result <- rflow$collect()
     expect_equal(result$vis_out_lst$value, NULL)

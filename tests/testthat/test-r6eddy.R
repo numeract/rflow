@@ -158,11 +158,15 @@ test_that("delete_eddy() works", {
 
     eddy <- new_eddy(eddy_name = eddy_name)
 
-    expect_true(base::exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+    expect_true(base::exists(eddy_name,
+                             envir = get_default_env(),
+                             inherits = FALSE))
 
     delete_eddy(eddy_name = eddy_name)
 
-    expect_false(base::exists(eddy_name, envir = get_default_env(), inherits = FALSE))
+    expect_false(base::exists(eddy_name,
+                              envir = get_default_env(),
+                              inherits = FALSE))
 })
 
 

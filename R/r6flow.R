@@ -261,7 +261,7 @@ R6Flow$set("public", "save", function() {
 # print ----
 R6Flow$set("public", "print", function() {
     
-    name = ifelse(is.null(self$fn_name),
+    name <- ifelse(is.null(self$fn_name),
                   "an anonymous function", 
                   crayon::bold(self$fn_name))
     

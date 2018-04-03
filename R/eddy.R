@@ -5,7 +5,7 @@
 .EDDY_ENV <- new.env(parent = emptyenv())
 
 
-.EDDY_DEFAULT_NAME = "eddy_memory"
+.EDDY_DEFAULT_NAME <- "eddy_memory"
 
 
 #' Get the default environment that keeps the eddies.

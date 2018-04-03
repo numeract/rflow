@@ -89,10 +89,10 @@ R6Eddy$set("public", "print", function() {
     
     no_rflows <- "no RFlows"
     cached_fn <- "NA"
-    cache_path = "NA"
+    cache_path <- "NA"
     
     if (!is.null(self$cache_path)) {
-        cache_path = paste0("\"", self$cache_path, "\"")
+        cache_path < paste0("\"", self$cache_path, "\"")
     }
     
     no_rflows <- paste0(length(self$rflow_lst), " rflow")
@@ -140,7 +140,7 @@ R6Eddy$set("public", "print", function() {
             func <- rflow$fn_name
         }
         
-        m[i, ] = c(func,
+        m[i, ] <- c(func,
                    fn_key,
                    is_rflow,
                    state,
