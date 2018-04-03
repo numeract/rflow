@@ -30,9 +30,10 @@ R6Flow <- R6::R6Class(
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
         save = function() {},
-        element = function(what = NULL) {},
-        collect = function(what = NULL) {},
-        collect_hash = function(what = NULL) {},
+        print = function() {},
+        getElement = function(name = NULL) {},
+        collect = function(name = NULL) {},
+        collect_hash = function(name = NULL) {},
         # internal states
         state = NULL,
         state_index = NA_integer_,
@@ -86,7 +87,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
         purrr::map_if(
             .p = ~ inherits(., "R6Flow"), 
-            .f = ~ .$element(what = NULL)
+            .f = ~ .$getElement(name = NULL)
         )
     
     if (is.null(self$hash_input_fn)) {
@@ -134,7 +135,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         # avoid purrr to guarantee no unexpected effects since we have a call
         for (nm in names(rflow_args)) {
             rflow_elem <- rflow_args[[nm]]
-            mc[[nm]] <- rflow_elem$self$collect(what = rflow_elem$what)
+            mc[[nm]] <- rflow_elem$self$collect(name = rflow_elem$name)
         }
         # need to preserve (and cache) the visibility of the return
         # eval envir must be the parent.frame of this func, not of withVisible
@@ -178,7 +179,7 @@ R6Flow$set("public", "rf_fn", function(...) {
 }, overwrite = TRUE)
 
 
-# Initialize ----
+# initialize ----
 R6Flow$set("public", "initialize", function(fn,
                                             fn_key = NULL,
                                             fn_name = 'missing',
@@ -257,54 +258,74 @@ R6Flow$set("public", "save", function() {
 }, overwrite = TRUE)
 
 
-# element ----
-R6Flow$set("public", "element", function(what = NULL) {
+# print ----
+R6Flow$set("public", "print", function() {
+    
+    name <- ifelse(is.null(self$fn_name),
+                  "an anonymous function", 
+                  crayon::bold(self$fn_name))
+    
+    emph_R6Flow <- paste0("<", crayon::italic("R6Flow"), ">")
+    cat(emph_R6Flow, " describing ", name, ": \n",
+        "  - number of states: ", nrow(self$state), "\n",
+        "  - current state: ", self$state_index, "\n",
+        "  - is_valid: ", self$is_valid, "\n",
+        sep = "")
+    
+    print(as.data.frame(self$state))
+    
+    invisible(self)
+}, overwrite = TRUE)
+
+
+# getElement ----
+R6Flow$set("public", "getElement", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         is_valid <- FALSE
         elem_hash <- NULL
-    } else if (is.null(what)) {
+    } else if (is.null(name)) {
         is_valid <- TRUE
         elem_hash <- state$out_hash
     } else {
         is_valid <- TRUE
         found_state_idx <- which(
             self$output_state$out_hash == state$out_hash &
-            self$output_state$elem_name == what
+            self$output_state$elem_name == name
         )
         if (length(found_state_idx) != 1L) 
-            stop("Cannot find output element: ", what)
+            stop("Cannot find output element: ", name)
         elem_hash <- self$output_state$elem_hash[found_state_idx]
     }
     
     structure(list(
         self = self,
         is_valid = is_valid,
-        elem_name = what,
+        elem_name = name,
         elem_hash = elem_hash
     ), class = "R6FlowElement")
 }, overwrite = TRUE)
 
 
 # collect ----
-R6Flow$set("public", "collect", function(what = NULL) {
+R6Flow$set("public", "collect", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         vis_out_lst <- list(
             value = NULL,
             visible = TRUE
         )
-    } else if (is.null(what)) {
+    } else if (is.null(name)) {
         vis_out_lst <- self$eddy$get_data(state$out_hash, self$fn_key)
     } else {
         found_state_idx <- which(
             self$output_state$out_hash == state$out_hash &
-            self$output_state$elem_name == what
+            self$output_state$elem_name == name
         )
         if (length(found_state_idx) != 1L) 
-            stop("Cannot find output element: ", what)
+            stop("Cannot find output element: ", name)
         elem_hash <- self$output_state$elem_hash[found_state_idx]
         vis_out_lst <- self$eddy$get_data(elem_hash, self$fn_key)
     }
@@ -319,20 +340,20 @@ R6Flow$set("public", "collect", function(what = NULL) {
 
 
 # collect_hash ----
-R6Flow$set("public", "collect_hash", function(what = NULL) {
+R6Flow$set("public", "collect_hash", function(name = NULL) {
     
     state <- self$get_state()
-    if (nrow(state) == 0L) {
+    if (is.null(state) || nrow(state) == 0L) {
         NA_character_
-    } else if (is.null(what)) {
+    } else if (is.null(name)) {
         state$out_hash
     } else {
         found_state_idx <- which(
             self$output_state$out_hash == state$out_hash &
-            self$output_state$elem_name == what
+            self$output_state$elem_name == name
         )
         if (length(found_state_idx) != 1L) 
-            stop("Cannot find output element: ", what)
+            stop("Cannot find output element: ", name)
         self$output_state$elem_hash[found_state_idx]
     }
 }, overwrite = TRUE)
@@ -373,7 +394,7 @@ R6Flow$set("public", "get_state", function(index = NULL) {
 R6Flow$set("public", "check_state", function(index = NULL) {
     
     state <- self$get_state(index)
-    changed <- if (nrow(state) == 0L) {
+    changed <- if (is.null(state) || nrow(state) == 0L) {
         if (is.null(index)) {
             # zero rows for current state (index = NULL) --> is_invalid <- FALSE
             if (is.na(self$state_index)) {

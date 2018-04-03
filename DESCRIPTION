@@ -25,7 +25,8 @@ Imports:
     magrittr,
     purrr,
     R6,
-    tibble
+    tibble,
+    crayon
 Suggests: 
     testthat,
     covr

@@ -3,7 +3,7 @@
 \name{new_eddy}
 \alias{new_eddy}
 \alias{get_eddy}
-\title{Create or retrieves an eddy}
+\title{Create or retrieve an eddy.}
 \usage{
 new_eddy(cache_path = NULL, eddy_name = NULL, envir = get_default_env())
 
@@ -13,11 +13,20 @@ get_eddy(cache_path = NULL, eddy_name = NULL, envir = get_default_env())
 \item{cache_path}{A valid path of a directory to store the cache.
 Use \code{NULL} (default) for no disk cache.}
 
+\item{eddy_name}{Name for the eddy folder.}
+
 \item{envir}{An environment where to find the default eddy.}
 }
 \value{
-An R6Eddy object to be used when creating an rflow.
+An R6Eddy object to be used for storing rflows and their data.
 }
 \description{
-Create or retrieves an eddy
+Create or retrieve an eddy.
+}
+\seealso{
+Other eddy functions: \code{\link{delete_eddy}},
+  \code{\link{get_default_eddy}}
+
+Other eddy functions: \code{\link{delete_eddy}},
+  \code{\link{get_default_eddy}}
 }
