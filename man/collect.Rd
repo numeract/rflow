@@ -2,18 +2,18 @@
 % Please edit documentation in R/flow.R
 \name{collect}
 \alias{collect}
-\title{Get the data from an RFlow object.}
+\title{Get the data from an R6Flow object.}
 \usage{
-collect(rf_fn, what = NULL)
+collect(rf_fn, name = NULL)
 }
 \arguments{
 \item{rf_fn}{Function cached with RFlow.}
 
-\item{what}{Element of the output data to be selected.}
+\item{name}{Element of the output data to be selected.}
 }
 \value{
 Data associated with the output of the function.
 }
 \description{
-Get the data from an RFlow object.
+Get the data from an R6Flow object.
 }

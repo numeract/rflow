@@ -10,11 +10,12 @@ get_default_eddy(envir = get_default_env())
 \item{envir}{An environment where to find the default eddy.}
 }
 \value{
-An R6Eddy object to be used when creating an rflow.
+An R6Eddy object to be used for storing data and rflows.
 }
 \description{
 Get the default, in memory, eddy for a given (or default) environment.
 }
 \seealso{
-\code{\link{get_default_env}}
+Other eddy functions: \code{\link{delete_eddy}},
+  \code{\link{new_eddy}}
 }
