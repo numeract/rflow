@@ -31,7 +31,7 @@ R6Flow <- R6::R6Class(
                               eddy = get_default_eddy()) {},
         save = function() {},
         print = function() {},
-        getElement = function(name = NULL) {},
+        get_element = function(name = NULL) {},
         collect = function(name = NULL) {},
         collect_hash = function(name = NULL) {},
         # internal states
@@ -87,7 +87,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
         purrr::map_if(
             .p = ~ inherits(., "R6Flow"), 
-            .f = ~ .$getElement(name = NULL)
+            .f = ~ .$get_element(name = NULL)
         )
     
     if (is.null(self$hash_input_fn)) {
@@ -278,8 +278,8 @@ R6Flow$set("public", "print", function() {
 }, overwrite = TRUE)
 
 
-# getElement ----
-R6Flow$set("public", "getElement", function(name = NULL) {
+# get_element ----
+R6Flow$set("public", "get_element", function(name = NULL) {
     
     state <- self$get_state()
     if (is.null(state) || nrow(state) == 0L) {
