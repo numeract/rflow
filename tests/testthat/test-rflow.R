@@ -332,14 +332,14 @@ test_that("get_element() checks for state", {
     rflow <- environment(rf)$self
 
     rf(1, 2)
-
+    
     # TODO: test for split output
     # result <- rflow$get_element(name = "foo")
     #
     # expect_equal(is_valid, true)
     # expect_equal(result$element_hash,
     # rflow$output_state$elem_hash[found_state_idx])
-
+    
     result <- rflow$get_element()
 
     expect_equal(result$elem_hash, rflow$state$out_hash)
@@ -382,5 +382,42 @@ test_that("collect() works", {
     result <- rflow$collect()
     expect_equal(result$vis_out_lst$value, NULL)
 
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+test_that("example for names", {
+    
+    f <- function(b, c = 2) { list(b = b, c = c, bc = b * c) }
+    # since the output is already a list, extract/calc items of interest
+    so_f <- function(l) list(bc = l$bc, cc = l$c^2)
+    
+    rf <- make_rflow(f, split_output_fn = so_f)
+    rflow <- environment(rf)$self
+    
+    rf(2, 3)
+    result <- rflow$collect()
+    result_bc <- rflow$collect(name = "bc")
+    result_cc <- rflow$collect(name = "cc")
+
+    expect_equal(result, list(b = 2, c = 3, bc = 6))
+    expect_equal(result_bc, 6)
+    expect_equal(result_cc, 9)
+    
+    elem <- rflow$get_element()
+    expect_equal(elem$is_valid, TRUE)
+    expect_equal(elem$elem_name, NULL)
+    expect_equal(elem$elem_hash, rflow$state$out_hash)
+    expect_identical(elem$self, rflow)
+    expect_equal(rflow$output_state$out_hash, rep(rflow$state$out_hash, 2))
+    
+    elem_bc <- rflow$get_element(name = "bc")
+    expect_equal(elem_bc$is_valid, TRUE)
+    expect_equal(elem_bc$elem_name, "bc")
+    tmp_hash <- rflow$output_state$elem_hash[
+        rflow$output_state$elem_name == "bc"]
+    expect_equal(elem_bc$elem_hash, tmp_hash)
+    expect_identical(elem$self, rflow)
+    
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })

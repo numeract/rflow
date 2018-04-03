@@ -150,7 +150,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         
         # split the out_data and store its elements
         if (!is.null(self$split_output_fn)) {
-            vis_out_lst <- withVisible(self$split_output_fn(out_data))
+            vis_out_lst <- withVisible(self$split_output_fn(out_data$value))
             out_lst <- vis_out_lst$value
             if (!is.list(out_lst)) 
                 stop("split_output_fn() must return a named list")
@@ -261,9 +261,9 @@ R6Flow$set("public", "save", function() {
 # print ----
 R6Flow$set("public", "print", function() {
     
-    name <- ifelse(is.null(self$fn_name),
-                  "an anonymous function", 
-                  crayon::bold(self$fn_name))
+    name <- ifelse(
+        is.null(self$fn_name),
+        "an anonymous function", crayon::bold(self$fn_name))
     
     emph_R6Flow <- paste0("<", crayon::italic("R6Flow"), ">")
     cat(emph_R6Flow, " describing ", name, ": \n",
@@ -294,8 +294,9 @@ R6Flow$set("public", "get_element", function(name = NULL) {
             self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == name
         )
-        if (length(found_state_idx) != 1L) 
+        if (length(found_state_idx) != 1L) {
             stop("Cannot find output element: ", name)
+        }
         elem_hash <- self$output_state$elem_hash[found_state_idx]
     }
     
