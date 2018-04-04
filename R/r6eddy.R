@@ -85,7 +85,7 @@ R6Eddy$set("public", "reset", function() {
 
 
 # print ----
-R6Eddy$set("public", "print", function() {
+R6Eddy$set("public", "print", function() { # nocov start
     
     no_rflows <- "no RFlows"
     cached_fn <- "NA"
@@ -123,7 +123,7 @@ R6Eddy$set("public", "print", function() {
         on_disk <- NA
         
         is_rflow <- inherits(self$rflow_lst[[fn_key]], "R6Flow")
-
+        
         cache_env <- self$cache_lst[[fn_key]]
         if (!is.null(cache_env)) {
             in_memory <- length(ls(cache_env))
@@ -141,17 +141,17 @@ R6Eddy$set("public", "print", function() {
         }
         
         m[i, ] <- c(func,
-                   fn_key,
-                   is_rflow,
-                   state,
-                   in_memory,
-                   on_disk)
+                    fn_key,
+                    is_rflow,
+                    state,
+                    in_memory,
+                    on_disk)
     }
     
     print(as.data.frame(m))
     
     invisible(self)
-}, overwrite = TRUE)
+}, overwrite = TRUE) # nocov end
 
 
 # find_rflow ----
@@ -215,33 +215,27 @@ R6Eddy$set("public", "delete_rflow", function(
     from <- match.arg(from)
     if (from == "all") from <- c("memory", "disk")
     
-    if (!self$has_rflow(fn_key)) {
-        warning("rflow not found for key: ", fn_key)
-        # delete considered successful
-        TRUE
-    } else {
-        # TODO: remove from specified cache level and all lower levels
-        # example: if remove from L2 = disk, also remove from memory
-        # valid values for from: TBD
-        
-        if ("disk" %in% from) {
-            fn_path <- file.path(self$cache_path, fn_key)
-            res <- TRUE
-            for (key in list.files(fn_path)) {
-                res <- res && self$delete_data(key, fn_key, from = "all")
-            }
-            res
-            # delete folder on disk
-            unlink(fn_path)
+    # TODO: remove from specified cache level and all lower levels
+    # example: if remove from L2 = disk, also remove from memory
+    # valid values for from: TBD
+    
+    if ("disk" %in% from) {
+        fn_path <- file.path(self$cache_path, fn_key)
+        res <- TRUE
+        for (key in list.files(fn_path)) {
+            res <- res && self$delete_data(key, fn_key, from = "all")
         }
-        # delete cache envir from memory
-        self$cache_lst[[fn_key]] <- NULL
-        self$rflow_lst[[fn_key]] <- NULL
-        
-        # TODO: reactive: update adjacency matrix
-        
-        TRUE
+        res
+        # delete folder on disk
+        unlink(fn_path, recursive = TRUE)
     }
+    # delete cache envir from memory
+    self$cache_lst[[fn_key]] <- NULL
+    self$rflow_lst[[fn_key]] <- NULL
+    
+    # TODO: reactive: update adjacency matrix
+    
+    TRUE
 }, overwrite = TRUE)
 
 

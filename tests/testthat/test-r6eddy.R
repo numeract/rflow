@@ -33,6 +33,29 @@ test_that("find_rflow() works", {
 })
 
 
+test_that("delete_rflow() works", {
+    
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
+    
+    rf <- make_rflow(sum, eddy = eddy)
+    rflow <- environment(rf)$self
+    
+    rf(1, 2) # save some state data to disk
+    
+    expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+    
+    eddy$delete_rflow(rflow$fn_key, "memory")
+    
+    expect_equal(eddy$find_rflow(rflow$fn_key), "disk")
+    
+    eddy$delete_rflow(rflow$fn_key, "disk")
+    
+    expect_equal(eddy$find_rflow(rflow$fn_key), "missing")
+    
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
+})
+
+
 test_that("add_data() works", {
 
     eddy <- new_eddy(eddy_name = eddy_name)
@@ -85,7 +108,7 @@ test_that("delete_data() works with rflow", {
 
 test_that("get_data() works", {
 
-    eddy <- new_eddy(eddy_name = eddy_name)
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
 
     fn_key <- make_fn_key(sum, eddy)
 
@@ -93,9 +116,18 @@ test_that("get_data() works", {
     data <- eddy$get_data(key, fn_key)
 
     expect_equal(data, "foo")
+    
+    eddy$delete_data(key, fn_key, from = "memory")
 
-    delete_eddy(eddy_name = eddy_name)
+    data <- eddy$get_data(key, fn_key)
+    expect_equal(data, "foo")
+    
+    expect_error(eddy$get_data(NULL, fn_key))
+    
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
 })
+
+
 
 
 context("rflow functions")
@@ -115,12 +147,31 @@ test_that("add_rflow() stops if already exist", {
 })
 
 
+test_that("forget_rflow() works", {
+
+    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
+    
+    rf <- make_rflow(sum, eddy = eddy)
+    rflow <- environment(rf)$self
+    
+    rf(1, 2) # save some state data to disk
+    
+    expect_warning(eddy$forget_rflow("invalid key"))
+    
+    expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+    eddy$forget_rflow(rflow$fn_key)
+    expect_equal(eddy$find_rflow(rflow$fn_key), "memory")
+
+    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
+})
+
+
 test_that("get_rflow() throws warning if not found", {
-
+    
     eddy <- new_eddy(eddy_name = eddy_name)
-
+    
     expect_warning(eddy$get_rflow("111111"))
-
+    
     delete_eddy(eddy_name = eddy_name)
 })
 
