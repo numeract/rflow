@@ -267,6 +267,7 @@ test_that("make_rflow() states work", {
 
 context("Caching")
 
+
 test_that("rflow caching works", {
 
     x0 <- 10
@@ -386,7 +387,7 @@ test_that("collect() works", {
 })
 
 
-test_that("example for names", {
+test_that("rflow works with split_output_fn parameter", {
     
     f <- function(b, c = 2) { list(b = b, c = c, bc = b * c) }
     # since the output is already a list, extract/calc items of interest
@@ -399,6 +400,7 @@ test_that("example for names", {
     result <- rflow$collect()
     result_bc <- rflow$collect(name = "bc")
     result_cc <- rflow$collect(name = "cc")
+    expect_error(rflow$collect(name = "dd"))
 
     expect_equal(result, list(b = 2, c = 3, bc = 6))
     expect_equal(result_bc, 6)
@@ -411,6 +413,7 @@ test_that("example for names", {
     expect_identical(elem$self, rflow)
     expect_equal(rflow$output_state$out_hash, rep(rflow$state$out_hash, 2))
     
+    expect_error(rflow$get_element(name = "dd"))
     elem_bc <- rflow$get_element(name = "bc")
     expect_equal(elem_bc$is_valid, TRUE)
     expect_equal(elem_bc$elem_name, "bc")
@@ -420,4 +423,58 @@ test_that("example for names", {
     expect_identical(elem$self, rflow)
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+test_that("split_output_fn is valid", {
+    
+    f <- function(b, c = 2) { list(b = b, c = c, bc = b * c) }
+    # since the output is already a list, extract/calc items of interest
+    
+    so_f <- function(l) NA
+    
+    rf <- make_rflow(f, split_output_fn = so_f)
+    
+    expect_error(rf(3, 5))
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+    
+    so_f <- function(l) list(l$bc, l$c^2)
+    
+    rf <- make_rflow(f, split_output_fn = so_f)
+    
+    expect_error(rf(2, 3))
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+    
+    so_f <- function(l) list(l$bc, b = l$c^2, l$bc)
+    
+    rf <- make_rflow(f, split_output_fn = so_f)
+    
+    expect_error(rf(0, 1))
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+    
+    so_f <- function() { matrix(l$bc, l$c^2) }
+    
+    rf <- make_rflow(f, split_output_fn = so_f)
+    
+    expect_error(rf(2, 9))
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+test_that("check_state() works", {
+    
+    rf <- make_rflow(sum)
+    rflow <- environment(rf)$self
+    
+    expect_equal(rflow$check_state(), TRUE) # no state yet
+    expect_equal(rflow$check_state(5), TRUE) # invalid index, pre having a state
+    
+    rf(1, 2)
+    
+    expect_equal(rflow$check_state(), TRUE) # we have out_hash in eddy
+    expect_equal(rflow$check_state(5), TRUE) # invalid index after state
 })

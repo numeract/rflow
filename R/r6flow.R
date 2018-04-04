@@ -259,7 +259,7 @@ R6Flow$set("public", "save", function() {
 
 
 # print ----
-R6Flow$set("public", "print", function() {
+R6Flow$set("public", "print", function() { # nocov start
     
     name <- ifelse(
         is.null(self$fn_name),
@@ -275,7 +275,7 @@ R6Flow$set("public", "print", function() {
     print(as.data.frame(self$state))
     
     invisible(self)
-}, overwrite = TRUE)
+}, overwrite = TRUE) # nocov end
 
 
 # get_element ----
@@ -502,5 +502,5 @@ R6Flow$set("public", "add_output_state", function(out_hash,
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
     
-    !is.na(self$state_index)
+    !is.na(self$state_index) #nocov
 }, overwrite = TRUE)
