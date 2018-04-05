@@ -6,7 +6,7 @@
 
 # R6Eddy ----
 R6Eddy <- R6::R6Class(
-    classname = 'R6Eddy',
+    classname = "R6Eddy",
     public = list(
         cache_path = NULL,
         is_reactive = NULL,
@@ -16,8 +16,8 @@ R6Eddy <- R6::R6Class(
         rflow_lst = list(),
         cache_lst = list(),
         # init
-        initialize = function(is_reactive = FALSE, 
-                              cache_path = NULL, 
+        initialize = function(is_reactive = FALSE,
+                              cache_path = NULL,
                               algo = "xxhash64") {},
         reset = function() {},
         print = function() {},
@@ -47,7 +47,7 @@ R6Eddy$set("public", "initialize", function(cache_path = NULL,
                                             name = NULL,
                                             is_reactive = FALSE,
                                             algo = "xxhash64") {
-    if (isTRUE(is_reactive)) 
+    if (isTRUE(is_reactive))
         stop("reactive eddies not yet implemented")
     self$is_reactive <- FALSE
     
@@ -56,7 +56,7 @@ R6Eddy$set("public", "initialize", function(cache_path = NULL,
             dir.create(cache_path, showWarnings = FALSE)
         }
         self$cache_path <- normalizePath(
-            cache_path, winslash = '/', mustWork = TRUE)
+            cache_path, winslash = "/", mustWork = TRUE)
     }
     
     self$algo <- algo
@@ -209,7 +209,7 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
 
 # delete_rflow ----
 R6Eddy$set("public", "delete_rflow", function(
-    fn_key, 
+    fn_key,
     from = c("memory", "disk", "all")
 ) {
     from <- match.arg(from)
@@ -372,7 +372,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
 # delete_data ----
 R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
-    if (from == "all") 
+    if (from == "all")
         from <- c("memory", "disk")
     
     # memory

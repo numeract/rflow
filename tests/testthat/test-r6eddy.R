@@ -1,6 +1,6 @@
 context("R6Eddy functions")
 
-cache_path <- 'cache'
+cache_path <- "cache"
 key <- "sum_result"
 eddy_name <- "new_eddy"
 
@@ -89,7 +89,7 @@ test_that("delete_data() works with rflow", {
     
     eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
     
-    rf <- make_rflow(sum, eddy = eddy) 
+    rf <- make_rflow(sum, eddy = eddy)
     rflow <- environment(rf)$self
     
     fn_key <- make_fn_key(diff, eddy)

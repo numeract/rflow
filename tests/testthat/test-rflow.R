@@ -334,13 +334,6 @@ test_that("get_element() checks for state", {
 
     rf(1, 2)
     
-    # TODO: test for split output
-    # result <- rflow$get_element(name = "foo")
-    #
-    # expect_equal(is_valid, true)
-    # expect_equal(result$element_hash,
-    # rflow$output_state$elem_hash[found_state_idx])
-    
     result <- rflow$get_element()
 
     expect_equal(result$elem_hash, rflow$state$out_hash)
@@ -366,13 +359,6 @@ test_that("collect() works", {
 
     rf(1, 2)
 
-    # TODO: test for split output
-    # result <- rflow$get_element(name = "foo")
-    #
-    # expect_equal(is_valid, true)
-    # expect_equal(result$element_hash,
-    # rflow$output_state$elem_hash[found_state_idx])
-
     result <- rflow$collect()
 
     expect_equal(result, 2)
@@ -391,7 +377,7 @@ test_that("rflow works with split_output_fn parameter", {
     
     f <- function(b, c = 2) { list(b = b, c = c, bc = b * c) }
     # since the output is already a list, extract/calc items of interest
-    so_f <- function(l) list(bc = l$bc, cc = l$c^2)
+    so_f <- function(l) list(bc = l$bc, cc = l$c ^ 2)
     
     rf <- make_rflow(f, split_output_fn = so_f)
     rflow <- environment(rf)$self
@@ -439,7 +425,7 @@ test_that("split_output_fn is valid", {
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
     
-    so_f <- function(l) list(l$bc, l$c^2)
+    so_f <- function(l) list(l$bc, l$c ^ 2)
     
     rf <- make_rflow(f, split_output_fn = so_f)
     
@@ -447,7 +433,7 @@ test_that("split_output_fn is valid", {
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
     
-    so_f <- function(l) list(l$bc, b = l$c^2, l$bc)
+    so_f <- function(l) list(l$bc, b = l$c ^ 2, l$bc)
     
     rf <- make_rflow(f, split_output_fn = so_f)
     
@@ -455,7 +441,7 @@ test_that("split_output_fn is valid", {
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
     
-    so_f <- function() { matrix(l$bc, l$c^2) }
+    so_f <- function() { matrix(l$bc, l$c ^ 2) }
     
     rf <- make_rflow(f, split_output_fn = so_f)
     
