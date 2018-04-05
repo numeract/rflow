@@ -6,7 +6,7 @@
 
 # R6Flow ----
 R6Flow <- R6::R6Class(
-    classname = 'R6Flow',
+    classname = "R6Flow",
     public = list(
         # original fn (declare as obj to avoid locking of R6 methods)
         fn = NULL,
@@ -25,7 +25,7 @@ R6Flow <- R6::R6Class(
         
         initialize = function(fn,
                               fn_key = NULL,
-                              fn_name = 'missing',
+                              fn_name = "missing",
                               hash_input_fn = NULL,
                               split_output_fn = NULL,
                               eddy = get_default_eddy()) {},
@@ -69,9 +69,9 @@ R6Flow$set("public", "rf_fn", function(...) {
     # supplied arguments
     supplied_args <- as.list(mc)[-1]
     # default arguments that have not been supplied
-    default_args <- 
+    default_args <-
         as.list(formals()) %>%
-        purrr::discard(~ identical(., quote(expr = ))) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>% # nolint
         discard_at(names(supplied_args))
     # supplied args eval in the evaluation frame of the calling function
     # default args eval in the evaluation frame of the original function
@@ -82,11 +82,11 @@ R6Flow$set("public", "rf_fn", function(...) {
     
     # R6FlowElement/R6Flow args are treated different
     # for consistency, transform R6Flow into a R6FlowElement
-    rflow_args <- 
+    rflow_args <-
         eval_args %>%
         purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
         purrr::map_if(
-            .p = ~ inherits(., "R6Flow"), 
+            .p = ~ inherits(., "R6Flow"),
             .f = ~ .$get_element(name = NULL)
         )
     
@@ -106,7 +106,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         }
         if (length(rflow_args) > 0L && self$eddy$is_reactive) {
             stop("reactive eddies not yet implemented")
-        } 
+        }
         
         # non-rflow / static args use their data for hashing
         static_data <- eval_args %>%
@@ -152,7 +152,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         if (!is.null(self$split_output_fn)) {
             vis_out_lst <- withVisible(self$split_output_fn(out_data$value))
             out_lst <- vis_out_lst$value
-            if (!is.list(out_lst)) 
+            if (!is.list(out_lst))
                 stop("split_output_fn() must return a named list")
             out_nms <- names(out_lst) %if_not_in% ""
             if (length(out_nms) != length(out_lst))
@@ -172,7 +172,7 @@ R6Flow$set("public", "rf_fn", function(...) {
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get the data
-    # we could have returned a structure similar to $element(), but 
+    # we could have returned a structure similar to $element(), but
     # - $collect() would require $self$collect(), or
     # - adding a new collect function preserves its encl envir, takes memory
     self
@@ -182,7 +182,7 @@ R6Flow$set("public", "rf_fn", function(...) {
 # initialize ----
 R6Flow$set("public", "initialize", function(fn,
                                             fn_key = NULL,
-                                            fn_name = 'missing',
+                                            fn_name = "missing",
                                             hash_input_fn = NULL,
                                             split_output_fn = NULL,
                                             eddy = get_default_eddy()) {
@@ -190,9 +190,9 @@ R6Flow$set("public", "initialize", function(fn,
     if (is.null(fn_key)) fn_key <- make_fn_key(fn, eddy)
     
     found <- eddy$find_rflow(fn_key)
-    if (found == 'memory')
+    if (found == "memory")
         stop("rflow object with key ", fn_key, " already present in eddy")
-    if (found == 'disk') {
+    if (found == "disk") {
         # load previous state from disk (special key = fn_key)
         # for now, it still needs fn, fn_name, hash_input_fn, split_output_fn
         rflow_data <- eddy$get_data(fn_key, fn_key)
@@ -209,12 +209,12 @@ R6Flow$set("public", "initialize", function(fn,
     self$eddy <- eddy
     
     # R6 locks methods / functions found in public list
-    unlockBinding('rf_fn', self)
+    unlockBinding("rf_fn", self)
     # rf_fn and fn have the same arguments
     formals(self$rf_fn) <- formals(args(fn))
     # the enclosing envir of rn_fn is not changed to preserve access to self$
     # all args of this initialize function are transfered to new R6 obj
-    lockBinding('rf_fn', self)
+    lockBinding("rf_fn", self)
     
     if (is.null(rflow_data)) {
         # state
@@ -259,6 +259,7 @@ R6Flow$set("public", "save", function() {
 
 
 # print ----
+# nocov start
 R6Flow$set("public", "print", function() {
     
     name <- ifelse(
@@ -276,6 +277,7 @@ R6Flow$set("public", "print", function() {
     
     invisible(self)
 }, overwrite = TRUE)
+# nocov end
 
 
 # get_element ----
@@ -325,7 +327,7 @@ R6Flow$set("public", "collect", function(name = NULL) {
             self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == name
         )
-        if (length(found_state_idx) != 1L) 
+        if (length(found_state_idx) != 1L)
             stop("Cannot find output element: ", name)
         elem_hash <- self$output_state$elem_hash[found_state_idx]
         vis_out_lst <- self$eddy$get_data(elem_hash, self$fn_key)
@@ -353,7 +355,7 @@ R6Flow$set("public", "collect_hash", function(name = NULL) {
             self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == name
         )
-        if (length(found_state_idx) != 1L) 
+        if (length(found_state_idx) != 1L)
             stop("Cannot find output element: ", name)
         self$output_state$elem_hash[found_state_idx]
     }
@@ -363,7 +365,7 @@ R6Flow$set("public", "collect_hash", function(name = NULL) {
 # find_state_index ----
 R6Flow$set("public", "find_state_index", function(in_hash) {
     
-    # since we just looking for the index, we do not check if the 
+    # since we just looking for the index, we do not check if the
     # eddy contains the cache
     found_state_idx <- which(
         self$state$in_hash == in_hash &
@@ -437,11 +439,11 @@ R6Flow$set("public", "check_state", function(index = NULL) {
 
 
 # add_state ----
-R6Flow$set("public", "add_state", function(in_hash, 
-                                            out_hash, 
+R6Flow$set("public", "add_state", function(in_hash,
+                                            out_hash,
                                             make_current = TRUE) {
     
-    self$state <- 
+    self$state <-
         self$state %>%
         tibble::add_row(
             in_hash = in_hash,
@@ -473,8 +475,8 @@ R6Flow$set("public", "get_out_hash", function(in_hash) {
 
 
 # add_output_state ----
-R6Flow$set("public", "add_output_state", function(out_hash, 
-                                                   elem_name, 
+R6Flow$set("public", "add_output_state", function(out_hash,
+                                                   elem_name,
                                                    elem_hash) {
     
     found_state_idx <- which(
@@ -486,9 +488,9 @@ R6Flow$set("public", "add_output_state", function(out_hash,
     output_state <- self$output_state
     if (len == 1L) {
         output_state <- output_state[-found_state_idx, , drop = FALSE]
-    } 
+    }
     
-    self$output_state <- 
+    self$output_state <-
         output_state %>%
         tibble::add_row(
             out_hash = out_hash,

@@ -53,10 +53,10 @@ now_utc <- function(length = 1L) {
     stopifnot(base::length(len) == 1L || len >= 0L)
     
     if (len == 0L) {
-        as.POSIXct(character(), tz = 'UTC')
+        as.POSIXct(character(), tz = "UTC")
     } else {
         now <- Sys.time()
-        attr(now, "tzone") <- 'UTC'
+        attr(now, "tzone") <- "UTC"
         rep(now, len)
     }
 }

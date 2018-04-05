@@ -9,8 +9,8 @@ make_fn_key <- function(fn, eddy) {
     # unique fn_key = hash of fn's defined arguments and body
     fn_formals <- formals(args(fn))
     arg_chr <- paste(
-        paste(names(fn_formals), as.character(fn_formals), sep = '='),
-        collapse = ', '
+        paste(names(fn_formals), as.character(fn_formals), sep = "="),
+        collapse = ", "
     )
     body_chr <- as.character(body(fn))
     fn_key <- eddy$digest(c(arg_chr, body_chr))
@@ -22,7 +22,7 @@ make_fn_key <- function(fn, eddy) {
 #' Cache a function.
 #'
 #' @param fn Function to be cached, ideally a pure function.
-#' @param hash_input_fn Custom function to process only a part of the input 
+#' @param hash_input_fn Custom function to process only a part of the input
 #'   (e.g. skip one fn inputs - not recommended).
 #' @param split_output_fn Custom function to split the output into a list,
 #'  in order to hash its elements separately.
@@ -45,7 +45,7 @@ make_rflow <- function(fn,
         stopifnot(identical(fn_formals, hash_input_fn_formals))
     }
     if (!is.null(split_output_fn)) stopifnot(is.function(split_output_fn))
-    stopifnot(inherits(eddy, 'R6Eddy'))
+    stopifnot(inherits(eddy, "R6Eddy"))
     
     # best place to capture the name of the function
     # fn_name (the binding) is irrelevant (it's the args and body that matter)
@@ -59,7 +59,7 @@ make_rflow <- function(fn,
     }
     fn_key <- make_fn_key(fn, eddy)
     
-    if (eddy$find_rflow(fn_key) == 'memory') {
+    if (eddy$find_rflow(fn_key) == "memory") {
         rflow <- eddy$get_rflow(fn_key)
     } else {
         rflow <- R6Flow$new(

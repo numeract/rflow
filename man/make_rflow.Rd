@@ -10,7 +10,7 @@ make_rflow(fn, hash_input_fn = NULL, split_output_fn = NULL,
 \arguments{
 \item{fn}{Function to be cached, ideally a pure function.}
 
-\item{hash_input_fn}{Custom function to process only a part of the input 
+\item{hash_input_fn}{Custom function to process only a part of the input
 (e.g. skip one fn inputs - not recommended).}
 
 \item{split_output_fn}{Custom function to split the output into a list,
