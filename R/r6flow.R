@@ -502,5 +502,5 @@ R6Flow$set("public", "add_output_state", function(out_hash,
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
     
-    !is.na(self$state_index) #nocov
+    !is.na(self$state_index)
 }, overwrite = TRUE)

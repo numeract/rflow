@@ -359,7 +359,7 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
     if (!is.null(self$cache_path)) {
         fn_path <- file.path(self$cache_path, fn_key)
         if (!dir.exists(fn_path)) {
-            dir.create(fn_path, showWarnings = FALSE) # nocov
+            dir.create(fn_path, showWarnings = FALSE)
         }
         saveRDS(value, file = file.path(fn_path, paste0(key, ".rds")))
     }

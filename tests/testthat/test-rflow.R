@@ -239,12 +239,16 @@ test_that("make_rflow() states work", {
     rf <- make_rflow(f)
     rflow <- environment(rf)$self
 
+    expect_false(rflow$is_valid)
+    
     expect_equal(f(1), 10)
     expect_equal(f(2), 11)
     expect_equal(collect(rf(1)), f(1))
     expect_equal(collect(rf(2)), f(2))
     expect_identical(rf(1), rflow)
 
+    expect_true(rflow$is_valid)
+    
     # detects a change in the default values
     w <- 5
     expect_equal(f(1), 12)
