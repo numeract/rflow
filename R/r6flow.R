@@ -71,7 +71,7 @@ R6Flow$set("public", "rf_fn", function(...) {
     # default arguments that have not been supplied
     default_args <-
         as.list(formals()) %>%
-        purrr::discard(~ identical(., quote(expr = ))) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>% # nolint
         discard_at(names(supplied_args))
     # supplied args eval in the evaluation frame of the calling function
     # default args eval in the evaluation frame of the original function
@@ -259,7 +259,8 @@ R6Flow$set("public", "save", function() {
 
 
 # print ----
-R6Flow$set("public", "print", function() { # nocov start
+# nocov start
+R6Flow$set("public", "print", function() {
     
     name <- ifelse(
         is.null(self$fn_name),
@@ -275,7 +276,8 @@ R6Flow$set("public", "print", function() { # nocov start
     print(as.data.frame(self$state))
     
     invisible(self)
-}, overwrite = TRUE) # nocov end
+}, overwrite = TRUE)
+# nocov end
 
 
 # get_element ----

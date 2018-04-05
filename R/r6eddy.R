@@ -76,7 +76,7 @@ R6Eddy$set("public", "reset", function() {
         unlink(self$cache_path, recursive = TRUE)
         Sys.sleep(1)
         if (dir.exists(self$cache_path)) {
-            stop("cache folder couldn't be deleted.")
+            stop("cache folder couldn't be deleted.") # nocov
         }
     }
     
@@ -85,7 +85,8 @@ R6Eddy$set("public", "reset", function() {
 
 
 # print ----
-R6Eddy$set("public", "print", function() { # nocov start
+# nocov start
+R6Eddy$set("public", "print", function() {
     
     no_rflows <- "no RFlows"
     cached_fn <- "NA"
@@ -151,7 +152,8 @@ R6Eddy$set("public", "print", function() { # nocov start
     print(as.data.frame(m))
     
     invisible(self)
-}, overwrite = TRUE) # nocov end
+}, overwrite = TRUE)
+# nocov end
 
 
 # find_rflow ----
