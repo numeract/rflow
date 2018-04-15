@@ -1,3 +1,7 @@
+# rflow 0.2.1
+
+- collect is now an S3 method, using the S3 generic from dplyr
+
 # rflow 0.2.0
 
 - new functions: new_eddy, get_eddy, delete_eddy

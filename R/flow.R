@@ -76,21 +76,51 @@ make_rflow <- function(fn,
 }
 
 
-#' Get the data from an R6Flow object.
-#'
-#' @param rf_fn Function cached with RFlow.
-#' @param name Element of the output data to be selected.
+#' @importFrom dplyr collect
+#' @name collect
+#' @rdname collect.R6Flow
+#' @export
+NULL
+
+
+#' Get the data from an \code{R6Flow} or an \code{R6FlowElement} object.
+#' 
+#' @param x Function cached with RFlow.
+#' @param ... Element of the output data to be selected. If present, it should
+#'   be named \code{name}, otherwise the first item of the \code{...} list
+#'   will be used. The default is \code{name = NULL}, which returns the whole
+#'   output.
 #' 
 #' @return Data associated with the output of the function.
-#'
+#' 
 #' @export
-collect <- function(rf_fn, name = NULL) {
+#' @method collect R6Flow
+collect.R6Flow <- function(x, ...) {
     
-    if (inherits(rf_fn, "R6FlowElement")) {
-        rf_fn$self$collect(name = name)
-    } else if (inherits(rf_fn, "R6Flow")) {
-        rf_fn$collect(name = name)
+    arg_lst <- list(...)
+    arg_name <- if ("name" %in% arg_lst || length(arg_lst) == 0L) {
+        # NULL if no arguments present
+        arg_lst$name
     } else {
-        stop("Not an rflow object or element of an rflow output")
+        # there is at least one argument, not `name`; assume it is `name`
+        arg_lst[[1L]]
     }
+    x$collect_data(name = arg_name)
+}
+
+
+#' @rdname collect.R6Flow
+#' @export
+#' @method collect R6FlowElement
+collect.R6FlowElement <- function(x, ...) {
+    
+    arg_lst <- list(...)
+    arg_name <- if ("name" %in% arg_lst || length(arg_lst) == 0L) {
+        # NULL if no arguments present
+        arg_lst$name
+    } else {
+        # there is at least one argument, not `name`; assume it is `name`
+        arg_lst[[1L]]
+    }
+    x$self$collect_data(name = arg_name)
 }

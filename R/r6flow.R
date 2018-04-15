@@ -32,7 +32,7 @@ R6Flow <- R6::R6Class(
         save = function() {},
         print = function() {},
         get_element = function(name = NULL) {},
-        collect = function(name = NULL) {},
+        collect_data = function(name = NULL) {},
         collect_hash = function(name = NULL) {},
         # internal states
         state = NULL,
@@ -135,7 +135,7 @@ R6Flow$set("public", "rf_fn", function(...) {
         # avoid purrr to guarantee no unexpected effects since we have a call
         for (nm in names(rflow_args)) {
             rflow_elem <- rflow_args[[nm]]
-            mc[[nm]] <- rflow_elem$self$collect(name = rflow_elem$name)
+            mc[[nm]] <- rflow_elem$self$collect_data(name = rflow_elem$name)
         }
         # need to preserve (and cache) the visibility of the return
         # eval envir must be the parent.frame of this func, not of withVisible
@@ -171,9 +171,9 @@ R6Flow$set("public", "rf_fn", function(...) {
         self$save()
     }
     
-    # return the R6Flow obj instead of its data, use $collect() to get the data
+    # return the R6Flow obj instead of its data, use $collect_data() to get data
     # we could have returned a structure similar to $element(), but
-    # - $collect() would require $self$collect(), or
+    # - $collect_data() would require $self$collect_data(), or
     # - adding a new collect function preserves its encl envir, takes memory
     self
 }, overwrite = TRUE)
@@ -311,8 +311,8 @@ R6Flow$set("public", "get_element", function(name = NULL) {
 }, overwrite = TRUE)
 
 
-# collect ----
-R6Flow$set("public", "collect", function(name = NULL) {
+# collect_data ----
+R6Flow$set("public", "collect_data", function(name = NULL) {
     
     state <- self$get_state()
     if (is.null(state) || nrow(state) == 0L) {

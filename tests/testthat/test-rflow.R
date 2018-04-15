@@ -363,14 +363,14 @@ test_that("collect() works", {
 
     rf(1, 2)
 
-    result <- rflow$collect()
+    result <- rflow$collect_data()
 
     expect_equal(result, 2)
 
     rflow$state <- data.frame()
     rflow$state_index <- NA_integer_
 
-    result <- rflow$collect()
+    result <- rflow$collect_data()
     expect_equal(result$vis_out_lst$value, NULL)
 
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
@@ -387,10 +387,10 @@ test_that("rflow works with split_output_fn parameter", {
     rflow <- environment(rf)$self
     
     rf(2, 3)
-    result <- rflow$collect()
-    result_bc <- rflow$collect(name = "bc")
-    result_cc <- rflow$collect(name = "cc")
-    expect_error(rflow$collect(name = "dd"))
+    result <- rflow$collect_data()
+    result_bc <- rflow$collect_data(name = "bc")
+    result_cc <- rflow$collect_data(name = "cc")
+    expect_error(rflow$collect_data(name = "dd"))
 
     expect_equal(result, list(b = 2, c = 3, bc = 6))
     expect_equal(result_bc, 6)

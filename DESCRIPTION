@@ -1,7 +1,7 @@
 Package: rflow
 Type: Package
 Title: Flexible R Pipelines with Caching
-Version: 0.2.0
+Version: 0.2.1
 Author: c(
     person("Mike", "Badescu", email = "mike.badescu@numeract.com", role = c("aut", "cre")),
     person("Ana-Maria", "Niculescu", role = "aut"),
@@ -22,6 +22,7 @@ Depends:
     R (>= 3.4)
 Imports:
     digest,
+    dplyr,
     magrittr,
     purrr,
     R6,
