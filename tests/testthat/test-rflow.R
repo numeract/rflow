@@ -8,7 +8,7 @@ test_that("make_rflow() works", {
     f <- function() { i <<- i + 1; i }
     rf <- make_rflow(f)
 
-    expect_warning(rf <- make_rflow(f), NA)
+    expect_warning(rf, NA)
     expect_equal(f(), 1)
     expect_equal(f(), 2)
     # +1 due to f running one more time
@@ -27,7 +27,7 @@ test_that("make_rflow() works with function with one argument", {
     f <- function(j) { i <<- i + 1; i }
     rf <- make_rflow(f)
 
-    expect_warning(rf <- make_rflow(f), NA)
+    expect_warning(rf, NA)
     expect_equal(f(), 1)
     expect_equal(f(), 2)
     # +1 due to f running one more time
