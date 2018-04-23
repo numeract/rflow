@@ -71,9 +71,9 @@ R6Flow$set("public", "rf_fn", function(...) {
     # default arguments that have not been supplied
     default_args <-
         as.list(formals()) %>%
-        purrr::discard(~ identical(., quote(expr = ))) %>% # nolint
+        purrr::discard(~ identical(., quote(expr=))) %>% # nolint
         discard_at(names(supplied_args))
-    # supplied args eval in the evaluation frame of the calling function
+    # supplied args eval in the evaluation frame22 of the calling function
     # default args eval in the evaluation frame of the original function
     eval_args <- c(
         lapply(supplied_args, eval, envir = parent.frame()),
