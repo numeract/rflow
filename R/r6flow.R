@@ -8,7 +8,7 @@
 R6Flow <- R6::R6Class(
     classname = "R6Flow",
     public = list(
-        # original fn (declare as obj to avoid locking of R6 methods)
+        # original fn (declared as obj to bypass locking of R6 methods)
         fn = NULL,
         # hash of fn's defined arguments and body
         fn_key = character(),
