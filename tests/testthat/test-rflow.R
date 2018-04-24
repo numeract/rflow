@@ -120,39 +120,30 @@ test_that("make_rflow() works with primitive function", {
 })
 
 
-test_that("make_rflow() works with rflow arguments", {
-
-    rf1 <- make_rflow(sum)
-    rf2 <- make_rflow(abs)
+test_that("make_rflow() works with rflow arguments and %>%", {
     
-    f <- function(rf1, rf2, i = 1) {
-        x <- collect(rf1(1, 3))
-        y <- collect(rf2(-3))
-        
-        i <- i + 1
-        
-        list(x, y)
-    }
-
-    rflow <- make_rflow(f)
+    f1 <- sum
+    rf1 <- make_rflow(f1)
     
-    expect_equal(list(4, 3), collect(rflow(rf1, rf2)))
-
+    f2 <- abs
+    rf2 <- make_rflow(f2)
+    
+    z <- f1(-5, 3)
+    rz <- rf1(-5, 3)
+    expect_equal(z, collect(rz))
+    
+    w <- f2(z)
+    rw <- rf2(rz)
+    expect_equal(w, collect(rw))
+    
+    rq <- rf1(-5, 3) %>% rf2()
+    expect_equal(w, collect(rq))
+    
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
 
 
 test_that("make_rflow() works with missing arguments", {
-    
-    f <- function(x, y) {
-        i <<- i + 1
-        if (missing(y)) {
-            y <- 1
-        }
-        x + y
-    }
-    rf <- make_rflow(f)
-    i <- 0
     
     f <- function(x, y) {
         i <<- i + 1
@@ -172,6 +163,7 @@ test_that("make_rflow() works with missing arguments", {
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
+
 
 test_that("make_rflow() keeps function visibility", {
 
