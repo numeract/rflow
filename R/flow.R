@@ -50,9 +50,9 @@ make_rflow <- function(fn,
     # best place to capture the name of the function
     # fn_name (the binding) is irrelevant (it's the args and body that matter)
     # but it is useful from the point of view of the human mind (debug)
-    mc <- match.call()
-    if (is.symbol(mc$fn)) {
-        fn_name <- as.character(mc$fn)
+    match_call <- match.call()
+    if (is.symbol(match_call$fn)) {
+        fn_name <- as.character(match_call$fn)
     } else {
         # anonymous function
         fn_name <- "anonymous"
@@ -66,6 +66,7 @@ make_rflow <- function(fn,
             fn = fn,
             fn_key = fn_key,
             fn_name = fn_name,
+            fn_source_arg = NULL,
             hash_input_fn = hash_input_fn,
             split_output_fn = split_output_fn,
             eddy = eddy
