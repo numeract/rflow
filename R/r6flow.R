@@ -63,33 +63,6 @@ R6Flow <- R6::R6Class(
 
 
 # calc_in_hash ----
-R6Flow$set("public", "calc_in_hash_source", function(rf_env = parent.frame()) {
-    
-    file_path <- rf_env$eval_args[[self$fn_source_arg]]
-    stopifnot(rlang::is_scalar_character(file_path) || !is.na(file_path))
-    
-    if (!file.exists(file_path)) {
-        in_hash <- self$eddy$digest(object = NULL)
-    } else {
-        in_hash <- self$eddy$digest(object = file_path, file = TRUE)
-    }
-    
-    in_hash
-}, overwrite = TRUE)
-
-
-R6Flow$set("public", "calc_in_hash_custom", function(rf_env = parent.frame()) {
-    
-    # we already checked that fn and hash_input_fn have the same formals
-    match_call <- rf_env$match_call
-    match_call[[1L]] <- self$hash_input_fn
-    res <- eval(match_call, envir = parent.frame(n = 2))
-    in_hash <- self$eddy$digest(res)
-    
-    in_hash
-}, overwrite = TRUE)
-
-
 R6Flow$set("public", "calc_in_hash_default", function(rf_env = parent.frame()) {
     
     rflow_hash <- NULL
@@ -112,6 +85,33 @@ R6Flow$set("public", "calc_in_hash_default", function(rf_env = parent.frame()) {
         discard_at(names(rf_env$rflow_args))
     
     in_hash <- self$eddy$digest(c(rflow_hash, static_data))
+    
+    in_hash
+}, overwrite = TRUE)
+
+
+R6Flow$set("public", "calc_in_hash_custom", function(rf_env = parent.frame()) {
+    
+    # we already checked that fn and hash_input_fn have the same formals
+    match_call <- rf_env$match_call
+    match_call[[1L]] <- self$hash_input_fn
+    res <- eval(match_call, envir = parent.frame(n = 2))
+    in_hash <- self$eddy$digest(res)
+    
+    in_hash
+}, overwrite = TRUE)
+
+
+R6Flow$set("public", "calc_in_hash_source", function(rf_env = parent.frame()) {
+    
+    file_path <- rf_env$eval_args[[self$fn_source_arg]]
+    stopifnot(rlang::is_scalar_character(file_path) || !is.na(file_path))
+    
+    if (!file.exists(file_path)) {
+        in_hash <- self$eddy$digest(object = NULL)
+    } else {
+        in_hash <- self$eddy$digest(object = file_path, file = TRUE)
+    }
     
     in_hash
 }, overwrite = TRUE)

@@ -1,3 +1,8 @@
+# rflow 0.2.1.9001
+
+- added file source
+
+
 # rflow 0.2.1
 
 - collect is now an S3 method, using the S3 generic from dplyr

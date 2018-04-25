@@ -4,49 +4,42 @@
 # !diagnostics suppress=.
 
 
-file_source <- function(file_path,
-                        eddy = get_default_eddy()
+make_file_source <- function(fn,
+                             file_arg = 1,
+                             split_output_fn = NULL,
+                             eddy = get_default_eddy()
 ) {
-    stopifnot(rlang::is_scalar_character(file_path))
+    # follow make_rflow, with some changes
+    
+    stopifnot(is.function(fn))
+    stopifnot(
+        rlang::is_scalar_character(file_arg) || 
+        rlang::is_scalar_integerish(file_arg)
+    )
+    if (!is.null(split_output_fn)) stopifnot(is.function(split_output_fn))
     stopifnot(inherits(eddy, "R6Eddy"))
     
-    # we must provide a function to init R6Flow, use the simplest fn possible
-    # fn_name is the name of the file to watch and determines fn_key
-    fn_key <- eddy$digest(file_path)
+    match_call <- match.call()
+    if (is.symbol(match_call$fn)) {
+        fn_name <- as.character(match_call$fn)
+    } else {
+        fn_name <- "anonymous"
+    }
+    fn_key <- make_fn_key(fn, eddy)
     
     if (eddy$find_rflow(fn_key) == "memory") {
         rflow <- eddy$get_rflow(fn_key)
     } else {
         rflow <- R6Flow$new(
-            fn = base::identity,
+            fn = fn,
             fn_key = fn_key,
-            fn_name = paste0("source:", file_path),
+            fn_name = fn_name,
+            fn_source_arg = file_arg,
             hash_input_fn = NULL,
-            split_output_fn = NULL,
+            split_output_fn = split_output_fn,
             eddy = eddy
         )
     }
     
-    # run a simplified version of `rf_fn`
-    if (!file.exists(file_path)) {
-        in_hash <- eddy$digest(object = NULL)
-    } else {
-        in_hash <- eddy$digest(object = file_path, file = TRUE)
-    }
-    
-    found_state_idx <- rflow$find_state_index(in_hash)
-    if (found_state_idx > 0L) {
-        rflow$state_index <- found_state_idx
-        rflow$save()
-    } else {
-        # the output is the same for all in_hash: the file_path
-        out_data <- list(value = file_path, visible = TRUE)
-        out_hash <- eddy$digest(out_data)
-        rflow$add_state(in_hash, out_hash)
-        eddy$add_data(out_hash, out_data, fn_key)
-        rflow$save()
-    }
-    
-    # similar to `rf_fn`, return the R6flow object
-    rflow
+    rflow$rf_fn
 }
