@@ -4,6 +4,17 @@
 # !diagnostics suppress=.
 
 
+#' Cache a function - TODO.
+#'
+#' @param fn Function to be cached, ideally a pure function.
+#' @param file_arg TODO.
+#' @param split_output_fn Custom function to split the output into a list,
+#'  in order to hash its elements separately.
+#' @param eddy R6Eddy object were the data should be stored.
+#' 
+#' @return The cached version of the function.
+#'
+#' @export
 make_file_source <- function(fn,
                              file_arg = 1,
                              split_output_fn = NULL,
