@@ -517,3 +517,39 @@ test_that("make_file_source works", {
     unlink(c(file1, file2, file3))
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
+
+
+# sinks ----
+context("sinks")
+
+
+test_that("make_file_sink works", {
+    
+    file1 <- tempfile(pattern = "test-rflow-")
+    
+    df1 <- tibble::remove_rownames(head(mtcars))
+    df2 <- tibble::remove_rownames(tail(mtcars))
+    
+    f <- write.csv
+    rf <- make_file_sink(f)
+    rflow <- environment(rf)$self
+    
+    rf(df1, file1, row.names = FALSE)
+    file_info1 <- file.info(file1)
+    
+    rf(df1, file1, row.names = FALSE)
+    file_info2 <- file.info(file1)
+    
+    rf(df2, file1, row.names = FALSE)
+    file_info3 <- file.info(file1)
+    
+    expect_equal(file_info2, file_info1)
+    
+    rf(df2, file1, row.names = FALSE)
+    
+    expect_equal(rflow$state_index, 2L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    unlink(c(file1))
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})

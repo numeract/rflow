@@ -25,8 +25,8 @@ R6Flow <- R6::R6Class(
         
         # input hash function (declared as obj to bypass locking of R6 methods)
         calc_in_hash = NULL,
-        # rflow (cached) function
-        rf_fn = function(...) {},
+        # cached function (declared as obj to bypass locking of R6 methods)
+        rf_fn = NULL,
         
         initialize = function(fn,
                               fn_key = NULL,
@@ -49,9 +49,13 @@ R6Flow <- R6::R6Class(
         find_state_index = function(in_hash) {},
         get_state = function(index = NULL) {},
         check_state = function(index = NULL) {},
-        add_state = function(in_hash,
-                             out_hash,
+        add_state = function(in_hash, 
+                             out_hash, 
                              make_current = TRUE) {},
+        update_state = function(index, 
+                                in_hash, 
+                                out_hash, 
+                                make_current = TRUE) {},
         get_out_hash = function(in_hash, fn_key) {},
         add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
@@ -118,7 +122,7 @@ R6Flow$set("public", "calc_in_hash_source", function(rf_env = parent.frame()) {
 
 
 # rf_fn ----
-R6Flow$set("public", "rf_fn", function(...) {
+R6Flow$set("public", "rf_fn_default", function(...) {
     # when called, the formals already match the original fn
     match_call <- match.call()
     
@@ -173,12 +177,13 @@ R6Flow$set("public", "rf_fn", function(...) {
             match_call[[nm]] <- rflow_elem$self$collect_data(
                 name = rflow_elem$name)
         }
+        
         # need to preserve (and cache) the visibility of the return
         # eval envir must be the parent.frame of this func, not of withVisible
         out_data <- withVisible(eval(match_call, envir = parent.frame()))
-        
         # we store the out_hash to avoid (re)hashing for rflow objects
         out_hash <- self$eddy$digest(out_data)
+        
         # adding a new state makes the new state current
         self$add_state(in_hash, out_hash)
         # store out_data in cache
@@ -204,6 +209,7 @@ R6Flow$set("public", "rf_fn", function(...) {
                 self$eddy$add_data(elem_hash, elem_data, self$fn_key)
             }
         }
+        
         self$save()
     }
     
@@ -211,6 +217,64 @@ R6Flow$set("public", "rf_fn", function(...) {
     # we could have returned a structure similar to $element(), but
     # - $collect_data() would require $self$collect_data(), or
     # - adding a new collect function preserves its encl envir, takes memory
+    self
+}, overwrite = TRUE)
+
+
+R6Flow$set("public", "rf_fn_sink", function(...) {
+    # follow rf_fn_default, with some changes
+    
+    match_call <- match.call()
+    
+    supplied_args <- as.list(match_call)[-1]
+    default_args <-
+        as.list(formals()) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>%      # nolint
+        discard_at(names(supplied_args))
+    eval_args <- c(
+        lapply(supplied_args, eval, envir = parent.frame()),
+        lapply(default_args, eval, envir = environment(self$fn))
+    )
+    
+    rflow_args <-
+        eval_args %>%
+        purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
+        purrr::map_if(
+            .p = ~ inherits(., "R6Flow"),
+            .f = ~ .$get_element(name = NULL)
+        )
+    
+    in_hash <- self$calc_in_hash()
+    
+    found_state_idx <- self$find_state_index(in_hash)
+    if (found_state_idx == 0L || found_state_idx != self$state_index) {
+        # either a new state or state changed => call fn for its side effects
+        
+        match_call[[1L]] <- self$fn
+        for (nm in names(rflow_args)) {
+            rflow_elem <- rflow_args[[nm]]
+            match_call[[nm]] <- rflow_elem$self$collect_data(
+                name = rflow_elem$name)
+        }
+        out_data <- withVisible(eval(match_call, envir = parent.frame()))
+        out_hash <- self$eddy$digest(out_data)
+        
+        if (found_state_idx == 0L) {
+            # adding a new state makes the new state current
+            self$add_state(in_hash, out_hash)
+        } else {
+            # update state & make it current
+            self$update_state(found_state_idx, in_hash, out_hash)
+        }
+        # store out_data in cache
+        self$eddy$add_data(out_hash, out_data, self$fn_key)
+        
+        # skip split_output_fn, not defined for sinks
+        
+        self$save()
+    }
+    
+    # return itself to allow pipe after
     self
 }, overwrite = TRUE)
 
@@ -255,13 +319,10 @@ R6Flow$set("public", "initialize", function(fn,
         self$calc_in_hash <- self$calc_in_hash_default
     }
     
-    # R6 locks methods / functions found in public list
-    unlockBinding("rf_fn", self)
+    # the enclosing envir of rn_fn is not changed to preserve access to self$
+    self$rf_fn <- self$rf_fn_default
     # rf_fn and fn have the same arguments
     formals(self$rf_fn) <- formals(args(fn))
-    # the enclosing envir of rn_fn is not changed to preserve access to self$
-    # all args of this initialize function are transfered to new R6 obj
-    lockBinding("rf_fn", self)
     
     if (is.null(rflow_data)) {
         # state
@@ -488,8 +549,8 @@ R6Flow$set("public", "check_state", function(index = NULL) {
 
 # add_state ----
 R6Flow$set("public", "add_state", function(in_hash,
-                                            out_hash,
-                                            make_current = TRUE) {
+                                           out_hash,
+                                           make_current = TRUE) {
     
     self$state <-
         self$state %>%
@@ -500,6 +561,28 @@ R6Flow$set("public", "add_state", function(in_hash,
             time_stamp = now_utc()
         )
     if (make_current) self$state_index <- nrow(self$state)
+    
+}, overwrite = TRUE)
+
+
+# update_state ----
+R6Flow$set("public", "update_state", function(index,
+                                              in_hash,
+                                              out_hash,
+                                              make_current = TRUE) {
+    
+    if (!rlang::is_scalar_integerish(index) || 
+       is.na(index) || index < 1L || index > nrow(self$state)) {
+        stop("update_state> not a valid index")
+    }
+    
+    self$state[index, ] <- list(
+        in_hash = in_hash,
+        out_hash = out_hash,
+        fn_key = self$fn_key,
+        time_stamp = now_utc()
+    )
+    if (make_current) self$state_index <- index
     
 }, overwrite = TRUE)
 
@@ -524,8 +607,8 @@ R6Flow$set("public", "get_out_hash", function(in_hash) {
 
 # add_output_state ----
 R6Flow$set("public", "add_output_state", function(out_hash,
-                                                   elem_name,
-                                                   elem_hash) {
+                                                  elem_name,
+                                                  elem_hash) {
     
     found_state_idx <- which(
         self$output_state$out_hash == out_hash &
