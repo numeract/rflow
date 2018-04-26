@@ -1,3 +1,4 @@
+# special cases ----
 context("make_rflow() special cases")
 
 
@@ -120,8 +121,31 @@ test_that("make_rflow() works with primitive function", {
 })
 
 
-test_that("make_rflow() works with missing arguments", {
+test_that("make_rflow() works with rflow arguments and %>%", {
+    
+    f1 <- sum
+    rf1 <- make_rflow(f1)
+    
+    f2 <- abs
+    rf2 <- make_rflow(f2)
+    
+    z <- f1(-5, 3)
+    rz <- rf1(-5, 3)
+    expect_equal(z, collect(rz))
+    
+    w <- f2(z)
+    rw <- rf2(rz)
+    expect_equal(w, collect(rw))
+    
+    rq <- rf1(-5, 3) %>% rf2()
+    expect_equal(w, collect(rq))
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
 
+
+test_that("make_rflow() works with missing arguments", {
+    
     f <- function(x, y) {
         i <<- i + 1
         if (missing(y)) {
@@ -131,13 +155,13 @@ test_that("make_rflow() works with missing arguments", {
     }
     rf <- make_rflow(f)
     i <- 0
-
+    
     expect_equal(f(1), collect(rf(1)))
     expect_equal(f(1, 2), collect(rf(1, 2)))
     expect_equal(i, 4)
     rf(1)
     expect_equal(i, 4) # i doesn't increment, which is ok
-
+    
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
 
@@ -191,10 +215,10 @@ test_that("make_rflow() function's arguments are evaluated before hashing", {
 
 test_that("interface of wrapper matches interface of cached function", {
 
-    fn <- function(j) { i <<- i + 1; i }
+    f <- function(j) { i <<- i + 1; i }
     i <- 0
 
-    expect_equal(formals(fn), formals(make_rflow(fn)))
+    expect_equal(formals(f), formals(make_rflow(f)))
     expect_equal(formals(runif), formals(make_rflow(runif)))
     expect_equal(formals(paste), formals(make_rflow(paste)))
 
@@ -204,10 +228,10 @@ test_that("interface of wrapper matches interface of cached function", {
 
 test_that("interface of wrapper matches interface of cached function", {
 
-    fn <- function(j) { i <<- i + 1; i }
+    f <- function(j) { i <<- i + 1; i }
     i <- 0
 
-    expect_equal(formals(fn), formals(make_rflow(fn)))
+    expect_equal(formals(f), formals(make_rflow(f)))
     expect_equal(formals(runif), formals(make_rflow(runif)))
     expect_equal(formals(paste), formals(make_rflow(paste)))
     
@@ -253,6 +277,7 @@ test_that("make_rflow() states work", {
 })
 
 
+# Caching ----
 context("Caching")
 
 
@@ -283,6 +308,7 @@ test_that("rflow caching works", {
 })
 
 
+# R6Flow functions ----
 context("R6Flow functions")
 
 
@@ -429,7 +455,7 @@ test_that("split_output_fn is valid", {
     
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
     
-    so_f <- function() { matrix(l$bc, l$c ^ 2) }
+    so_f <- function(l) { matrix(l$bc, l$c ^ 2) }
     
     rf <- make_rflow(f, split_output_fn = so_f)
     
@@ -452,5 +478,78 @@ test_that("check_state() works", {
     expect_equal(rflow$check_state(), TRUE) # we have out_hash in eddy
     expect_equal(rflow$check_state(5), TRUE) # invalid index after state
     
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+# sources ----
+context("sources")
+
+
+test_that("make_file_source works", {
+    
+    file1 <- tempfile(pattern = "test-rflow-")
+    file2 <- tempfile(pattern = "test-rflow-")
+    file3 <- tempfile(pattern = "test-rflow-")
+    
+    df1 <- tibble::remove_rownames(head(mtcars))
+    df2 <- tibble::remove_rownames(tail(mtcars))
+    
+    write.csv(df1, file1, row.names = FALSE)
+    write.csv(df2, file2, row.names = FALSE)
+    write.csv(df1, file3, row.names = FALSE)
+    
+    f <- read.csv
+    rf <- make_file_source(f)
+    rflow <- environment(rf)$self
+    
+    rdf1 <- collect(rf(file1, colClasses = "numeric", stringsAsFactors = FALSE))
+    rdf2 <- collect(rf(file2, colClasses = "numeric", stringsAsFactors = FALSE))
+    rdf3 <- collect(rf(file3, colClasses = "numeric", stringsAsFactors = FALSE))
+    
+    expect_equal(rdf1, df1)
+    expect_equal(rdf2, df2)
+    expect_equal(rdf3, df1)
+    
+    expect_equal(rflow$state_index, 1L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    unlink(c(file1, file2, file3))
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+# sinks ----
+context("sinks")
+
+
+test_that("make_sink works", {
+    
+    file1 <- tempfile(pattern = "test-rflow-")
+    
+    df1 <- tibble::remove_rownames(head(mtcars))
+    df2 <- tibble::remove_rownames(tail(mtcars))
+    
+    f <- write.csv
+    rf <- make_sink(f)
+    rflow <- environment(rf)$self
+    
+    rf(df1, file1, row.names = FALSE)
+    file_info1 <- file.info(file1)
+    
+    rf(df1, file1, row.names = FALSE)
+    file_info2 <- file.info(file1)
+    
+    rf(df2, file1, row.names = FALSE)
+    file_info3 <- file.info(file1)
+    
+    expect_equal(file_info2, file_info1)
+    
+    rf(df2, file1, row.names = FALSE)
+    
+    expect_equal(rflow$state_index, 2L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    unlink(c(file1))
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })

@@ -1,7 +1,7 @@
 Package: rflow
 Type: Package
 Title: Flexible R Pipelines with Caching
-Version: 0.2.1
+Version: 0.2.2
 Author: c(
     person("Mike", "Badescu", email = "mike.badescu@numeract.com", role = c("aut", "cre")),
     person("Ana-Maria", "Niculescu", role = "aut"),
@@ -21,13 +21,15 @@ RoxygenNote: 6.0.1
 Depends:
     R (>= 3.4)
 Imports:
+    crayon,
     digest,
     dplyr,
     magrittr,
     purrr,
     R6,
-    tibble,
-    crayon
+    rlang,
+    tibble
 Suggests: 
     testthat,
-    covr
+    covr,
+    shiny
