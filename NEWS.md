@@ -1,11 +1,13 @@
-# rflow 0.2.1.9002
+# rflow 0.2.2
 
-- added file source and sink
+- added file source
+- add multi-purpose sink
 
 
 # rflow 0.2.1
 
 - collect is now an S3 method, using the S3 generic from dplyr
+
 
 # rflow 0.2.0
 

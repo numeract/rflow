@@ -14,9 +14,9 @@
 #' @return The cached version of the function.
 #'
 #' @export
-make_file_sink <- function(fn,
-                           hash_input_fn = NULL,
-                           eddy = get_default_eddy()
+make_sink <- function(fn,
+                      hash_input_fn = NULL,
+                      eddy = get_default_eddy()
 ) {
     # follow make_rflow, with some changes
     

@@ -1,7 +1,7 @@
 Package: rflow
 Type: Package
 Title: Flexible R Pipelines with Caching
-Version: 0.2.1.9002
+Version: 0.2.2
 Author: c(
     person("Mike", "Badescu", email = "mike.badescu@numeract.com", role = c("aut", "cre")),
     person("Ana-Maria", "Niculescu", role = "aut"),

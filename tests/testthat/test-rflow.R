@@ -523,7 +523,7 @@ test_that("make_file_source works", {
 context("sinks")
 
 
-test_that("make_file_sink works", {
+test_that("make_sink works", {
     
     file1 <- tempfile(pattern = "test-rflow-")
     
@@ -531,7 +531,7 @@ test_that("make_file_sink works", {
     df2 <- tibble::remove_rownames(tail(mtcars))
     
     f <- write.csv
-    rf <- make_file_sink(f)
+    rf <- make_sink(f)
     rflow <- environment(rf)$self
     
     rf(df1, file1, row.names = FALSE)
