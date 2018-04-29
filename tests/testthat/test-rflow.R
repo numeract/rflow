@@ -553,3 +553,63 @@ test_that("make_sink works", {
     unlink(c(file1))
     delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
 })
+
+
+test_that("make_ns_sink works with env", {
+    
+    env <- new.env(parent = emptyenv())
+    
+    rf1 <- make_rflow(sum)
+    rf2 <- make_ns_sink("s", env)
+    rflow <- environment(rf2)$self
+    
+    z <- rf1(1, 2) %>% rf2()
+    expect_equal(collect(z), 3)
+    expect_equal(env$s, 3)
+    expect_equal(rflow$state_index, 1L)
+    expect_equal(nrow(rflow$state), 1L)
+    
+    z <- rf1(3, 2) %>% rf2()
+    expect_equal(collect(z), 5)
+    expect_equal(env$s, 5)
+    expect_equal(rflow$state_index, 2L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    z <- rf1(1, 2) %>% rf2()
+    expect_equal(collect(z), 3)
+    expect_equal(env$s, 3)
+    expect_equal(rflow$state_index, 1L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})
+
+
+test_that("make_ns_sink works with reactiveValues", {
+    
+    rv <- shiny::reactiveValues()
+    
+    rf1 <- make_rflow(sum)
+    rf2 <- make_ns_sink("s", rv)
+    rflow <- environment(rf2)$self
+    
+    z <- rf1(1, 2) %>% rf2()
+    expect_equal(collect(z), 3)
+    expect_equal(shiny::isolate(rv$s), 3)
+    expect_equal(rflow$state_index, 1L)
+    expect_equal(nrow(rflow$state), 1L)
+    
+    z <- rf1(3, 2) %>% rf2()
+    expect_equal(collect(z), 5)
+    expect_equal(shiny::isolate(rv$s), 5)
+    expect_equal(rflow$state_index, 2L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    z <- rf1(1, 2) %>% rf2()
+    expect_equal(collect(z), 3)
+    expect_equal(shiny::isolate(rv$s), 3)
+    expect_equal(rflow$state_index, 1L)
+    expect_equal(nrow(rflow$state), 2L)
+    
+    delete_eddy(eddy_name = .EDDY_DEFAULT_NAME)
+})

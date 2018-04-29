@@ -5,20 +5,22 @@
 
 
 #' Cache a function - TODO.
-#'
+#' 
 #' @param fn Function to be cached, ideally a pure function.
 #' @param hash_input_fn Custom function to process only a part of the input
 #'   (e.g. skip one fn inputs - not recommended).
 #' @param eddy R6Eddy object were the data should be stored.
 #' 
 #' @return The cached version of the function.
-#'
+#' 
 #' @export
 make_sink <- function(fn,
                       hash_input_fn = NULL,
                       eddy = get_default_eddy()
 ) {
     # follow make_rflow, with some changes
+    # sink cannot be a function as collect() because we need to store the 
+    # state of each sink while dealing with multiple sinks
     
     stopifnot(is.function(fn))
     if (!is.null(hash_input_fn)) {
@@ -50,7 +52,61 @@ make_sink <- function(fn,
             eddy = eddy
         )
         rflow$rf_fn <- rflow$rf_fn_sink
+        formals(rflow$rf_fn) <- formals(args(fn))
     }
     
     rflow$rf_fn
+}
+
+
+#' Assigns a value to a name space (an environment or a reactiveValue).
+#' 
+#' @param x Value to assign.
+#' @param var The name (as string) of the variable.
+#' @param ns The name space, either an \code{environment} or a 
+#'   \code{Shiny reactiveValue} object.
+#' 
+#' @return The initial value, \code{x}
+#' 
+#' @export
+to_ns <- function(x, var, ns) {
+    
+    stopifnot(rlang::is_string(var))
+    
+    if (is.environment(ns)) {
+        assign(var, x, envir = ns)
+    } else {
+        ns[[var]] <- x
+    }
+    
+    x
+}
+
+
+#' Cache a function - TODO.
+#' 
+#' @param var The name (as string) of the variable.
+#' @param ns The name space, either an \code{environment} or a 
+#'   \code{Shiny reactiveValue} object.
+#' @param hash_input_fn Custom function to process only a part of the input
+#'   (e.g. skip one fn inputs - not recommended).
+#' @param eddy R6Eddy object were the data should be stored.
+#' 
+#' @return The cached version of the function.
+#' 
+#' @export
+make_ns_sink <- function(var, 
+                         ns,
+                         hash_input_fn = NULL,
+                         eddy = get_default_eddy()
+) {
+    fn <- function(x) {
+        to_ns(x, var, ns)
+    }
+    
+    make_sink(
+        fn = fn,
+        hash_input_fn = NULL,
+        eddy = eddy
+    )
 }
