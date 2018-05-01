@@ -1,4 +1,10 @@
-# rflow 0.2.2
+# rflow 0.3.1
+
+- fix: eddies always create cache_env and dir on disk
+- fix: eddies require registered rflow when adding data
+
+
+# rflow 0.3.0
 
 - added file source
 - add multi-purpose sink

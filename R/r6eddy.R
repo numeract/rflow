@@ -88,15 +88,15 @@ R6Eddy$set("public", "reset", function() {
 # nocov start
 R6Eddy$set("public", "print", function() {
     
-    no_rflows <- "no RFlows"
+    no_rflows <- "no rflows"
     cached_fn <- "NA"
     cache_path <- "NA"
     
     if (!is.null(self$cache_path)) {
-        cache_path < paste0("\"", self$cache_path, "\"")
+        cache_path <- paste0("\"", self$cache_path, "\"")
     }
     
-    no_rflows <- paste0(length(self$rflow_lst), " rflow")
+    no_rflows <- paste0(length(self$rflow_lst), " rflow(s)")
     
     cat(crayon::italic("R6Eddy"), " with ", crayon::bold(no_rflows), ":\n",
         "  - name: ", crayon::italic(self$name), "\n",
@@ -126,12 +126,11 @@ R6Eddy$set("public", "print", function() {
         is_rflow <- inherits(self$rflow_lst[[fn_key]], "R6Flow")
         
         cache_env <- self$cache_lst[[fn_key]]
-        if (!is.null(cache_env)) {
-            in_memory <- length(ls(cache_env))
-        }
+        in_memory <- length(ls(cache_env))
         
         if (!is.null(self$cache_path)) {
-            on_disk <- length(list.files(file.path(self$cache_path, fn_key)))
+            fn_path <- file.path(self$cache_path, fn_key)
+            on_disk <- length(list.files(fn_path))
         }
         
         state <- NA
@@ -163,7 +162,8 @@ R6Eddy$set("public", "find_rflow", function(fn_key) {
         "memory"
     } else {
         if (!is.null(self$cache_path)) {
-            if (dir.exists(file.path(self$cache_path, fn_key))) {
+            fn_path <- file.path(self$cache_path, fn_key)
+            if (dir.exists(fn_path)) {
                 "disk"
             } else {
                 "missing"
@@ -202,6 +202,19 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
         # FALSE
     } else {
         self$rflow_lst[[fn_key]] <- rflow
+        
+        # memory
+        cache_env <- new.env(hash = TRUE, parent = emptyenv())
+        self$cache_lst[[fn_key]] <- cache_env
+        
+        # disk
+        if (!is.null(self$cache_path)) {
+            fn_path <- file.path(self$cache_path, fn_key)
+            if (!dir.exists(fn_path)) {
+                dir.create(fn_path, showWarnings = FALSE)
+            }
+        }
+        
         # TODO: update adjacency matrix
         
         TRUE
@@ -210,9 +223,8 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
 
 
 # delete_rflow ----
-R6Eddy$set("public", "delete_rflow", function(
-    fn_key,
-    from = c("memory", "disk", "all")
+R6Eddy$set("public", "delete_rflow", function(fn_key,
+                                              from = c("memory", "disk", "all")
 ) {
     from <- match.arg(from)
     if (from == "all") from <- c("memory", "disk")
@@ -221,17 +233,11 @@ R6Eddy$set("public", "delete_rflow", function(
     # example: if remove from L2 = disk, also remove from memory
     # valid values for from: TBD
     
-    if ("disk" %in% from) {
+    if ("disk" %in% from && !is.null(self$cache_path)) {
         fn_path <- file.path(self$cache_path, fn_key)
-        res <- TRUE
-        for (key in list.files(fn_path)) {
-            res <- res && self$delete_data(key, fn_key, from = "all")
-        }
-        res
-        # delete folder on disk
         unlink(fn_path, recursive = TRUE)
     }
-    # delete cache envir from memory
+    
     self$cache_lst[[fn_key]] <- NULL
     self$rflow_lst[[fn_key]] <- NULL
     
@@ -254,13 +260,15 @@ R6Eddy$set("public", "forget_rflow", function(fn_key) {
         if (!is.null(self$cache_path)) {
             # for now, find keys based on disk fn_key
             fn_path <- file.path(self$cache_path, fn_key)
-            keys <- c(keys, list.files(fn_path))
+            file_keys <- tools::file_path_sans_ext(list.files(fn_path))
+            keys <- c(keys, file_keys)
             keys <- unique(keys)
         }
         res <- TRUE
         for (key in keys) {
             res <- res && self$delete_data(key, fn_key, from = "all")
         }
+
         res
     }
 }, overwrite = TRUE)
@@ -290,8 +298,9 @@ R6Eddy$set("public", "find_key", function(key, fn_key) {
         "memory"
     } else {
         if (!is.null(self$cache_path)) {
-            key_on_disk <- file.exists(
-                file.path(self$cache_path, fn_key, paste0(key, ".rds")))
+            fn_path <- file.path(self$cache_path, fn_key)
+            file_name <- paste0(key, ".rds")
+            key_on_disk <- file.exists(file.path(fn_path, file_name))
             if (key_on_disk) {
                 "disk"
             } else {
@@ -317,21 +326,18 @@ R6Eddy$set("public", "has_data", function(key, fn_key) {
 R6Eddy$set("public", "get_data", function(key, fn_key) {
     
     found <- self$find_key(key, fn_key)
+    cache_env <- self$cache_lst[[fn_key]]
+    
     if (found == "memory") {
-        cache_env <- self$cache_lst[[fn_key]]
         get(key, envir = cache_env, inherits = FALSE)
     } else if (found == "disk") {
         # self$cache_path is not null since key was found on disk
-        value <- readRDS(
-            file = file.path(self$cache_path, fn_key, paste0(key, ".rds")))
+        fn_path <- file.path(self$cache_path, fn_key)
+        file_name <- paste0(key, ".rds")
+        value <- readRDS(file = file.path(fn_path, file_name))
         # copy value (data) to memory too
-        if (fn_key %in% names(self$cache_lst)) {
-            cache_env <- self$cache_lst[[fn_key]]
-        } else {
-            cache_env <- new.env(hash = TRUE, parent = emptyenv())
-            self$cache_lst[[fn_key]] <- cache_env
-        }
         assign(key, value, envir = cache_env)
+        
         value
     } else {
         # cannot return NA / NULL since that can be the result of the function
@@ -349,21 +355,14 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
     # for now, put it in memory and on disk
     
     # memory
-    if (fn_key %in% names(self$cache_lst)) {
-        cache_env <- self$cache_lst[[fn_key]]
-    } else {
-        cache_env <- new.env(hash = TRUE, parent = emptyenv())
-        self$cache_lst[[fn_key]] <- cache_env
-    }
+    cache_env <- self$cache_lst[[fn_key]]
     assign(key, value, envir = cache_env)
     
-    # disk, if cache_path not NULL
+    # disk
     if (!is.null(self$cache_path)) {
         fn_path <- file.path(self$cache_path, fn_key)
-        if (!dir.exists(fn_path)) {
-            dir.create(fn_path, showWarnings = FALSE)
-        }
-        saveRDS(value, file = file.path(fn_path, paste0(key, ".rds")))
+        file_name <- paste0(key, ".rds")
+        saveRDS(value, file = file.path(fn_path, file_name))
     }
     
     # check if data exists
@@ -374,11 +373,10 @@ R6Eddy$set("public", "add_data", function(key, value, fn_key) {
 # delete_data ----
 R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
-    if (from == "all")
-        from <- c("memory", "disk")
+    if (from == "all") from <- c("memory", "disk")
     
     # memory
-    if ("memory" %in% from && fn_key %in% names(self$cache_lst)) {
+    if ("memory" %in% from) {
         cache_env <- self$cache_lst[[fn_key]]
         if (base::exists(key, where = cache_env, inherits = FALSE)) {
             rm(list = key, envir = cache_env, inherits = FALSE)
@@ -387,7 +385,9 @@ R6Eddy$set("public", "delete_data", function(key, fn_key, from = "all") {
     
     # disk
     if ("disk" %in% from && !is.null(self$cache_path)) {
-        key_path <- file.path(self$cache_path, fn_key, paste0(key, ".rds"))
+        fn_path <- file.path(self$cache_path, fn_key)
+        file_name <- paste0(key, ".rds")
+        key_path <- file.path(fn_path, file_name)
         if (file.exists(key_path)) {
             unlink(key_path)
         }

@@ -1,8 +1,10 @@
-context("R6Eddy functions")
-
 cache_path <- "cache"
 key <- "sum_result"
 eddy_name <- "new_eddy"
+
+
+# R6Eddy functions ----
+context("R6Eddy functions")
 
 test_that("new_eddy() creates cache path folder", {
 
@@ -56,31 +58,15 @@ test_that("delete_rflow() works", {
 })
 
 
-test_that("add_data() works", {
+test_that("add_data() & delete_data() fail if no rflow ", {
 
     eddy <- new_eddy(eddy_name = eddy_name)
     fn_key <- make_fn_key(sum, eddy)
 
-    eddy$add_data(key, "foo", fn_key)
-
-    expect_true(fn_key %in% names(eddy$cache_lst))
-
-    delete_eddy(eddy_name = eddy_name)
-})
-
-
-test_that("delete_data() works", {
-
-    eddy <- new_eddy(eddy_name = eddy_name)
+    expect_error(eddy$add_data(key, "foo", fn_key))
+    expect_error(eddy$get_data(key, fn_key))
+    expect_error(eddy$delete_data(key, fn_key))
     
-    fn_key <- make_fn_key(sum, eddy)
-
-    eddy$add_data(key, "foo", fn_key)
-    
-    eddy$delete_data(key, fn_key)
-
-    expect_equal(eddy$find_key(key, fn_key), "missing")
-
     delete_eddy(eddy_name = eddy_name)
 })
 
@@ -92,46 +78,23 @@ test_that("delete_data() works with rflow", {
     rf <- make_rflow(sum, eddy = eddy)
     rflow <- environment(rf)$self
     
-    fn_key <- make_fn_key(diff, eddy)
-
-    eddy$add_data(key, "foo", rflow$fn_key)
+    fn_key <- make_fn_key(sum, eddy)
+    expect_equal(rflow$fn_key, fn_key)
+    
+    eddy$add_data(key, "foo", fn_key)
     eddy$add_data(key, "bar", fn_key)
     
-    eddy$delete_data(key, rflow$fn_key)
+    eddy$delete_data(key, fn_key)
     eddy$delete_data(key, fn_key)
     
-    expect_equal(eddy$find_key(key, rflow$fn_key), "missing")
+    expect_equal(eddy$find_key(key, fn_key), "missing")
     
     delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
 })
 
 
-test_that("get_data() works", {
-
-    eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
-
-    fn_key <- make_fn_key(sum, eddy)
-
-    eddy$add_data(key, "foo", fn_key)
-    data <- eddy$get_data(key, fn_key)
-
-    expect_equal(data, "foo")
-    
-    eddy$delete_data(key, fn_key, from = "memory")
-
-    data <- eddy$get_data(key, fn_key)
-    expect_equal(data, "foo")
-    
-    expect_error(eddy$get_data(NULL, fn_key))
-    
-    delete_eddy(eddy_name = eddy_name, cache_path = cache_path)
-})
-
-
-
-
+# rflow functions ----
 context("rflow functions")
-
 
 test_that("add_rflow() stops if already exist", {
 
@@ -181,7 +144,7 @@ test_that("reset() works", {
     eddy <- new_eddy(eddy_name = eddy_name, cache_path = cache_path)
     fn_key <- make_fn_key(sum, eddy)
 
-    rf <- make_rflow(diff)
+    rf <- make_rflow(sum)
     rflow <- environment(rf)$self
 
     eddy$add_rflow(rflow$fn_key, rflow)
@@ -203,6 +166,7 @@ test_that("reset() works", {
 })
 
 
+# eddy.R ----
 context("eddy.R (R6Eddy public wrappers)")
 
 test_that("delete_eddy() works", {
