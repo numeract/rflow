@@ -126,11 +126,17 @@ R6Eddy$set("public", "print", function() {
         is_rflow <- inherits(self$rflow_lst[[fn_key]], "R6Flow")
         
         cache_env <- self$cache_lst[[fn_key]]
-        in_memory <- length(ls(cache_env))
+        if (!is.null(cache_env)) {
+            in_memory <- length(ls(cache_env))
+            # do not count rflow settings
+            if (in_memory >= 2L) in_memory <- in_memory - 1L
+        }
         
         if (!is.null(self$cache_path)) {
             fn_path <- file.path(self$cache_path, fn_key)
             on_disk <- length(list.files(fn_path))
+            # do not count rflow settings
+            if (on_disk >= 2L) on_disk <- on_disk - 1L
         }
         
         state <- NA
