@@ -329,7 +329,7 @@ R6Eddy$set("public", "has_data", function(key, fn_key) {
 
 
 # get_data ----
-R6Eddy$set("public", "get_data", function(key, fn_key) {
+R6Eddy$set("public", "get_data", function(key, fn_key, bring_closer = TRUE) {
     
     found <- self$find_key(key, fn_key)
     cache_env <- self$cache_lst[[fn_key]]
@@ -341,8 +341,11 @@ R6Eddy$set("public", "get_data", function(key, fn_key) {
         fn_path <- file.path(self$cache_path, fn_key)
         file_name <- paste0(key, ".rds")
         value <- readRDS(file = file.path(fn_path, file_name))
-        # copy value (data) to memory too
-        assign(key, value, envir = cache_env)
+        
+        # copy value (data) to memory
+        if (bring_closer) {
+            assign(key, value, envir = cache_env)
+        }
         
         value
     } else {

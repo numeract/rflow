@@ -296,7 +296,7 @@ R6Flow$set("public", "initialize", function(fn,
     if (found == "disk") {
         # load previous state from disk (special key = fn_key)
         # for now, it still needs fn, fn_name, hash_input_fn, split_output_fn
-        rflow_data <- eddy$get_data(fn_key, fn_key)
+        rflow_data <- eddy$get_data(fn_key, fn_key, bring_closer = FALSE)
     } else {
         rflow_data <- NULL
     }
