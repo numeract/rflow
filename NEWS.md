@@ -1,3 +1,8 @@
+# rflow 0.3.2
+
+- fix: make_ns_sink changed to follow make_sink pattern
+
+
 # rflow 0.3.1
 
 - fix: eddies always create cache_env and dir on disk

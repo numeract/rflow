@@ -4,16 +4,11 @@
 \alias{make_ns_sink}
 \title{Cache a function - TODO.}
 \usage{
-make_ns_sink(var, ns, hash_input_fn = NULL, eddy = get_default_eddy())
+make_ns_sink(fn = to_ns, eddy = get_default_eddy())
 }
 \arguments{
-\item{var}{The name (as string) of the variable.}
-
-\item{ns}{The name space, either an \code{environment} or a 
-\code{Shiny reactiveValue} object.}
-
-\item{hash_input_fn}{Custom function to process only a part of the input
-(e.g. skip one fn inputs - not recommended).}
+\item{fn}{Function to be cached, the default works with environments and 
+reactiveValues.}
 
 \item{eddy}{R6Eddy object were the data should be stored.}
 }

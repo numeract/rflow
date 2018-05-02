@@ -106,8 +106,9 @@ R6Flow$set("public", "calc_in_hash_custom", function(rf_env = parent.frame()) {
 }, overwrite = TRUE)
 
 
-R6Flow$set("public", "calc_in_hash_source", function(rf_env = parent.frame()) {
-    
+R6Flow$set("public", "calc_in_hash_file_source", function(
+    rf_env = parent.frame()
+) {
     file_path <- rf_env$eval_args[[self$fn_source_arg]]
     stopifnot(rlang::is_scalar_character(file_path) || !is.na(file_path))
     
@@ -116,6 +117,37 @@ R6Flow$set("public", "calc_in_hash_source", function(rf_env = parent.frame()) {
     } else {
         in_hash <- self$eddy$digest(object = file_path, file = TRUE)
     }
+    
+    in_hash
+}, overwrite = TRUE)
+
+
+R6Flow$set("public", "calc_in_hash_ns_sink", function(rf_env = parent.frame()) {
+    
+    rflow_hash <- NULL
+    if (length(rf_env$rflow_args) > 0L && !self$eddy$is_reactive) {
+        # non-reactive case, all rflow args must to be valid
+        invalid_rflow_args <- !purrr::map_lgl(rf_env$rflow_args, "is_valid")
+        if (any(invalid_rflow_args)) {
+            invalid_names <- names(rf_env$rflow_args)[invalid_rflow_args]
+            invalid_names <- paste(invalid_names, collapse = ", ")
+            stop("Invalid input rflow args: ", invalid_names)
+        }
+        rflow_hash <- purrr::map(rf_env$rflow_args, "elem_hash")
+    }
+    if (length(rf_env$rflow_args) > 0L && self$eddy$is_reactive) {
+        stop("reactive eddies not yet implemented")
+    }
+    
+    # non-rflow / static args use their data for hashing
+    # if environment, use its address
+    # if reactivevalues, use NULL (get its address outside shiny?)
+    static_data <- rf_env$eval_args %>%
+        discard_at(names(rf_env$rflow_args)) %>%
+        purrr::map_if(~ is.environment(.), ~ format(.)) %>%
+        purrr::map_if(~ identical(class(.), "reactivevalues"), ~ NULL)
+    
+    in_hash <- self$eddy$digest(c(rflow_hash, static_data))
     
     in_hash
 }, overwrite = TRUE)
@@ -312,7 +344,7 @@ R6Flow$set("public", "initialize", function(fn,
     
     # set calc_in_hash
     if (!is.null(fn_source_arg)) {
-        self$calc_in_hash <- self$calc_in_hash_source
+        self$calc_in_hash <- self$calc_in_hash_file_source
     } else if (!is.null(hash_input_fn)) {
         self$calc_in_hash <- self$calc_in_hash_custom
     } else {

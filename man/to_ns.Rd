@@ -2,7 +2,7 @@
 % Please edit documentation in R/sink.R
 \name{to_ns}
 \alias{to_ns}
-\title{Assigns a value to a name space (an environment or a reactiveValue).}
+\title{Assigns a value to a name space (an environment or a reactiveValues).}
 \usage{
 to_ns(x, var, ns)
 }
@@ -12,11 +12,11 @@ to_ns(x, var, ns)
 \item{var}{The name (as string) of the variable.}
 
 \item{ns}{The name space, either an \code{environment} or a 
-\code{Shiny reactiveValue} object.}
+\code{Shiny reactiveValues} object.}
 }
 \value{
 The initial value, \code{x}
 }
 \description{
-Assigns a value to a name space (an environment or a reactiveValue).
+Assigns a value to a name space (an environment or a reactiveValues).
 }
