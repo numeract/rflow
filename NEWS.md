@@ -1,3 +1,8 @@
+# rflow 0.3.3
+
+- `[` and `[[` methods for R6Flow and R6FlowElement
+
+
 # rflow 0.3.2
 
 - fix: make_ns_sink changed to follow make_sink pattern

@@ -115,13 +115,38 @@ collect.R6Flow <- function(x, ...) {
 #' @method collect R6FlowElement
 collect.R6FlowElement <- function(x, ...) {
     
-    arg_lst <- list(...)
-    arg_name <- if ("name" %in% arg_lst || length(arg_lst) == 0L) {
-        # NULL if no arguments present
-        arg_lst$name
+    if (length(list(...)) > 0L) warning("all arguments ignored")
+    
+    x$self$collect_data(name = x$elem_name)
+}
+
+
+#' @export
+`[.R6Flow` <- function(x, i) {
+    
+    if (missing(i)) {
+        x$get_element()
     } else {
-        # there is at least one argument, not `name`; assume it is `name`
-        arg_lst[[1L]]
+        x$get_element(name = i)
     }
-    x$self$collect_data(name = arg_name)
+}
+
+
+#' @export
+`[[.R6Flow` <- function(x, i) {
+    
+    if (missing(i)) {
+        x$collect_data()
+    } else {
+        x$collect_data(name = i)
+    }
+}
+
+
+#' @export
+`[[.R6FlowElement` <- function(x, i) {
+    
+    if (!missing(i)) warning("all arguments ignored")
+    
+    x$self$collect_data(name = x$elem_name)
 }
