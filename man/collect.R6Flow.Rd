@@ -15,8 +15,8 @@
 
 \item{...}{Element of the output data to be selected. If present, it should
 be named \code{name}, otherwise the first item of the \code{...} list
-will be used. The default is \code{name = NULL}, which returns the whole
-output.}
+will be used. The default is \code{name = NULL}, which returns all the
+data.}
 }
 \value{
 Data associated with the output of the function.

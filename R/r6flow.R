@@ -207,7 +207,7 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         for (nm in names(rflow_args)) {
             rflow_elem <- rflow_args[[nm]]
             match_call[[nm]] <- rflow_elem$self$collect_data(
-                name = rflow_elem$name)
+                name = rflow_elem$elem_name)
         }
         
         # need to preserve (and cache) the visibility of the return
@@ -328,7 +328,11 @@ R6Flow$set("public", "initialize", function(fn,
     if (found == "disk") {
         # load previous state from disk (special key = fn_key)
         # for now, it still needs fn, fn_name, hash_input_fn, split_output_fn
-        rflow_data <- eddy$get_data(fn_key, fn_key, bring_closer = FALSE)
+        if (eddy$has_data(fn_key, fn_key)) {
+            rflow_data <- eddy$get_data(fn_key, fn_key, bring_closer = FALSE)
+        } else {
+            rflow_data <- NULL
+        }
     } else {
         rflow_data <- NULL
     }
@@ -406,8 +410,8 @@ R6Flow$set("public", "print", function() {
         is.null(self$fn_name),
         "an anonymous function", crayon::bold(self$fn_name))
     
-    emph_R6Flow <- paste0("<", crayon::italic("R6Flow"), ">")
-    cat(emph_R6Flow, " describing ", name, ": \n",
+    emph_rflow <- paste0("<", crayon::italic("rflow"), ">")
+    cat(emph_rflow, " for ", name, ":\n",
         "  - number of states: ", nrow(self$state), "\n",
         "  - current state: ", self$state_index, "\n",
         "  - is_valid: ", self$is_valid, "\n",
@@ -443,12 +447,15 @@ R6Flow$set("public", "get_element", function(name = NULL) {
     }
     
     # class does not inherit R6Flow since it has a different structure
-    structure(list(
+    rflow_elem <- list(
         self = self,
         is_valid = is_valid,
         elem_name = name,
         elem_hash = elem_hash
-    ), class = "R6FlowElement")
+    )
+    class(rflow_elem) <- c("R6FlowElement", class(rflow_elem))
+    
+    rflow_elem
 }, overwrite = TRUE)
 
 

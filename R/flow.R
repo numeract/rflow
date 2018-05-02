@@ -89,8 +89,8 @@ NULL
 #' @param x Function cached with RFlow.
 #' @param ... Element of the output data to be selected. If present, it should
 #'   be named \code{name}, otherwise the first item of the \code{...} list
-#'   will be used. The default is \code{name = NULL}, which returns the whole
-#'   output.
+#'   will be used. The default is \code{name = NULL}, which returns all the
+#'   data.
 #' 
 #' @return Data associated with the output of the function.
 #' 
@@ -121,32 +121,32 @@ collect.R6FlowElement <- function(x, ...) {
 }
 
 
+
+#' Extract an element from an \code{R6Flow} object.
+#' 
+#' @param x Function cached with RFlow.
+#' @param name Element of the output data to be selected. The default is 
+#'   \code{name = NULL}, which returns the element version of the \code{R6Flow} 
+#'   input object.
+#' 
+#' @return An object with class \code{R6FlowElement}.
+#' 
 #' @export
-`[.R6Flow` <- function(x, i) {
+element <- function(x, name = NULL) {
     
-    if (missing(i)) {
+    stopifnot(inherits(x, "R6Flow"))
+    
+    x$get_element(name = name)
+}
+
+
+#' @rdname element
+#' @export
+`[.R6Flow` <- function(x, name) {
+    
+    if (missing(name)) {
         x$get_element()
     } else {
-        x$get_element(name = i)
+        x$get_element(name = name)
     }
-}
-
-
-#' @export
-`[[.R6Flow` <- function(x, i) {
-    
-    if (missing(i)) {
-        x$collect_data()
-    } else {
-        x$collect_data(name = i)
-    }
-}
-
-
-#' @export
-`[[.R6FlowElement` <- function(x, i) {
-    
-    if (!missing(i)) warning("all arguments ignored")
-    
-    x$self$collect_data(name = x$elem_name)
 }

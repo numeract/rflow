@@ -89,17 +89,10 @@ R6Eddy$set("public", "reset", function() {
 # nocov start
 R6Eddy$set("public", "print", function() {
     
-    no_rflows <- "no rflows"
-    cached_fn <- "NA"
-    cache_path <- "NA"
-    
-    if (!is.null(self$cache_path)) {
-        cache_path <- paste0("\"", self$cache_path, "\"")
-    }
-    
-    no_rflows <- paste0(length(self$rflow_lst), " rflow(s)")
-    
-    cat(crayon::italic("R6Eddy"), " with ", crayon::bold(no_rflows), ":\n",
+    no_rflows <- paste0(length(self$rflow_lst), " loaded rflow(s)")
+    cache_path <- self$cache_path %||% "NA"
+    emph_eddy <- paste0("<", crayon::italic("eddy"), ">")
+    cat(emph_eddy, " with ", crayon::bold(no_rflows), ":\n",
         "  - name: ", crayon::italic(self$name), "\n",
         "  - cache path: ", crayon::italic(cache_path), "\n", sep = "")
     
@@ -114,8 +107,8 @@ R6Eddy$set("public", "print", function() {
     fn_keys <- unique(c(rflow_names, cache_names, file_names))
     
     m <- matrix(nrow = length(fn_keys), ncol = 6)
-    colnames(m) <-
-        c("fn_name", "fn_key", "is_rflow", "n_states", "in_memory", "on_disk")
+    colnames(m) <- c(
+        "fn_name", "fn_key", "is_rflow", "n_states", "in_memory", "on_disk")
     
     for (i in seq_along(fn_keys)) {
         fn_key <- fn_keys[[i]]
@@ -147,12 +140,7 @@ R6Eddy$set("public", "print", function() {
             func <- rflow$fn_name
         }
         
-        m[i, ] <- c(func,
-                    fn_key,
-                    is_rflow,
-                    state,
-                    in_memory,
-                    on_disk)
+        m[i, ] <- c(func, fn_key, is_rflow, state, in_memory, on_disk)
     }
     
     print(as.data.frame(m))
