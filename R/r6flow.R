@@ -27,6 +27,10 @@ R6Flow <- R6::R6Class(
         calc_in_hash = NULL,
         # cached function (declared as obj to bypass locking of R6 methods)
         rf_fn = NULL,
+        # test function (declared as obj to bypass locking of R6 methods)
+        is_cached = NULL,
+        # delete a cache state (declared as obj to bypass locking of R6 methods)
+        delete_cache = NULL,
         
         initialize = function(fn,
                               fn_key = NULL,
@@ -56,7 +60,8 @@ R6Flow <- R6::R6Class(
                                 in_hash, 
                                 out_hash, 
                                 make_current = TRUE) {},
-        get_out_hash = function(in_hash, fn_key) {},
+        delete_state = function(index) {},
+        get_out_hash = function(in_hash) {},
         add_output_state = function(out_hash, elem_name, elem_hash) {}
     ),
     active = list(
@@ -311,6 +316,71 @@ R6Flow$set("public", "rf_fn_sink", function(...) {
 }, overwrite = TRUE)
 
 
+# is_cached ----
+R6Flow$set("public", "is_cached_default", function(...) {
+    # follow rf_fn_default
+    
+    match_call <- match.call()
+    
+    supplied_args <- as.list(match_call)[-1]
+    default_args <-
+        as.list(formals()) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>%      # nolint
+        discard_at(names(supplied_args))
+    eval_args <- c(
+        lapply(supplied_args, eval, envir = parent.frame()),
+        lapply(default_args, eval, envir = environment(self$fn))
+    )
+    
+    rflow_args <-
+        eval_args %>%
+        purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
+        purrr::map_if(
+            .p = ~ inherits(., "R6Flow"),
+            .f = ~ .$get_element(name = NULL)
+        )
+    
+    in_hash <- self$calc_in_hash()
+    
+    self$find_state_index(in_hash) > 0L
+}, overwrite = TRUE)
+
+
+# delete_cache ----
+R6Flow$set("public", "delete_cache_default", function(...) {
+    # follow rf_fn_default
+    
+    match_call <- match.call()
+    
+    supplied_args <- as.list(match_call)[-1]
+    default_args <-
+        as.list(formals()) %>%
+        purrr::discard(~ identical(., quote(expr = ))) %>%      # nolint
+        discard_at(names(supplied_args))
+    eval_args <- c(
+        lapply(supplied_args, eval, envir = parent.frame()),
+        lapply(default_args, eval, envir = environment(self$fn))
+    )
+    
+    rflow_args <-
+        eval_args %>%
+        purrr::keep(~ inherits(., c("R6FlowElement", "R6Flow"))) %>%
+        purrr::map_if(
+            .p = ~ inherits(., "R6Flow"),
+            .f = ~ .$get_element(name = NULL)
+        )
+    
+    in_hash <- self$calc_in_hash()
+    index <- self$find_state_index(in_hash)
+    
+    if (index > 0L) {
+        out_hash <- self$get_out_hash(in_hash)
+        self$eddy$delete_data(out_hash, self$fn_key)
+        self$delete_state(index)
+    }
+}, overwrite = TRUE)
+
+
 # initialize ----
 R6Flow$set("public", "initialize", function(fn,
                                             fn_key = NULL,
@@ -357,8 +427,14 @@ R6Flow$set("public", "initialize", function(fn,
     
     # the enclosing envir of rn_fn is not changed to preserve access to self$
     self$rf_fn <- self$rf_fn_default
-    # rf_fn and fn have the same arguments
+    # rf_fn, is_cached and fn have the same arguments
     formals(self$rf_fn) <- formals(args(fn))
+    
+    self$is_cached <- self$is_cached_default
+    formals(self$is_cached) <- formals(args(fn))
+    
+    self$delete_cache <- self$delete_cache_default
+    formals(self$delete_cache) <- formals(args(fn))
     
     if (is.null(rflow_data)) {
         # state
@@ -622,6 +698,20 @@ R6Flow$set("public", "update_state", function(index,
         time_stamp = now_utc()
     )
     if (make_current) self$state_index <- index
+    
+}, overwrite = TRUE)
+
+
+# delete_state ----
+R6Flow$set("public", "delete_state", function(index) {
+    
+    if (!rlang::is_scalar_integerish(index) || 
+        is.na(index) || index < 1L || index > nrow(self$state)) {
+        stop("delete_state> not a valid index")
+    }
+    
+    self$state <- self$state[-index, ]
+    if (self$state_index == index) self$state_index <- 0L
     
 }, overwrite = TRUE)
 

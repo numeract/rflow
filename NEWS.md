@@ -1,3 +1,9 @@
+# rflow 0.3.5
+
+- add: is_cached to test whether a state already exists in cache
+- add: delete_cache to delete the given state from rflow and eddy
+
+
 # rflow 0.3.4
 
 - fix: fail to init rflow when no data on disk

@@ -121,7 +121,6 @@ collect.R6FlowElement <- function(x, ...) {
 }
 
 
-
 #' Extract an element from an \code{R6Flow} object.
 #' 
 #' @param x Function cached with RFlow.
