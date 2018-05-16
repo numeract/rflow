@@ -11,9 +11,10 @@ R6Cache <- R6::R6Class(
         
         list_groups = function() {stop("abstract method")},
         has_group = function(group) {stop("abstract method")},
-        # no get_group()
+        # no get_group() function
         add_group = function(group) {stop("abstract method")},
         delete_group = function(group) {stop("abstract method")},
+        forget_group = function(group) {stop("abstract method")},
         
         list_keys = function(group) {stop("abstract method")},
         has_key = function(group, key) {stop("abstract method")},

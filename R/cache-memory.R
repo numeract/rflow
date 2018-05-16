@@ -51,11 +51,20 @@ R6CacheMemory$set("public", "add_group", function(group) {
 # delete_group ----
 R6CacheMemory$set("public", "delete_group", function(group) {
     
-    if (!self$has_group(group)) {
+    if (self$has_group(group)) {
         base::rm(list = group, pos = self$cache_env)
     }
     
     !self$has_group(group)
+}, overwrite = TRUE)
+
+
+# forget_group ----
+R6CacheMemory$set("public", "forget_group", function(group) {
+    
+    base::assign(group, value = list(), pos = self$cache_env)
+    
+    length(self$cache_env[[group]]) = 0L
 }, overwrite = TRUE)
 
 
@@ -135,7 +144,7 @@ R6CacheMemory$set("public", "reset", function() {
 R6CacheMemory$set("public", "delete_all", function() {
     
     # reset + delete its own data structures, e.g. folders
-    # object cannot be used aftwerwords
+    # object cannot be used afterwards
     self$cache_env <- NULL
     gc()
     
