@@ -23,6 +23,7 @@ R6Cache <- R6::R6Class(
         delete_data = function(group, key) {stop("abstract method")},
         
         reset = function() {stop("abstract method")},
+        delete_all = function() {stop("abstract method")},
         sync = function() {stop("abstract method")}
     )
 )

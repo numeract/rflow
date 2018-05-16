@@ -124,7 +124,19 @@ R6CacheMemory$set("public", "delete_data", function(group, key) {
 R6CacheMemory$set("public", "reset", function() {
     
     self$cache_env <- new.env(hash = TRUE, parent = emptyenv())
-    # old $cache_env is unbound, force gc() to free up memory
+    # old $cache_env is now unbound, force gc() to free up memory
+    gc()
+    
+    invisible(NULL)
+}, overwrite = TRUE)
+
+
+# delete_all ----
+R6CacheMemory$set("public", "delete_all", function() {
+    
+    # reset + delete its own data structures, e.g. folders
+    # object cannot be used aftwerwords
+    self$cache_env <- NULL
     gc()
     
     invisible(NULL)

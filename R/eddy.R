@@ -100,7 +100,7 @@ delete_eddy <- function(eddy_name,
     }
     
     eddy <- eddy_env[[eddy_name]]
-    eddy$reset(all_objects = TRUE)
+    eddy$delete_all()
     rm(list = eddy_name, envir = eddy_env, inherits = FALSE)
     
     invisible(NULL)
