@@ -8,6 +8,12 @@
 .EDDY_ENV <- new.env(parent = emptyenv())
 
 
+# Each eddy_env has a string variable .CURRENT_NAME that stores the name
+# of the current eddy. This to avoid duplicate binding of the eddy_end
+# to help with gc()
+.EDDY_ENV[[".CURRENT_NAME"]] <- NA_character_
+
+
 #' Get the default binding environment that keeps the eddies.
 #' 
 #' @return An environment.
@@ -18,21 +24,7 @@ default_eddy_env <- function() {
 }
 
 
-# if no eddy name is given, use this name to access the eddy inside .EDDY_ENV 
-.EDDY_DEFAULT_NAME <- "default_eddy"
-
-
-#' Get the default eddy name.
-#' 
-#' @return A character vector of length one.
-#' 
-#' @export
-default_eddy_name <- function() {
-    .EDDY_DEFAULT_NAME
-}
-
-
-#' Create a new eddy.
+#' Create a new eddy. Does not affect the current eddy.
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param cache An cache object returned by one of the \code{cache} functions.
@@ -50,9 +42,7 @@ new_eddy <- function(eddy_name,
     # new guarantees a clean eddy (for tests)
     
     stopifnot(rlang::is_string(eddy_name))
-    if (eddy_name == default_eddy_name()) {
-        stop("Cannot create a new eddy, avoid the default name: ", eddy_name)
-    }
+    stopifnot(eddy_name != ".CURRENT_NAME")
     stopifnot(inherits(cache, "R6Cache"))
     stopifnot(is.environment(eddy_env))
     if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
@@ -66,6 +56,8 @@ new_eddy <- function(eddy_name,
 }
 
 
+#' Retrives an eddy. 
+#' 
 #' @export
 #' 
 #' @family eddy functions
@@ -75,6 +67,8 @@ get_eddy <- function(eddy_name,
                      eddy_env = default_eddy_env()) {
     
     stopifnot(rlang::is_string(eddy_name))
+    stopifnot(eddy_name != ".CURRENT_NAME")
+    stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
         stop("Cannot find eddy with name: ", eddy_name)
     }
@@ -95,6 +89,8 @@ delete_eddy <- function(eddy_name,
                         eddy_env = default_eddy_env()) {
     
     stopifnot(rlang::is_string(eddy_name))
+    stopifnot(eddy_name != ".CURRENT_NAME")
+    stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
         stop("Cannot find eddy with name: ", eddy_name)
     }
@@ -103,55 +99,68 @@ delete_eddy <- function(eddy_name,
     eddy$delete_all()
     rm(list = eddy_name, envir = eddy_env, inherits = FALSE)
     
+    # update the .CURRENT_NAME, if needed
+    if (eddy_env[[".CURRENT_NAME"]] == eddy_name) {
+        eddy_env[[".CURRENT_NAME"]] <- NA_character_
+    }
+    
     invisible(NULL)
 }
 
 
-#' Set the default eddy to be used in future rflow calls.
+#' Set the current eddy to be used in future rflow calls.
 #' 
 #' @return An eddy object to be used for storing rflows.
 #' 
 #' @family eddy functions
 #' 
 #' @export
-set_default_eddy <- function(eddy_name,
+set_current_eddy <- function(eddy_name,
                              eddy_env = default_eddy_env()) {
     
     stopifnot(rlang::is_string(eddy_name))
+    stopifnot(eddy_name != ".CURRENT_NAME")
+    stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
         stop("Cannot find eddy with name: ", eddy_name)
     }
     
-    eddy <- eddy_env[[eddy_name]]
-    eddy_env[[default_eddy_name()]] <- eddy
+    eddy_env[[".CURRENT_NAME"]] <- eddy_name
     
+    eddy <- eddy_env[[eddy_name]]
     invisible(eddy)
 }    
 
 
-#' Get the default eddy for a given (or default) environment.
+#' Get the current eddy for a given (or default) environment.
 #' 
-#' If the default eddy not previously set with \code{set_default_eddy},
-#'   it creates an eddy with \code{default_cache()}.
+#' If the current eddy was not previously set with \code{set_current_eddy},
+#'   it creates a new eddy that uses \code{default_cache()}.
 #' 
 #' @return An eddy object to be used for storing rflows.
 #' 
 #' @family eddy functions
 #' 
 #' @export
-get_default_eddy <- function(eddy_env = default_eddy_env()) {
+get_current_eddy <- function(eddy_env = default_eddy_env()) {
     
-    eddy_name <- default_eddy_name()
-    if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        eddy <- eddy_env[[eddy_name]]
-        stopifnot(inherits(eddy, "R6Eddy"))
-    } else {
-        eddy_name <- "default_memory"
+    stopifnot(is.environment(eddy_env))
+    
+    eddy_name <- eddy_env[[".CURRENT_NAME"]]
+    if (is.null(eddy_name) ||
+        is.na(eddy_name) ||
+        !base::exists(eddy_name, where = eddy_env, inherits = FALSE)
+    ) {
+        # no current name, create the default eddy
+        eddy_name <- "default_eddy"
         eddy <- new_eddy(
             eddy_name,
             cache = default_cache(),
             eddy_env = eddy_env)
-        eddy_env[[default_eddy_name()]] <- eddy
+        eddy_env[[".CURRENT_NAME"]] <- eddy_name
+    } else {
+        eddy <- eddy_env[[eddy_name]]
+        stopifnot(inherits(eddy, "R6Eddy"))
     }
     
     eddy
