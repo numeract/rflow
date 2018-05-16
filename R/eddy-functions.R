@@ -56,7 +56,7 @@ new_eddy <- function(eddy_name,
 }
 
 
-#' Retrives an eddy. 
+#' Retrieves an eddy. 
 #' 
 #' @export
 #' 
