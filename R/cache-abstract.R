@@ -1,7 +1,7 @@
 # cache engine (abstract methods - eddy calls only these)
 
 
-# !diagnostics suppress=
+# !diagnostics suppress=., self, private
 
 
 R6Cache <- R6::R6Class(

@@ -17,7 +17,6 @@ R6CacheMemory <- R6::R6Class(
 # initialize ----
 R6CacheMemory$set("public", "initialize", function() {
     
-    cat("cucu\n")
     self$cache_env <- new.env(hash = TRUE, parent = emptyenv())
     
     invisible(NULL)
