@@ -199,10 +199,3 @@ R6CacheMemory$set("public", "terminate", function() {
     
     invisible(NULL)
 }, overwrite = TRUE)
-
-
-# sync ----
-R6CacheMemory$set("public", "sync", function() {
-    
-    invisible(NULL)
-}, overwrite = TRUE)

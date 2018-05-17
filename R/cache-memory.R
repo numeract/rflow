@@ -176,14 +176,7 @@ R6CacheMemory$set("public", "terminate", function() {
     # object cannot be used afterwards
     
     self$cache_env <- NULL
+    
     gc()
-    
-    invisible(NULL)
-}, overwrite = TRUE)
-
-
-# sync ----
-R6CacheMemory$set("public", "sync", function() {
-    
     invisible(NULL)
 }, overwrite = TRUE)
