@@ -129,6 +129,34 @@ R6CacheMemory$set("public", "delete_data", function(group, key) {
 }, overwrite = TRUE)
 
 
+# summary ----
+R6CacheMemory$set("public", "summary", function() {
+    
+    groups <- self$list_groups()
+    n_keys <- groups %>%
+        purrr::map_int(~ length(self$list_keys(.)))
+    df <- tibble::tibble(
+        fn_key = groups,
+        in_memory = n_keys
+    )
+    
+    df
+}, overwrite = TRUE)
+
+
+# print ----
+R6CacheMemory$set("public", "print", function() {
+    
+    df <- self$summary()
+    
+    emph_obj <- paste0("<", crayon::italic("R6CacheMemory"), ">")
+    cat(emph_obj, " with ", crayon::bold(nrow(df)), " fn_keys:\n")
+    print(df)
+    
+    invisible(self)
+}, overwrite = TRUE)
+
+
 # reset ----
 R6CacheMemory$set("public", "reset", function() {
     
