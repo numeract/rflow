@@ -1,23 +1,31 @@
-# cache engine for memory only
+# cache engine for file only
 
 
 # !diagnostics suppress=., self, private
 
 
 
-R6CacheMemory <- R6::R6Class(
-    classname = "R6CacheMemory",
+R6CacheFile <- R6::R6Class(
+    classname = "R6CacheFile",
     inherit = R6Cache,
     public = list(
-        cache_env = NULL
+        cache_dir = NULL
     )
 )
 
 
 # initialize ----
-R6CacheMemory$set("public", "initialize", function() {
+R6CacheMemory$set("public", "initialize", function(cache_dir) {
     
-    self$cache_env <- new.env(hash = TRUE, parent = emptyenv())
+    stopifnot(rlang::is_string(cache_dir))
+    
+    # store the absolute, not relative path for cache
+    cache_dir <- fs::path_abs(cache_dir)
+    if (!fs::dir_exists(cache_dir)) {
+        fs::dir_create(cache_dir)
+    }
+    
+    self$cache_dir <- cache_dir
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -26,22 +34,27 @@ R6CacheMemory$set("public", "initialize", function() {
 # list_groups ----
 R6CacheMemory$set("public", "list_groups", function() {
     
-    as.character(ls.str(pos = self$cache_env, all.names = TRUE))
+    stopifnot(fs::dir_exists(self$cache_dir))
+    
+    as.character(fs::dir_ls(self$cache_dir, type = "directory"))
 }, overwrite = TRUE)
 
 
 # has_group ----
 R6CacheMemory$set("public", "has_group", function(group) {
-
-    base::exists(group, where = self$cache_env, inherits = FALSE)
+    
+    group %in% self$list_groups()
 }, overwrite = TRUE)
 
 
 # add_group ----
 R6CacheMemory$set("public", "add_group", function(group) {
     
-    if (!self$has_group(group)) {
-        base::assign(group, value = list(), pos = self$cache_env)
+    stopifnot(fs::dir_exists(self$cache_dir))
+    
+    group_dir <- fs::path(self$cache_dir, group)
+    if (!fs::dir_exists(group_dir)) {
+        fs::dir_create(group_dir)
     }
     
     self$has_group(group)
@@ -51,8 +64,11 @@ R6CacheMemory$set("public", "add_group", function(group) {
 # delete_group ----
 R6CacheMemory$set("public", "delete_group", function(group) {
     
-    if (self$has_group(group)) {
-        base::rm(list = group, pos = self$cache_env)
+    stopifnot(fs::dir_exists(self$cache_dir))
+    
+    group_dir <- fs::path(self$cache_dir, group)
+    if (fs::dir_exists(group_dir)) {
+        fs::dir_delete(group_dir)
     }
     
     !self$has_group(group)
@@ -62,19 +78,27 @@ R6CacheMemory$set("public", "delete_group", function(group) {
 # forget_group ----
 R6CacheMemory$set("public", "forget_group", function(group) {
     
-    base::assign(group, value = list(), pos = self$cache_env)
+    stopifnot(fs::dir_exists(self$cache_dir))
     
-    length(self$cache_env[[group]]) == 0L
+    group_dir <- fs::path(self$cache_dir, group)
+    if (fs::dir_exists(group_dir)) {
+        fs::dir_delete(group_dir)
+    }
+    fs::dir_create(group_dir)
+    
+    length(fs::dir_ls(group_dir)) == 0L
 }, overwrite = TRUE)
 
 
 # list_keys ----
 R6CacheMemory$set("public", "list_keys", function(group) {
     
-    kv_lst <- base::get0(
-        group, envir = self$cache_env, inherits = FALSE, ifnotfound = list())
+    stopifnot(fs::dir_exists(self$cache_dir))
     
-    as.character(names(kv_lst))
+    group_dir <- fs::path(self$cache_dir, group)
+    stopifnot(fs::dir_exists(group_dir))
+    
+    as.character(fs::dir_ls(group_dir, type = "file"))
 }, overwrite = TRUE)
 
 
@@ -88,14 +112,12 @@ R6CacheMemory$set("public", "has_key", function(group, key) {
 # get_data ----
 R6CacheMemory$set("public", "get_data", function(group, key) {
     
-    # error if group not present
-    kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
+    stopifnot(fs::dir_exists(self$cache_dir))
     
-    if (!(key %in% names(kv_lst))) {
-        stop("key ", key, "not found for group ", group)
-    }
+    key_path <- fs::path(self$cache_dir, group, key)
+    stopifnot(fs::file_exists(key_path))
     
-    kv_lst[[key]]
+    readRDS(key_path)
 }, overwrite = TRUE)
 
 
@@ -104,11 +126,9 @@ R6CacheMemory$set("public", "add_data", function(group, key, value) {
     
     # add group only if not already present
     self$add_group(group)
-    # error if group not present
-    kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
     
-    kv_lst[[key]] <- value
-    base::assign(group, value = kv_lst, pos = self$cache_env)
+    key_path <- fs::path(self$cache_dir, group, key)
+    saveRDS(value, key_path)
     
     self$has_key(group, key)
 }, overwrite = TRUE)
@@ -119,11 +139,11 @@ R6CacheMemory$set("public", "delete_data", function(group, key) {
     
     # add group only if not already present
     self$add_group(group)
-    # error if group not present
-    kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
     
-    kv_lst[[key]] <- NULL
-    base::assign(group, value = kv_lst, pos = self$cache_env)
+    key_path <- fs::path(self$cache_dir, group, key)
+    if (fs::file_exists(key_path)) {
+        fs::file_delete(key_path)
+    }
     
     !self$has_key(group, key)
 }, overwrite = TRUE)
@@ -137,7 +157,7 @@ R6CacheMemory$set("public", "summary", function() {
         purrr::map_int(~ length(self$list_keys(.)))
     df <- tibble::tibble(
         fn_key = groups,
-        in_memory = n_keys
+        on_disk = n_keys
     )
     
     df
@@ -150,7 +170,7 @@ R6CacheMemory$set("public", "print", function() {
     
     df <- self$summary()
     
-    emph_obj <- paste0("<", crayon::italic("R6CacheMemory"), ">")
+    emph_obj <- paste0("<", crayon::italic("R6CacheFile"), ">")
     cat(emph_obj, " with ", crayon::bold(nrow(df)), " fn_keys:\n")
     print(df)
     
@@ -162,9 +182,8 @@ R6CacheMemory$set("public", "print", function() {
 # reset ----
 R6CacheMemory$set("public", "reset", function() {
     
-    self$cache_env <- new.env(hash = TRUE, parent = emptyenv())
-    # old $cache_env is now unbound, force gc() to free up memory
-    gc()
+    fs::dir_delete(self$cache_dir)
+    fs::dir_create(self$cache_dir)
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -175,8 +194,8 @@ R6CacheMemory$set("public", "terminate", function() {
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards
     
-    self$cache_env <- NULL
-    gc()
+    fs::dir_delete(self$cache_dir)
+    self$cache_dir <- NULL
     
     invisible(NULL)
 }, overwrite = TRUE)
