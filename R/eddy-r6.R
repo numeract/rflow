@@ -19,16 +19,24 @@ R6Eddy <- R6::R6Class(
                               is_reactive = FALSE,
                               algo = "xxhash64") {},
         
-        digest = function(object, ...) {},
-        digest_each = function(object, ...) {},
-        
-        
-        
-        
-        
+        digest = function(object, is_file_path =  FALSE) {},
+        digest_each = function(objects, is_file_path =  FALSE) {},
+        # rflow
+        has_rflow = function(fn_key) {},
+        require_rflow = function(fn_key) {},
+        get_rflow = function(fn_key) {},
+        add_rflow = function(fn_key) {},
+        delete_rflow = function(fn_key) {},
+        forget_rflow = function(fn_key) {},
+        # key / data
+        has_key = function(fn_key, key) {},
+        get_data = function(fn_key, key) {},
+        add_data = function(fn_key, key, value) {},
+        delete_data = function(fn_key, key) {},
+        # misc
         print = function() {},
         reset = function() {},
-        delete_all = function() {}
+        terminate = function() {}
     )
 )
 
@@ -209,13 +217,14 @@ R6Eddy$set("public", "reset", function() {
 }, overwrite = TRUE)
 
 
-# delete_all ----
-R6Eddy$set("public", "delete_all", function() {
+# terminate ----
+R6Eddy$set("public", "terminate", function() {
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards
     
-    self$cache$delete_all()
-    self$rf <- list()
+    self$cache$terminate()
+    self$cache <- NULL
+    self$rf <- NULL
     
     invisible(NULL)
 }, overwrite = TRUE)

@@ -170,8 +170,8 @@ R6CacheMemory$set("public", "reset", function() {
 }, overwrite = TRUE)
 
 
-# delete_all ----
-R6CacheMemory$set("public", "delete_all", function() {
+# terminate ----
+R6CacheMemory$set("public", "terminate", function() {
     
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards

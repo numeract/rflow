@@ -26,7 +26,7 @@ R6Cache <- R6::R6Class(
         summary = function() {stop("abstract method")},
         print = function() {stop("abstract method")},
         reset = function() {stop("abstract method")},
-        delete_all = function() {stop("abstract method")},
+        terminate = function() {stop("abstract method")},
         sync = function() {stop("abstract method")}
     )
 )

@@ -104,7 +104,7 @@ delete_eddy <- function(eddy_name,
     }
     
     eddy <- eddy_env[[eddy_name]]
-    eddy$delete_all()
+    eddy$terminate()
     rm(list = eddy_name, envir = eddy_env, inherits = FALSE)
     
     # update the .CURRENT_NAME, if needed
