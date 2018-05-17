@@ -24,7 +24,6 @@ R6CacheMemory$set("public", "initialize", function(cache_dir) {
     if (!fs::dir_exists(cache_dir)) {
         fs::dir_create(cache_dir)
     }
-    
     self$cache_dir <- cache_dir
     
     invisible(NULL)
@@ -34,8 +33,7 @@ R6CacheMemory$set("public", "initialize", function(cache_dir) {
 # list_groups ----
 R6CacheMemory$set("public", "list_groups", function() {
     
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
+    # error if cache_dir does not exist
     as.character(fs::dir_ls(self$cache_dir, type = "directory"))
 }, overwrite = TRUE)
 
@@ -43,7 +41,8 @@ R6CacheMemory$set("public", "list_groups", function() {
 # has_group ----
 R6CacheMemory$set("public", "has_group", function(group) {
     
-    group %in% self$list_groups()
+    group_dir <- fs::path(self$cache_dir, group)
+    fs::dir_exists(group_dir)
 }, overwrite = TRUE)
 
 
@@ -80,6 +79,7 @@ R6CacheMemory$set("public", "forget_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
+    # this also adds the group on disk, if missing
     group_dir <- fs::path(self$cache_dir, group)
     if (fs::dir_exists(group_dir)) {
         fs::dir_delete(group_dir)
@@ -95,10 +95,13 @@ R6CacheMemory$set("public", "list_keys", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
+    # no error if group NOT present on disk
     group_dir <- fs::path(self$cache_dir, group)
-    stopifnot(fs::dir_exists(group_dir))
-    
-    as.character(fs::dir_ls(group_dir, type = "file"))
+    if (fs::dir_exists(group_dir)) {
+        as.character(fs::dir_ls(group_dir, type = "file"))
+    } else {
+        character(0L)
+    }
 }, overwrite = TRUE)
 
 
@@ -181,6 +184,7 @@ R6CacheMemory$set("public", "print", function() {
 
 # reset ----
 R6CacheMemory$set("public", "reset", function() {
+    # the instance is as if just initialized
     
     fs::dir_delete(self$cache_dir)
     fs::dir_create(self$cache_dir)
