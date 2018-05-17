@@ -30,9 +30,9 @@ default_eddy_env <- function() {
 #' @param cache An cache object returned by one of the \code{cache} functions.
 #' @param eddy_env An environment where to put (bind) the eddy.
 #' 
-#' @family eddy functions
-#' 
 #' @return An eddy object to be used for storing rflows.
+#' 
+#' @family eddy functions
 #' 
 #' @export
 new_eddy <- function(eddy_name,
@@ -58,11 +58,14 @@ new_eddy <- function(eddy_name,
 
 #' Retrieves an eddy. 
 #' 
-#' @export
+#' @param eddy_name Unique name for the eddy to allow retrieving later.
+#' @param eddy_env An environment where to put (bind) the eddy.
+#' 
+#' @return An eddy object to be used for storing rflows.
 #' 
 #' @family eddy functions
 #' 
-#' @rdname new_eddy
+#' @export
 get_eddy <- function(eddy_name,
                      eddy_env = default_eddy_env()) {
     
@@ -81,6 +84,11 @@ get_eddy <- function(eddy_name,
 
 
 #' Delete eddy and ALL its data from ALL cache layers.
+#' 
+#' @param eddy_name Unique name for the eddy to allow retrieving later.
+#' @param eddy_env An environment where to put (bind) the eddy.
+#' 
+#' @return Nothing (\code{NULL}).
 #' 
 #' @family eddy functions
 #' 
@@ -110,6 +118,9 @@ delete_eddy <- function(eddy_name,
 
 #' Set the current eddy to be used in future rflow calls.
 #' 
+#' @param eddy_name Unique name for the eddy to allow retrieving later.
+#' @param eddy_env An environment where to put (bind) the eddy.
+#' 
 #' @return An eddy object to be used for storing rflows.
 #' 
 #' @family eddy functions
@@ -136,6 +147,8 @@ set_current_eddy <- function(eddy_name,
 #' 
 #' If the current eddy was not previously set with \code{set_current_eddy},
 #'   it creates a new eddy that uses \code{default_cache()}.
+#' 
+#' @param eddy_env An environment where to put (bind) the eddy.
 #' 
 #' @return An eddy object to be used for storing rflows.
 #' 

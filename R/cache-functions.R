@@ -1,4 +1,4 @@
-# cache functions, some accesible to the user
+# cache functions, some accessible to the user
 
 
 # !diagnostics suppress=.,
@@ -17,7 +17,7 @@ cache_memory <- function() {
 }
 
 
-#' Get the default cache engine (currenlty \code{cache_memory()}).
+#' Get the default cache engine (currently \code{cache_memory()}).
 #' 
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 

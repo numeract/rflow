@@ -1,3 +1,11 @@
+# rflow 0.4.0
+
+- **extensive rewrite, breaks compatibility with previous versions**
+- add: separate cache from eddy (new R6 class tree)
+- updated eddy functions
+- ...
+
+
 # rflow 0.3.5
 
 - add: is_cached to test whether a state already exists in cache

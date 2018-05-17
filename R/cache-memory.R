@@ -145,6 +145,7 @@ R6CacheMemory$set("public", "summary", function() {
 
 
 # print ----
+# nocov start
 R6CacheMemory$set("public", "print", function() {
     
     df <- self$summary()
@@ -155,6 +156,7 @@ R6CacheMemory$set("public", "print", function() {
     
     invisible(self)
 }, overwrite = TRUE)
+# nocov end
 
 
 # reset ----
