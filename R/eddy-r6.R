@@ -49,6 +49,7 @@ R6Eddy$set("public", "initialize", function(cache,
     if (isTRUE(is_reactive))
         stop("reactive eddies not yet implemented")
     
+    self$cache <- cache
     self$rflow <- list()
     self$is_reactive <- FALSE
     self$algo <- algo

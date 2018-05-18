@@ -34,8 +34,7 @@ make_fn_key <- function(fn, eddy) {
 make_rflow <- function(fn,
                        hash_input_fn = NULL,
                        split_output_fn = NULL,
-                       eddy = get_default_eddy()
-) {
+                       eddy = new_eddy("default")) {
     # do input validation here, keep R6Flow initialize simpler
     stopifnot(is.function(fn))
     if (!is.null(hash_input_fn)) {
@@ -59,7 +58,7 @@ make_rflow <- function(fn,
     }
     fn_key <- make_fn_key(fn, eddy)
     
-    if (eddy$find_rflow(fn_key) == "memory") {
+    if (eddy$has_rflow(fn_key) == "memory") {
         rflow <- eddy$get_rflow(fn_key)
     } else {
         rflow <- R6Flow$new(
