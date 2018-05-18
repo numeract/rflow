@@ -3,6 +3,7 @@ context("Test cache-memory functions")
 
 fn_group <- "default_group"
 
+# add_group tests ----------------------------------------------------
 test_that("add_group() works", {
     
     cache_memory_test <- cache_memory()
@@ -27,6 +28,13 @@ test_that("add_group() stops with NA", {
     cache_memory_test$terminate()
 })
 
+test_that("add_group() stops with empty string", {
+    
+    cache_memory_test <- cache_memory()
+    expect_error(cache_memory_test$add_group(character()))
+    cache_memory_test$terminate()
+})
+
 
 test_that("add_group() works with vector input", {
 
@@ -43,6 +51,7 @@ test_that("add_group() works with vector input", {
 })
 
 
+# has_group tests ----------------------------------------------------
 test_that("has_group() works", {
     
     cache_memory_test <- cache_memory()
@@ -77,6 +86,17 @@ test_that("has_group() stops with NA", {
 })
 
 
+test_that("has_group() stops with empty string", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_group(fn_group)
+    
+    expect_error(cache_memory_test$has_group(character()))
+    
+    cache_memory_test$terminate()
+})
+
+
 test_that("has_group() stops with vector", {
 
     cache_memory_test <- cache_memory()
@@ -95,6 +115,7 @@ test_that("has_group() stops with vector", {
 })
 
 
+# delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
     
     cache_memory_test <- cache_memory()
@@ -141,18 +162,30 @@ test_that("delete_group() stops with NA", {
     cache_memory_test$terminate()
 })
 
-# This one works because of rm, which is vectorized
+
+test_that("delete_group() stops with empty string", {
+    
+    cache_memory_test <- cache_memory()
+    
+    expect_error(
+        cache_memory_test$delete_group(character()))
+    
+    cache_memory_test$terminate()
+})
+
 test_that("delete_group() works with vectors", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_group(fn_group)
-    cache_memory_test$delete_group(fn_group)
-    
-    expect_equal(cache_memory_test$list_groups(), character())
+    cache_memory_test$add_group("a_group")
+
+    expect_error(
+        cache_memory_test$delete_group(c(fn_group,"a_group")))
     
     cache_memory_test$terminate()
 })
 
 
+# forget_group tests ----------------------------------------------------
 test_that("forget_group() works", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
@@ -206,6 +239,18 @@ test_that("forget_group() works with vector", {
 })
 
 
+test_that("forget_group() stops with empty string", {
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    expect_error(
+        cache_memory_test$forget_group(character()))
+    
+    cache_memory_test$terminate()
+})
+
+
+# list_keys tests ----------------------------------------------------
 test_that("list_keys() works", {
     
     cache_memory_test <- cache_memory()
@@ -256,14 +301,23 @@ test_that("list_keys() stops with NA", {
 })
 
 
+test_that("list_keys() stops with empty string", {
+    
+    cache_memory_test <- cache_memory()
+    
+    expect_error(
+        cache_memory_test$list_keys(character()))
+    
+    cache_memory_test$terminate()
+})
+
+
 test_that("list_keys works with vectors", {
     
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data("a_group", "key1", "value1")
-    
-    # Bad behaviour: acts silently and returns only the keys of fn_group 
-    # without any warning or error
+
     expect_error(
         cache_memory_test$list_keys(c(fn_group, "a_group")))
     expect_error(
@@ -274,6 +328,8 @@ test_that("list_keys works with vectors", {
     cache_memory_test$terminate()
 }) 
 
+
+# has_key tests ----------------------------------------------------
 test_that("has_key() works", {
     
     cache_memory_test <- cache_memory()
@@ -334,6 +390,20 @@ test_that("has_key() stops with key NULL", {
 })
 
 
+test_that("has_key() stops with key empty string", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(
+        cache_memory_test$has_key(fn_group, character()))
+    
+    cache_memory_test$terminate()
+})
+
+
+# get_data tests ----------------------------------------------------
 test_that("get_data() works", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
@@ -377,6 +447,7 @@ test_that("get_data() stops with NULL key", {
     cache_memory_test$terminate()
 })
 
+
 test_that("get_data() stops with NA key", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
@@ -386,6 +457,18 @@ test_that("get_data() stops with NA key", {
     
     cache_memory_test$terminate()
 })
+
+
+test_that("get_data() stops with empty string key", {
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data(fn_group, character()))
+    
+    cache_memory_test$terminate()
+})
+
 
 test_that("get_data() works with vector of keys", {
     cache_memory_test <- cache_memory()
