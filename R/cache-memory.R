@@ -125,7 +125,11 @@ R6CacheMemory$set("public", "add_data", function(group, key, value) {
     self$add_group(group)
     
     kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
-    kv_lst[[key]] <- value
+    if (is.null(value)) {
+        kv_lst[key] <- list(NULL)
+    } else {
+        kv_lst[[key]] <- value
+    }
     base::assign(group, value = kv_lst, pos = self$cache_env)
     
     self$has_key(group, key)
