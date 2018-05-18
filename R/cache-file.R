@@ -15,7 +15,7 @@ R6CacheFile <- R6::R6Class(
 
 
 # initialize ----
-R6CacheMemory$set("public", "initialize", function(cache_dir) {
+R6CacheFile$set("public", "initialize", function(cache_dir) {
     
     stopifnot(rlang::is_string(cache_dir))
     
@@ -31,7 +31,7 @@ R6CacheMemory$set("public", "initialize", function(cache_dir) {
 
 
 # list_groups ----
-R6CacheMemory$set("public", "list_groups", function() {
+R6CacheFile$set("public", "list_groups", function() {
     
     # error if cache_dir does not exist
     as.character(fs::dir_ls(self$cache_dir, type = "directory"))
@@ -39,7 +39,7 @@ R6CacheMemory$set("public", "list_groups", function() {
 
 
 # has_group ----
-R6CacheMemory$set("public", "has_group", function(group) {
+R6CacheFile$set("public", "has_group", function(group) {
     
     group_dir <- fs::path(self$cache_dir, group)
     fs::dir_exists(group_dir)
@@ -47,7 +47,7 @@ R6CacheMemory$set("public", "has_group", function(group) {
 
 
 # add_group ----
-R6CacheMemory$set("public", "add_group", function(group) {
+R6CacheFile$set("public", "add_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
@@ -61,7 +61,7 @@ R6CacheMemory$set("public", "add_group", function(group) {
 
 
 # delete_group ----
-R6CacheMemory$set("public", "delete_group", function(group) {
+R6CacheFile$set("public", "delete_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
@@ -75,7 +75,7 @@ R6CacheMemory$set("public", "delete_group", function(group) {
 
 
 # forget_group ----
-R6CacheMemory$set("public", "forget_group", function(group) {
+R6CacheFile$set("public", "forget_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
@@ -91,7 +91,7 @@ R6CacheMemory$set("public", "forget_group", function(group) {
 
 
 # list_keys ----
-R6CacheMemory$set("public", "list_keys", function(group) {
+R6CacheFile$set("public", "list_keys", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
@@ -106,14 +106,14 @@ R6CacheMemory$set("public", "list_keys", function(group) {
 
 
 # has_key ----
-R6CacheMemory$set("public", "has_key", function(group, key) {
+R6CacheFile$set("public", "has_key", function(group, key) {
     
     key %in% self$list_keys(group)
 }, overwrite = TRUE)
 
 
 # get_data ----
-R6CacheMemory$set("public", "get_data", function(group, key) {
+R6CacheFile$set("public", "get_data", function(group, key) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
@@ -125,7 +125,7 @@ R6CacheMemory$set("public", "get_data", function(group, key) {
 
 
 # add_data ----
-R6CacheMemory$set("public", "add_data", function(group, key, value) {
+R6CacheFile$set("public", "add_data", function(group, key, value) {
     
     # add group only if not already present
     self$add_group(group)
@@ -138,7 +138,7 @@ R6CacheMemory$set("public", "add_data", function(group, key, value) {
 
 
 # delete_data ----
-R6CacheMemory$set("public", "delete_data", function(group, key) {
+R6CacheFile$set("public", "delete_data", function(group, key) {
     
     # add group only if not already present
     self$add_group(group)
@@ -153,7 +153,7 @@ R6CacheMemory$set("public", "delete_data", function(group, key) {
 
 
 # summary ----
-R6CacheMemory$set("public", "summary", function() {
+R6CacheFile$set("public", "summary", function() {
     
     groups <- self$list_groups()
     n_keys <- groups %>%
@@ -169,7 +169,7 @@ R6CacheMemory$set("public", "summary", function() {
 
 # print ----
 # nocov start
-R6CacheMemory$set("public", "print", function() {
+R6CacheFile$set("public", "print", function() {
     
     df <- self$summary()
     
@@ -183,7 +183,7 @@ R6CacheMemory$set("public", "print", function() {
 
 
 # reset ----
-R6CacheMemory$set("public", "reset", function() {
+R6CacheFile$set("public", "reset", function() {
     # the instance is as if just initialized
     
     fs::dir_delete(self$cache_dir)
@@ -194,7 +194,7 @@ R6CacheMemory$set("public", "reset", function() {
 
 
 # terminate ----
-R6CacheMemory$set("public", "terminate", function() {
+R6CacheFile$set("public", "terminate", function() {
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards
     
