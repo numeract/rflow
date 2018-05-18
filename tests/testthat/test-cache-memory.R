@@ -370,4 +370,71 @@ test_that("has_key() stops with key NULL", {
     cache_memory_test$terminate()
 })
 
+
+test_that("get_data() works", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), "value")
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("get_data() stops with non-existent key", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data(fn_group, "key2"))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("get_data() stops with non-existent group", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data("a_group", "key2"))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("get_data() stops with NULL key", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data(fn_group, NULL))
+    
+    cache_memory_test$terminate()
+})
+
+test_that("get_data() stops with NA key", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data(fn_group, NA))
+    
+    cache_memory_test$terminate()
+})
+
+test_that("get_data() works with vector of keys", {
+    cache_memory_test <- R6CacheMemory$new()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_error(cache_memory_test$get_data(fn_group, c("key", "key1")))
+    expect_error(cache_memory_test$get_data(fn_group, c(NA, "key1")))
+    expect_error(cache_memory_test$get_data(fn_group, c("key", NA)))
+    expect_error(cache_memory_test$get_data(fn_group, c(NA, NA)))
+    
+    cache_memory_test$terminate()
+})
+
 test_eddy <- NULL
