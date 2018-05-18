@@ -11,6 +11,7 @@ R6Eddy <- R6::R6Class(
         # data
         cache = NULL,
         rflow = NULL,
+        rflow_options = NULL,
         # attributes
         is_reactive = NULL,
         algo = NULL,
@@ -42,15 +43,19 @@ R6Eddy <- R6::R6Class(
 
 
 # initialize ----
-R6Eddy$set("public", "initialize", function(cache,
-                                            is_reactive = FALSE,
-                                            algo = "xxhash64") {
+R6Eddy$set("public", "initialize", function(
+        cache,
+        rflow_options = default_rflow_options(),
+        is_reactive = FALSE,
+        algo = "xxhash64"
+) {
     stopifnot(inherits(cache, "R6Cache"))
     if (isTRUE(is_reactive))
         stop("reactive eddies not yet implemented")
     
     self$cache <- cache
     self$rflow <- list()
+    self$rflow_options <- rflow_options
     self$is_reactive <- FALSE
     self$algo <- algo
     
@@ -59,13 +64,13 @@ R6Eddy$set("public", "initialize", function(cache,
 
 
 # digest ----
-R6Eddy$set("public", "digest", function(object, is_file_path =  FALSE) {
+R6Eddy$set("public", "digest", function(object, is_file_path = FALSE) {
     
     digest::digest(object, file = is_file_path, algo = self$algo)
 }, overwrite = TRUE)
 
 
-R6Eddy$set("public", "digest_each", function(objects, is_file_path =  FALSE) {
+R6Eddy$set("public", "digest_each", function(objects, is_file_path = FALSE) {
     
     purrr::map_chr(
         .x = objects, 
@@ -189,7 +194,6 @@ R6Eddy$set("public", "delete_data", function(fn_key, key) {
 R6Eddy$set("public", "print", function() {
     
     cache_df <- self$cache$summary()
-    
     df <- tibble::tibble(
         fn = NA_character_,
         fn_key = names(self$rflow),
@@ -198,8 +202,21 @@ R6Eddy$set("public", "print", function() {
     ) %>%
         dplyr::left_join(cache_df, by = "fn_key")
     
+    rfo <- self$rflow_options
+    excluded_arg <- paste(rfo$excluded_arg, collapse = ", ")
+    source_file_arg <- paste(rfo$source_file_arg, collapse = ", ")
+    eval_arg_fn <- format(args(rfo$eval_arg_fn))[[1]]
+    split_fn <- format(args(rfo$split_fn))[[1]]
+    
     emph_obj <- paste0("<", crayon::italic("R6Eddy"), ">")
-    cat(emph_obj, " with ", crayon::bold(length(self$rflow_lst)), ":\n")
+    cat(emph_obj, "with", crayon::bold(length(self$rflow_lst)), "rflow(s):\n",
+        "  - excluded_arg:", excluded_arg, "\n",
+        "  - source_file_arg:", source_file_arg, "\n",
+        "  - eval_arg_fn:", eval_arg_fn, "\n",
+        "  - split_bare_list:", rfo$split_bare_list, "\n",
+        "  - split_dataframe:", rfo$split_dataframe, "\n",
+        "  - split_fn:", split_fn, "\n"
+    )
     print(df)
     
     invisible(self)
@@ -213,6 +230,7 @@ R6Eddy$set("public", "reset", function() {
     
     self$cache$reset()
     self$rflow <- list()
+    # do not modify self$rflow_options
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -224,8 +242,10 @@ R6Eddy$set("public", "terminate", function() {
     # object cannot be used afterwards
     
     self$cache$terminate()
+    
     self$cache <- NULL
-    self$rf <- NULL
+    self$rflow <- NULL
+    self$rflow_options <- NULL
     
     invisible(NULL)
 }, overwrite = TRUE)
