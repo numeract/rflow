@@ -15,7 +15,9 @@ set_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
   eval_arg_fn = NULL, split_bare_list = NULL, split_dataframe = NULL,
   split_fn = NULL, eddy = get_current_eddy())
 
-get_rflow_options(eddy = get_current_eddy())
+get_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
+  eval_arg_fn = NULL, split_bare_list = NULL, split_dataframe = NULL,
+  split_fn = NULL, eddy = get_current_eddy())
 }
 \arguments{
 \item{excluded_arg}{A vector of argument names to be excluded when computing
@@ -50,11 +52,11 @@ as output before using this option.}
 \item{eddy}{Eddy to apply / retrieve options to / from.}
 }
 \value{
-\code{default_rflow_options} returns a list of options.
+For \code{default_rflow_options}, a list of options.
 
-\code{set_rflow_options} returns \code{NULL}.
+For \code{set_rflow_options}, \code{NULL}.
 
-\code{get_rflow_options} returns a list of options plus the eddy.
+For \code{get_rflow_options}, a list of options including the eddy.
 }
 \description{
 rflow options used to initialize or update an eddy.
