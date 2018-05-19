@@ -195,10 +195,10 @@ R6Eddy$set("public", "print", function() {
     
     cache_df <- self$cache$summary()
     df <- tibble::tibble(
-        fn = NA_character_,
-        fn_key = names(self$rflow),
-        type = NA_character_,
-        n_states = NA_integer_
+        fn = rep(NA_character_, NROW(self$rflow)),
+        fn_key = as.character(names(self$rflow)),
+        type = rep(NA_character_, NROW(self$rflow)),
+        n_states = rep(NA_integer_, NROW(self$rflow)),
     ) %>%
         dplyr::left_join(cache_df, by = "fn_key")
     

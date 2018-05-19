@@ -8,12 +8,11 @@
 \title{rflow options used to initialize or update an eddy.}
 \usage{
 default_rflow_options(excluded_arg = character(), source_file_arg = 1,
-  eval_arg_fn = NULL, split_bare_list = TRUE, split_dataframe = FALSE,
-  split_fn = NULL)
+  split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
 
 set_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
-  eval_arg_fn = NULL, split_bare_list = NULL, split_dataframe = NULL,
-  split_fn = NULL, eddy = get_current_eddy())
+  split_bare_list = NULL, split_dataframe = NULL, split_fn = NULL,
+  eddy = get_current_eddy())
 
 get_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
   eval_arg_fn = NULL, split_bare_list = NULL, split_dataframe = NULL,
@@ -22,18 +21,15 @@ get_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
 \arguments{
 \item{excluded_arg}{A vector of argument names to be excluded when computing
 the input hash. Best used to exclude certain arguments that depend on 
-the running state, e.g. a Shiny session, a parallel cluster, etc. The
-default is not to exclude any arguments from the input hash.}
+the running state, e.g. a Shiny session, a parallel cluster, etc. 
+Excluded arguments must have a default value to permit lazy computations.
+The default is not to exclude any arguments from the input hash.}
 
 \item{source_file_arg}{For \code{source} rflows only, which argument(s) 
 indicate the file path(s). A file path argument tell rflow to calculate
 the hash of the file on disk instead the hash of the path string.
 The default is to look only at the first argument within 
 \code{source} rflows.}
-
-\item{eval_arg_fn}{Custom function to parse the input arguments and create
-a list of evaluated arguments to be hashed. Try to use sources and 
-\code{excluded_arg} before creating a custom function.}
 
 \item{split_bare_list}{If the function output is a bare list 
 (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
@@ -50,6 +46,11 @@ but a rflow elements are still desired. Consider returning a list
 as output before using this option.}
 
 \item{eddy}{Eddy to apply / retrieve options to / from.}
+
+\item{eval_arg_fn}{Custom function to parse the input arguments and create
+a list of evaluated arguments to be hashed. Try to use sources and 
+\code{excluded_arg} before creating a custom function. It is not possible
+to set this option in an eddy usign \code{set_rflow_options}.}
 }
 \value{
 For \code{default_rflow_options}, a list of options.
@@ -65,7 +66,7 @@ rflow options used to initialize or update an eddy.
 If used in \code{set_rflow_options}, these options will be stored in 
   \code{eddy} and retrieved by each rflow subsequently executed. E.g. if not
   careful, it is possible to force all following rflows to use a custom 
-  \code{eval_arg_fn} function, which is not recommended.
+  \code{split_fn} function, which is not recommended.
 
 \code{set_rflow_options} does not overwrite the current options when the 
   argument is \code{NULL}.

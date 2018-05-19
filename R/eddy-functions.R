@@ -49,6 +49,7 @@ new_eddy <- function(eddy_name,
     stopifnot(inherits(cache, "R6Cache"))
     stopifnot(is.environment(eddy_env))
     if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
+        # we cannot return the eddy since the options might be different
         stop("Cannot create a new eddy, name already present: ", eddy_name)
     }
     
@@ -192,12 +193,13 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #' If used in \code{set_rflow_options}, these options will be stored in 
 #'   \code{eddy} and retrieved by each rflow subsequently executed. E.g. if not
 #'   careful, it is possible to force all following rflows to use a custom 
-#'   \code{eval_arg_fn} function, which is not recommended.
+#'   \code{split_fn} function, which is not recommended.
 #' 
 #' @param excluded_arg A vector of argument names to be excluded when computing
 #'   the input hash. Best used to exclude certain arguments that depend on 
-#'   the running state, e.g. a Shiny session, a parallel cluster, etc. The
-#'   default is not to exclude any arguments from the input hash.
+#'   the running state, e.g. a Shiny session, a parallel cluster, etc. 
+#'   Excluded arguments must have a default value to permit lazy computations.
+#'   The default is not to exclude any arguments from the input hash.
 #' @param source_file_arg For \code{source} rflows only, which argument(s) 
 #'   indicate the file path(s). A file path argument tell rflow to calculate
 #'   the hash of the file on disk instead the hash of the path string.
@@ -205,7 +207,8 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #'   \code{source} rflows.
 #' @param eval_arg_fn Custom function to parse the input arguments and create
 #'   a list of evaluated arguments to be hashed. Try to use sources and 
-#'   \code{excluded_arg} before creating a custom function.
+#'   \code{excluded_arg} before creating a custom function. It is not possible
+#'   to set this option in an eddy usign \code{set_rflow_options}.
 #' @param split_bare_list If the function output is a bare list 
 #'   (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
 #'   whether to calculate the hash of each list element and create
@@ -225,7 +228,7 @@ NULL
 
 parse_rflow_options <- function(excluded_arg,
                                 source_file_arg,
-                                eval_arg_fn,
+                                eval_arg_fn = NULL,
                                 split_bare_list,
                                 split_dataframe,
                                 split_fn,
@@ -254,7 +257,7 @@ parse_rflow_options <- function(excluded_arg,
         rfo <- eddy$rflow_options
     }
     
-    # recreating the list gets arround NULL values
+    # recreating the list gets around NULL values
     list(
         excluded_arg = excluded_arg %||% rfo$excluded_arg,
         source_file_arg = source_file_arg %||% rfo$source_file_arg,
@@ -271,14 +274,14 @@ parse_rflow_options <- function(excluded_arg,
 #' @rdname rflow_options
 #' 
 #' @export
-default_rflow_options <- function(excluded_arg = character(),
+default_rflow_options <- function(excluded_arg = NA_character_,
                                   source_file_arg = 1,
-                                  eval_arg_fn = NULL,
                                   split_bare_list = TRUE,
                                   split_dataframe = FALSE,
                                   split_fn = NULL
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
+    .args["eval_arg_fn"] <- list(NULL)
     rfo <- do.call(parse_rflow_options, .args)
     
     rfo
@@ -296,13 +299,13 @@ default_rflow_options <- function(excluded_arg = character(),
 #' @export
 set_rflow_options <- function(excluded_arg = NULL,
                               source_file_arg = NULL,
-                              eval_arg_fn = NULL,
                               split_bare_list = NULL,
                               split_dataframe = NULL,
                               split_fn = NULL,
                               eddy = get_current_eddy()
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
+    .args["eval_arg_fn"] <- list(NULL)
     rfo <- do.call(parse_rflow_options, .args)
     eddy$rflow_options <- rfo
     
