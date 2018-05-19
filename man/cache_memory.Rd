@@ -2,7 +2,7 @@
 % Please edit documentation in R/cache-functions.R
 \name{cache_memory}
 \alias{cache_memory}
-\title{Get the memory cache engine.}
+\title{Get the memory only cache engine.}
 \usage{
 cache_memory()
 }
@@ -10,9 +10,11 @@ cache_memory()
 A cache object that inherits from \code{R6Cache}.
 }
 \description{
-Get the memory cache engine.
+All cache data will be stored only in memory.
 }
 \seealso{
-Other cache functions: \code{\link{default_cache}}
+Other cache functions: \code{\link{cache_file}},
+  \code{\link{cache_memory_file}},
+  \code{\link{default_cache}}
 }
 \concept{cache functions}

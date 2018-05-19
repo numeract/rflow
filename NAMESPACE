@@ -2,7 +2,9 @@
 
 export("%>%")
 export("%||%")
+export(cache_file)
 export(cache_memory)
+export(cache_memory_file)
 export(default_cache)
 export(default_eddy_env)
 export(default_rflow_options)

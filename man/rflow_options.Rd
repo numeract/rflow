@@ -7,7 +7,7 @@
 \alias{get_rflow_options}
 \title{rflow options used to initialize or update an eddy.}
 \usage{
-default_rflow_options(excluded_arg = character(), source_file_arg = 1,
+default_rflow_options(excluded_arg = NA_character_, source_file_arg = 1,
   split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
 
 set_rflow_options(excluded_arg = NULL, source_file_arg = NULL,

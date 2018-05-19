@@ -173,7 +173,7 @@ R6CacheMemory$set("public", "print", function() {
     
     df <- self$summary()
     
-    emph_obj <- paste0("<", crayon::italic("R6CacheMemory"), ">")
+    emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
     cat(emph_obj, " with ", crayon::bold(nrow(df)), " fn_keys:\n")
     print(df)
     

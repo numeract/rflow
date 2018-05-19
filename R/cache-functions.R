@@ -4,7 +4,9 @@
 # !diagnostics suppress=.,
 
 
-#' Get the memory cache engine.
+#' Get the memory only cache engine.
+#' 
+#' All cache data will be stored only in memory.
 #' 
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 
@@ -17,7 +19,41 @@ cache_memory <- function() {
 }
 
 
-#' Get the default cache engine (currently \code{cache_memory()}).
+#' Get the file only cache engine.
+#' 
+#' All cache data will be stored only on the local disk.
+#' 
+#' @return A cache object that inherits from \code{R6Cache}.
+#' 
+#' @family cache functions
+#' 
+#' @export
+cache_file <- function() {
+    
+    R6CacheFile$new()
+}
+
+
+#' Get the memory-file cache engine.
+#' 
+#' The cache data will be stored both in memory (for quick access) and on
+#'   disk (for persistence).
+#' 
+#' @return A cache object that inherits from \code{R6Cache}.
+#' 
+#' @family cache functions
+#' 
+#' @export
+cache_memory_file <- function() {
+    
+    R6CacheFile$new()
+}
+
+
+#' Get the default cache engine.
+#' 
+#' Currently, the default cache engine is \code{cache_memory()}, but this 
+#'   might change in the future.
 #' 
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 
