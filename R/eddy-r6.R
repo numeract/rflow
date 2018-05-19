@@ -112,6 +112,8 @@ R6Eddy$set("public", "get_rflow", function(fn_key) {
 R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
     
     if (self$has_rflow(fn_key)) {
+        # we cannot return the rflow already present since it may have
+        # with different options ==> all eddy$*_rflow functions are strict
         stop("rflow already exists for key: ", fn_key)
     } else {
         self$rflow_lst[[fn_key]] <- rflow
@@ -208,7 +210,7 @@ R6Eddy$set("public", "print", function() {
     eval_arg_fn <- format(args(rfo$eval_arg_fn))[[1]]
     split_fn <- format(args(rfo$split_fn))[[1]]
     
-    emph_obj <- paste0("<", crayon::italic("R6Eddy"), ">")
+    emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
     cat(emph_obj, "with", crayon::bold(length(self$rflow_lst)), "rflow(s):\n",
         "  - excluded_arg:", excluded_arg, "\n",
         "  - source_file_arg:", source_file_arg, "\n",
