@@ -24,8 +24,23 @@ R6Cache <- R6::R6Class(
         delete_data = function(group, key) {stop("abstract method")},
         
         summary = function() {stop("abstract method")},
-        print = function() {stop("abstract method")},
+        print = function() {},
         reset = function() {stop("abstract method")},
         terminate = function() {stop("abstract method")}
     )
 )
+
+
+# print ----
+# nocov start
+R6Cache$set("public", "print", function() {
+    
+    df <- self$summary()
+    
+    emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
+    cat(emph_obj, " with ", crayon::bold(nrow(df)), " fn_keys:\n")
+    print(df)
+    
+    invisible(self)
+}, overwrite = TRUE)
+# nocov end

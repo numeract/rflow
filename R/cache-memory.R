@@ -167,21 +167,6 @@ R6CacheMemory$set("public", "summary", function() {
 }, overwrite = TRUE)
 
 
-# print ----
-# nocov start
-R6CacheMemory$set("public", "print", function() {
-    
-    df <- self$summary()
-    
-    emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
-    cat(emph_obj, " with ", crayon::bold(nrow(df)), " fn_keys:\n")
-    print(df)
-    
-    invisible(self)
-}, overwrite = TRUE)
-# nocov end
-
-
 # reset ----
 R6CacheMemory$set("public", "reset", function() {
     # the instance is as if just initialized
