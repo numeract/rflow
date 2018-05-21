@@ -153,11 +153,19 @@ R6CacheMemoryFile$set("public", "get_data", function(group, key) {
     if (key %in% names(kv_lst)) {
         # found it in memory
         value <- kv_lst[[key]]
+        # assume it is also present on disk since it was written to both
     } else {
         # if not on disk (and not in memory) ==> error
         key_path <- fs::path(self$cache_dir, group, key)
         stopifnot(fs::file_exists(key_path))
         value <- readRDS(key_path)
+        # copy data to memory cache
+        if (is.null(value)) {
+            kv_lst[key] <- list(NULL)
+        } else {
+            kv_lst[[key]] <- value
+        }
+        base::assign(group, value = kv_lst, pos = self$cache_env)
     }
     
     value

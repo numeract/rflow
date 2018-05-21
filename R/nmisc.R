@@ -18,7 +18,7 @@ keep_if_not_in <- function(x, y) {
 keep_at <- function(.x, .at) {
     
     if (length(.at) == 0L) return(.x[0L])
-    if (any(is.na(.at))) stop("`.at`` must not contain NA's")
+    if (any(is.na(.at))) stop("`.at` must not contain NA's")
     
     .p <- if (is.character(.at)) {
         names(.x) %in% .at
