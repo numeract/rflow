@@ -49,7 +49,7 @@ new_eddy <- function(eddy_name,
     stopifnot(inherits(cache, "R6Cache"))
     stopifnot(is.environment(eddy_env))
     if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        # we cannot return the eddy since the options might be different
+        # we cannot return the eddy since the rflow_options might be different
         stop("Cannot create a new eddy, name already present: ", eddy_name)
     }
     
@@ -200,15 +200,19 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #'   the running state, e.g. a Shiny session, a parallel cluster, etc. 
 #'   Excluded arguments must have a default value to permit lazy computations.
 #'   The default is not to exclude any arguments from the input hash.
-#' @param source_file_arg For \code{source} rflows only, which argument(s) 
+#' @param source_file_arg For \code{source} rflows only(!), which argument(s) 
 #'   indicate the file path(s). A file path argument tell rflow to calculate
 #'   the hash of the file on disk instead the hash of the path string.
 #'   The default is to look only at the first argument within 
 #'   \code{source} rflows.
 #' @param eval_arg_fn Custom function to parse the input arguments and create
-#'   a list of evaluated arguments to be hashed. Try to use sources and 
-#'   \code{excluded_arg} before creating a custom function. It is not possible
-#'   to set this option in an eddy usign \code{set_rflow_options}.
+#'   a list of evaluated arguments to be hashed. This function should have the
+#'   exact same arguments as the original function. If an \code{eval_arg_fn}
+#'   is provided, \code{excluded_arg} and \code{source_file_arg} will be
+#'   ignored. Try to use \code{excluded_arg} or rflow source before creating 
+#'   a custom function. Because each custom function is rflow specific, it is 
+#'   not possible to set this option at the eddy level 
+#'   using \code{set_rflow_options}.
 #' @param split_bare_list If the function output is a bare list 
 #'   (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
 #'   whether to calculate the hash of each list element and create
@@ -219,7 +223,9 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #' @param split_fn Custom function to generate a list of elements from the
 #'   output of the rflow-ed function. Useful only if the output is not a list
 #'   but a rflow elements are still desired. Consider returning a list
-#'   as output before using this option.
+#'   as output before using this option.  If an \code{split_fn}
+#'   is provided, \code{split_bare_list} and \code{split_dataframe} will be
+#'   ignored.
 #' @param eddy Eddy to apply / retrieve options to / from.
 #' 
 #' @name rflow_options
@@ -274,7 +280,7 @@ parse_rflow_options <- function(excluded_arg,
 #' @rdname rflow_options
 #' 
 #' @export
-default_rflow_options <- function(excluded_arg = NA_character_,
+default_rflow_options <- function(excluded_arg = character(),
                                   source_file_arg = 1,
                                   split_bare_list = TRUE,
                                   split_dataframe = FALSE,
