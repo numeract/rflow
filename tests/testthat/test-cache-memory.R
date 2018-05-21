@@ -671,3 +671,54 @@ test_that("delete_data() stops with non-existent key", {
 
 
 # reset tests -----------------------------------------------------------------
+test_that("reset() works", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    cache_memory_test$reset()
+    expect_equal(cache_memory_test, cache_memory())
+    expect_true(is.environment(cache_memory_test$cache_env))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("reset() works with empty cache", {
+    
+    cache_memory_test <- cache_memory()
+    
+    cache_memory_test$reset()
+    expect_equal(cache_memory_test, cache_memory())
+    expect_true(is.environment(cache_memory_test$cache_env))
+    
+    cache_memory_test$terminate()
+})
+
+
+# terminate tests -----------------------------------------------------------------
+test_that("terminate() works", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    cache_memory_test$terminate()
+    expect_equal(cache_memory_test$cache_env, NULL)
+    expect_false(is.environment(cache_memory_test$cache_env))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("terminate() works with empty cache", {
+    
+    cache_memory_test <- cache_memory()
+    
+    expect_true(is.environment(cache_memory_test$cache_env))
+    
+    cache_memory_test$terminate()
+    expect_equal(cache_memory_test$cache_env, NULL)
+    expect_false(is.environment(cache_memory_test$cache_env))
+    
+    cache_memory_test$terminate()
+})
