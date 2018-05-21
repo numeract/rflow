@@ -1,5 +1,5 @@
-# Tests for chache memory --------------------------------------------
-context("Test cache-memory functions")
+# Tests for chache file --------------------------------------------
+context("Test cache-file functions")
 cache_dir <- "cache_dir"
 fn_group <- "default_group"
 
@@ -55,7 +55,7 @@ test_that("add_group() works with vector input", {
 })
 
 
-# # has_group tests ----------------------------------------------------
+# has_group tests ----------------------------------------------------
 test_that("has_group() works", {
 
     cache_file_test <- cache_file(cache_dir)
@@ -209,7 +209,7 @@ test_that("delete_group() works with vectors", {
 })
 
  
-# # forget_group tests ----------------------------------------------------
+# forget_group tests ----------------------------------------------------
 test_that("forget_group() works", {
     cache_file_test <- cache_file(cache_dir)
     cache_file_test$add_data(fn_group, "key", "value")
