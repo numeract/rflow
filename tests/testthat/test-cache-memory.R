@@ -565,3 +565,109 @@ test_that("add_data() works with empty strings", {
 
 
 # delete_data tests ----------------------------------------------------------
+test_that("delete_data() works", {
+    
+    cache_memory_test <- cache_memory()
+    
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$delete_data(fn_group, "key")
+    expect_false(cache_memory_test$has_key(fn_group, "key"))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() works with group not present", {
+    
+    cache_memory_test <- cache_memory()
+
+    cache_memory_test$delete_data(fn_group, "key")
+    expect_false(cache_memory_test$has_key(fn_group, "key"))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with NULL args", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    expect_error(cache_memory_test$delete_data(NULL, "key"))
+    expect_error(cache_memory_test$delete_data(fn_group, NULL))
+    expect_error(cache_memory_test$delete_data(NULL, NULL))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with NA args", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    expect_error(cache_memory_test$delete_data(NA, "key"))
+    expect_error(cache_memory_test$delete_data(fn_group, NA))
+    expect_error(cache_memory_test$delete_data(NA, NA))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with empty strings", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    
+    expect_error(cache_memory_test$delete_data(character(), "key"))
+    expect_error(cache_memory_test$delete_data(fn_group, character()))
+    expect_error(cache_memory_test$delete_data(character(), character()))
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with vectors", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key2", "value2")
+    cache_memory_test$add_data("a_group", "key3", "value3")
+    
+    expect_error(cache_memory_test$delete_data(fn_group, c("key", "key2")))
+    expect_error(cache_memory_test$delete_data(fn_group, c(NA, "key2")))
+    expect_error(
+        cache_memory_test$delete_data(c(fn_group, "a_group"), "key2"))
+
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with empty strings", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key2", "value2")
+    cache_memory_test$add_data("a_group", "key3", "value3")
+    
+    expect_error(cache_memory_test$delete_data(character(), "key"))
+    expect_error(cache_memory_test$delete_data(fn_group, character()))
+   
+    cache_memory_test$terminate()
+})
+
+
+test_that("delete_data() stops with non-existent key", {
+    
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key2", "value2")
+    cache_memory_test$add_data("a_group", "key3", "value3")
+    
+    expect_error(cache_memory_test$delete_data(fn_group, "key3"))
+    
+    cache_memory_test$terminate()
+})
+
+
+# reset tests -----------------------------------------------------------------
