@@ -483,3 +483,85 @@ test_that("get_data() works with vector of keys", {
     cache_memory_test$terminate()
 })
 
+
+# add_data tests ----------------------------------------------------------
+test_that("add_data() works", {
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key1", "value1")
+    
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), "value")
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("add_data() stops with NULL args", {
+    cache_memory_test <- cache_memory()
+    
+    expect_error(cache_memory_test$add_data(NULL, "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, NULL, "value"))
+    expect_silent(cache_memory_test$add_data(fn_group, "key", NULL))
+    
+    cache_memory_test$terminate()
+})
+
+
+
+test_that("add_data() works NULL args", {
+    cache_memory_test <- cache_memory()
+    
+    expect_error(cache_memory_test$add_data(NULL, "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, NULL, "value"))
+    cache_memory_test$add_data(fn_group, "key", NULL)
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), NULL)
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("add_data() stops with NA", {
+    cache_memory_test <- cache_memory()
+    
+    expect_error(cache_memory_test$add_data(NA, "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, NA, "value"))
+    cache_memory_test$add_data(fn_group, "key", NA)
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), NA)
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("add_data() works with vectors", {
+    cache_memory_test <- cache_memory()
+    
+    expect_error(cache_memory_test$add_data(c("a", "b"), "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, c("a", "b"), "value"))
+    
+    expect_error(cache_memory_test$add_data(c(NA, "b"), "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, c(NA, "b"), "value"))
+    
+    expect_error(cache_memory_test$add_data(c(NA, NA), "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, c(NA, NA), "value"))
+    
+    # TODO: Can the "value" argument be a vector?
+    cache_memory_test$add_data(fn_group, "key", c("a", "b"))
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), c("a", "b"))
+
+    cache_memory_test$terminate()
+})
+
+
+test_that("add_data() works with empty strings", {
+    cache_memory_test <- cache_memory()
+    
+    expect_error(cache_memory_test$add_data(character(), "key", "value"))
+    expect_error(cache_memory_test$add_data(fn_group, character(), "value"))
+    cache_memory_test$add_data(fn_group, "key", character())
+    expect_equal(cache_memory_test$get_data(fn_group, "key"), character())
+    
+    cache_memory_test$terminate()
+})
+
+
+# delete_data tests ----------------------------------------------------------
