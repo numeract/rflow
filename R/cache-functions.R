@@ -28,9 +28,9 @@ cache_memory <- function() {
 #' @family cache functions
 #' 
 #' @export
-cache_file <- function() {
+cache_file <- function(cache_dir) {
     
-    R6CacheFile$new()
+    R6CacheFile$new(cache_dir)
 }
 
 

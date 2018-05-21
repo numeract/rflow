@@ -657,14 +657,14 @@ test_that("delete_data() stops with empty strings", {
 })
 
 
-test_that("delete_data() stops with non-existent key", {
+test_that("delete_data() works with non-existent key", {
     
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key2", "value2")
     cache_memory_test$add_data("a_group", "key3", "value3")
     
-    expect_error(cache_memory_test$delete_data(fn_group, "key3"))
+    expect_silent(cache_memory_test$delete_data(fn_group, "key3"))
     
     cache_memory_test$terminate()
 })
