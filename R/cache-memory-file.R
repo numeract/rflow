@@ -51,6 +51,8 @@ R6CacheMemoryFile$set("public", "list_groups", function() {
 # has_group ----
 R6CacheMemoryFile$set("public", "has_group", function(group) {
     
+    require_keys(group)
+    
     group %in% self$list_groups()
 }, overwrite = TRUE)
 
@@ -59,6 +61,9 @@ R6CacheMemoryFile$set("public", "has_group", function(group) {
 R6CacheMemoryFile$set("public", "add_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
+    
+    require_keys(group)
+    
     
     # add in memory, if missing
     if (!base::exists(group, where = self$cache_env, inherits = FALSE)) {
@@ -79,6 +84,8 @@ R6CacheMemoryFile$set("public", "add_group", function(group) {
 R6CacheMemoryFile$set("public", "delete_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
+
+    require_keys(group)
     
     # group may exist either in mem, or on disk, or on both, or may not exist
     if (base::exists(group, where = self$cache_env, inherits = FALSE)) {
@@ -99,6 +106,8 @@ R6CacheMemoryFile$set("public", "forget_group", function(group) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
     
+    require_keys(group)
+    
     # this also adds the group in memory, if missing
     base::assign(group, value = list(), pos = self$cache_env)
     
@@ -115,6 +124,8 @@ R6CacheMemoryFile$set("public", "forget_group", function(group) {
 
 # list_keys ----
 R6CacheMemoryFile$set("public", "list_keys", function(group) {
+    
+    require_keys(group)
     
     # no error if group NOT present in memory
     kv_lst <- base::get0(
@@ -139,6 +150,8 @@ R6CacheMemoryFile$set("public", "list_keys", function(group) {
 # has_key ----
 R6CacheMemoryFile$set("public", "has_key", function(group, key) {
     
+    require_keys(group, key)
+    
     key %in% self$list_keys(group)
 }, overwrite = TRUE)
 
@@ -147,6 +160,8 @@ R6CacheMemoryFile$set("public", "has_key", function(group, key) {
 R6CacheMemoryFile$set("public", "get_data", function(group, key) {
     
     stopifnot(fs::dir_exists(self$cache_dir))
+    
+    require_keys(group, key)
     
     # error if group not present in memory
     kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
@@ -175,6 +190,8 @@ R6CacheMemoryFile$set("public", "get_data", function(group, key) {
 # add_data ----
 R6CacheMemoryFile$set("public", "add_data", function(group, key, value) {
     
+    require_keys(group, key)
+    
     # add group only if not already present
     self$add_group(group)
     
@@ -195,6 +212,8 @@ R6CacheMemoryFile$set("public", "add_data", function(group, key, value) {
 
 # delete_data ----
 R6CacheMemoryFile$set("public", "delete_data", function(group, key) {
+    
+    require_keys(group, key)
     
     # add group only if not already present
     self$add_group(group)
