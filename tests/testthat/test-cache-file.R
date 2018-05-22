@@ -831,5 +831,4 @@ test_that("terminate() works with empty cache", {
     expect_equal(cache_file_test$cache_dir, NULL)
     expect_false(fs::dir_exists(cache_dir))
 
-    expect_silent(cache_file_test$terminate())
 })
