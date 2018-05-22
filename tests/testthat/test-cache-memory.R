@@ -705,8 +705,6 @@ test_that("terminate() works", {
     cache_memory_test$terminate()
     expect_equal(cache_memory_test$cache_env, NULL)
     expect_false(is.environment(cache_memory_test$cache_env))
-    
-    cache_memory_test$terminate()
 })
 
 
@@ -719,6 +717,4 @@ test_that("terminate() works with empty cache", {
     cache_memory_test$terminate()
     expect_equal(cache_memory_test$cache_env, NULL)
     expect_false(is.environment(cache_memory_test$cache_env))
-    
-    cache_memory_test$terminate()
 })

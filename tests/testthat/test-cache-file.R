@@ -784,54 +784,52 @@ test_that("delete_data() works with non-existent key", {
 
 
 # reset tests -----------------------------------------------------------------
-# test_that("reset() works", {
-# 
-#     cache_file_test <- cache_file(cache_dir)
-#     cache_file_test$add_data(fn_group, "key", "value")
-# 
-#     cache_file_test$reset()
-#     expect_equal(cache_file_test, cache_file(cache_dir))
-#     expect_true(is.environment(cache_file_test$cache_env))
-# 
-#     cache_file_test$terminate()
-# })
+test_that("reset() works", {
+
+    cache_file_test <- cache_file(cache_dir)
+    cache_file_test$add_data(fn_group, "key", "value")
+    
+    cache_file_test$reset()
+    expect_equal(cache_file_test, cache_file(cache_dir))
+    expect_equal(length(fs::dir_ls(cache_file_test$cache_dir)), 0)
+
+    cache_file_test$terminate()
+})
 
 
-# test_that("reset() works with empty cache", {
-#     
-#     cache_file_test <- cache_file(cache_dir)
-#     
-#     cache_file_test$reset()
-#     expect_equal(cache_file_test, cache_file(cache_dir))
-#     expect_true(is.environment(cache_file_test$cache_env))
-#     
-#     cache_file_test$terminate()
-# })
-# 
-# 
-# # terminate tests -----------------------------------------------------------------
-# test_that("terminate() works", {
-#     
-#     cache_file_test <- cache_file(cache_dir)
-#     cache_file_test$add_data(fn_group, "key", "value")
-#     
-#     cache_file_test$terminate()
-#     expect_equal(cache_file_test$cache_env, NULL)
-#     expect_false(is.environment(cache_file_test$cache_env))
-#     
-#     cache_file_test$terminate()
-# })
-# 
-# 
-# test_that("terminate() works with empty cache", {
-#     
-#     cache_file_test <- cache_file(cache_dir)
-#     
-#     expect_true(is.environment(cache_file_test$cache_env))
-#     
-#     cache_file_test$terminate()
-#     expect_equal(cache_file_test$cache_env, NULL)
-#     expect_false(is.environment(cache_file_test$cache_env))
-#     
-#     cache_file_test$terminate()
-# })
+test_that("reset() works with empty cache", {
+
+    cache_file_test <- cache_file(cache_dir)
+
+    cache_file_test$reset()
+    expect_equal(cache_file_test, cache_file(cache_dir))
+    expect_equal(length(fs::dir_ls(cache_file_test$cache_dir)), 0)
+
+    cache_file_test$terminate()
+})
+
+
+# terminate tests -----------------------------------------------------------------
+test_that("terminate() works", {
+
+    cache_file_test <- cache_file(cache_dir)
+    cache_file_test$add_data(fn_group, "key", "value")
+
+    cache_file_test$terminate()
+    expect_equal(cache_file_test$cache_dir, NULL)
+    expect_false(fs::dir_exists(cache_dir))
+})
+
+
+test_that("terminate() works with empty cache", {
+
+    cache_file_test <- cache_file(cache_dir)
+
+    expect_true(fs::dir_exists(cache_file_test$cache_dir))
+
+    cache_file_test$terminate()
+    expect_equal(cache_file_test$cache_dir, NULL)
+    expect_false(fs::dir_exists(cache_dir))
+    
+    expect_silent(cache_file_test$terminate())
+})

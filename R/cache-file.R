@@ -201,8 +201,12 @@ R6CacheFile$set("public", "terminate", function() {
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards
     
-    fs::dir_delete(self$cache_dir)
-    self$cache_dir <- NULL
+    # Sugestion: so that it doesn't fail if cache file already terminated
+    tryCatch(
+        fs::dir_delete(self$cache_dir),
+        warning = function(e)  self$cache_dir <- NULL,
+        error = function(e)  self$cache_dir <- NULL)
     
+    self$cache_dir <- NULL
     invisible(NULL)
 }, overwrite = TRUE)
