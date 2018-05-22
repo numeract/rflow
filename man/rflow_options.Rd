@@ -7,7 +7,7 @@
 \alias{get_rflow_options}
 \title{rflow options used to initialize or update an eddy.}
 \usage{
-default_rflow_options(excluded_arg = NA_character_, source_file_arg = 1,
+default_rflow_options(excluded_arg = character(), source_file_arg = 1,
   split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
 
 set_rflow_options(excluded_arg = NULL, source_file_arg = NULL,
@@ -25,7 +25,7 @@ the running state, e.g. a Shiny session, a parallel cluster, etc.
 Excluded arguments must have a default value to permit lazy computations.
 The default is not to exclude any arguments from the input hash.}
 
-\item{source_file_arg}{For \code{source} rflows only, which argument(s) 
+\item{source_file_arg}{For \code{source} rflows only(!), which argument(s) 
 indicate the file path(s). A file path argument tell rflow to calculate
 the hash of the file on disk instead the hash of the path string.
 The default is to look only at the first argument within 
@@ -43,14 +43,20 @@ corresponding rflow elements.}
 \item{split_fn}{Custom function to generate a list of elements from the
 output of the rflow-ed function. Useful only if the output is not a list
 but a rflow elements are still desired. Consider returning a list
-as output before using this option.}
+as output before using this option.  If an \code{split_fn}
+is provided, \code{split_bare_list} and \code{split_dataframe} will be
+ignored.}
 
 \item{eddy}{Eddy to apply / retrieve options to / from.}
 
 \item{eval_arg_fn}{Custom function to parse the input arguments and create
-a list of evaluated arguments to be hashed. Try to use sources and 
-\code{excluded_arg} before creating a custom function. It is not possible
-to set this option in an eddy usign \code{set_rflow_options}.}
+a list of evaluated arguments to be hashed. This function should have the
+exact same arguments as the original function. If an \code{eval_arg_fn}
+is provided, \code{excluded_arg} and \code{source_file_arg} will be
+ignored when computing the input hash. Try to use \code{excluded_arg} or 
+rflow source before creating a custom function. Because each custom 
+function is rflow specific, it is not possible to set this option at 
+the eddy level using \code{set_rflow_options}.}
 }
 \value{
 For \code{default_rflow_options}, a list of options.

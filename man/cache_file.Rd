@@ -4,7 +4,7 @@
 \alias{cache_file}
 \title{Get the file only cache engine.}
 \usage{
-cache_file()
+cache_file(cache_dir)
 }
 \value{
 A cache object that inherits from \code{R6Cache}.

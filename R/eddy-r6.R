@@ -149,7 +149,7 @@ R6Eddy$set("public", "delete_rflow", function(fn_key) {
 
 # forget_rflow ----
 R6Eddy$set("public", "forget_rflow", function(fn_key) {
-    # empty the cache without deleting it
+    # empty the cache without deleting the group
     
     self$require_rflow(fn_key)
     

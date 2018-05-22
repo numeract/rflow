@@ -124,7 +124,7 @@ R6CacheMemoryFile$set("public", "list_keys", function(group) {
     # no error if group NOT present on disk
     group_dir <- fs::path(self$cache_dir, group)
     on_disk <- if (fs::dir_exists(group_dir)) {
-        as.character(fs::dir_ls(group_dir, type = "file"))
+        as.character(fs::path_file(fs::dir_ls(group_dir, type = "file")))
     } else {
         character(0L)
     }

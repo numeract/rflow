@@ -292,7 +292,8 @@ test_that("list_keys() works", {
     cache_file_test$add_data(fn_group, "key1", "value1")
     cache_group_dir <- fs::path(cache_dir, fn_group)
     
-    cache_files <- as.character(fs::dir_ls(cache_group_dir, type = "file"))
+    cache_files <- as.character(fs::path_file(
+        fs::dir_ls(cache_group_dir, type = "file")))
     expect_equal(
         cache_file_test$list_keys(fn_group), cache_files)
 
