@@ -43,7 +43,7 @@ parse_call <- function(pos = 2L) {
         format_fn_call <- paste(format(unmatched_fn_call), collapse = " ")
         rlang::abort(paste("Not a function call:", format_fn_call))
     }
-    if (grepl("\\.Primitive", format(fn))) {
+    if (any(grepl("\\.Primitive", format(fn)))) {
         rlang::abort("Primitive functions not supported.")
     }
     

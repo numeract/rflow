@@ -138,7 +138,7 @@ R6Flow$set("public", "rf_fn_default", function(...) {
     
     # supplied arguments
     supplied_args <- as.list(match_call)[-1]
-    if (any(names(supplied_args)) %in% self$excluded_arg) {
+    if (any(names(supplied_args) %in% self$excluded_arg)) {
         rlang::abort("Excluded arguments must not be supplied values")
     }
     
@@ -178,7 +178,8 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         # if found_state_idx == self$state_index no processing is needed
     } else {
         # not in cache, prepare for lazy eval:
-        #   save enough args into cache to reconstruct the call later
+        # save enough args into cache to reconstruct the call later
+        # TODO: reactivity: what if collect cannot provide data now?
         
         # we need to replace R6Flow args with their data
         for (nm in names(rflow_args)) {
@@ -216,9 +217,6 @@ R6Flow$set("public", "initialize", function(
 ) {
     stopifnot(is.function(fn))
     require_keys(fn_key, fn_name)
-    
-    # register itself in eddy (error if fn_key already present)
-    self$eddy$add_rflow(fn_key, self)
     
     # init self$
     self$fn <- fn
@@ -267,6 +265,9 @@ R6Flow$set("public", "initialize", function(
         self$output_state <- rflow_data$output_state
     }
     
+    # register itself in eddy (error if fn_key already present)
+    self$eddy$add_rflow(fn_key, self)
+    
     # calc_in_hash
     if (!is.null(self$eval_arg_fn)) {
         self$calc_in_hash <- self$calc_in_hash_custom
@@ -278,13 +279,13 @@ R6Flow$set("public", "initialize", function(
     self$rf_fn <- self$rf_fn_default
     formals(self$rf_fn) <- formals(args(fn))
     
-    # exists_cache
-    self$exists_cache <- self$exists_cache_default
-    formals(self$exists_cache) <- formals(args(fn))
-    
-    # delete_cache
-    self$delete_cache <- self$delete_cache_default
-    formals(self$delete_cache) <- formals(args(fn))
+    # # exists_cache
+    # self$exists_cache <- self$exists_cache_default
+    # formals(self$exists_cache) <- formals(args(fn))
+    # 
+    # # delete_cache
+    # self$delete_cache <- self$delete_cache_default
+    # formals(self$delete_cache) <- formals(args(fn))
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -598,12 +599,12 @@ R6Flow$set("public", "save", function() {
 R6Flow$set("public", "print", function() {
     
     emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
-    cat(emph_obj, " for ", crayon::bold(self$fn_name), ":\n",
-        "  - number of states: ", nrow(self$state), "\n",
-        "  - current state index: ", self$state_index, "\n",
-        "  - is_valid: ", self$is_valid, "\n",
-        "  - is_evalauted: ", self$is_evaluated, "\n",
-        sep = "")
+    cat(emph_obj, "for function", crayon::bold(self$fn_name), "\n",
+        " - number of states:", nrow(self$state), "\n",
+        " - current state index:", self$state_index, "\n",
+        " - is_valid:", self$is_valid, "\n",
+        " - is_evalauted:", self$is_evaluated, "\n"
+    )
     print(self$state)
     
     invisible(self)
