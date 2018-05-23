@@ -3,24 +3,23 @@
 \name{collect}
 \alias{collect}
 \alias{collect.R6Flow}
-\alias{collect.R6FlowElement}
-\title{Get the data from an \code{R6Flow} or an \code{R6FlowElement} object.}
+\alias{collect.Element}
+\title{Get the data from an \code{R6Flow} or an \code{Element} object.}
 \usage{
 \method{collect}{R6Flow}(x, ...)
 
-\method{collect}{R6FlowElement}(x, ...)
+\method{collect}{Element}(x, ...)
 }
 \arguments{
 \item{x}{Function cached with RFlow.}
 
-\item{...}{Element of the output data to be selected. If present, it should
-be named \code{name}, otherwise the first item of the \code{...} list
-will be used. The default is \code{name = NULL}, which returns all the
-data.}
+\item{...}{Element of the output data to be selected. If present, it must
+be named \code{name}. The default is \code{name = NULL}, which returns 
+all the data.}
 }
 \value{
 Data associated with the output of the function.
 }
 \description{
-Get the data from an \code{R6Flow} or an \code{R6FlowElement} object.
+Get the data from an \code{R6Flow} or an \code{Element} object.
 }

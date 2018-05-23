@@ -4,7 +4,7 @@
 \alias{make_ns_sink}
 \title{Cache a function - TODO.}
 \usage{
-make_ns_sink(fn = to_ns, eddy = get_default_eddy())
+make_ns_sink(fn = to_ns, eddy = get_current_eddy())
 }
 \arguments{
 \item{fn}{Function to be cached, the default works with environments and 

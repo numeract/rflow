@@ -4,7 +4,7 @@
 \alias{make_sink}
 \title{Cache a function - TODO.}
 \usage{
-make_sink(fn, hash_input_fn = NULL, eddy = get_default_eddy())
+make_sink(fn, hash_input_fn = NULL, eddy = get_current_eddy())
 }
 \arguments{
 \item{fn}{Function to be cached, ideally a pure function.}

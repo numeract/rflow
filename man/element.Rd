@@ -17,7 +17,7 @@ element(x, name = NULL)
 input object.}
 }
 \value{
-An object with class \code{R6FlowElement}.
+An object with class \code{Element}.
 }
 \description{
 Extract an element from an \code{R6Flow} object.

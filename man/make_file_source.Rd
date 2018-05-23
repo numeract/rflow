@@ -5,7 +5,7 @@
 \title{Cache a function - TODO.}
 \usage{
 make_file_source(fn, file_arg = 1, split_output_fn = NULL,
-  eddy = get_default_eddy())
+  eddy = get_current_eddy())
 }
 \arguments{
 \item{fn}{Function to be cached, ideally a pure function.}
