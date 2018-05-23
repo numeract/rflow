@@ -163,7 +163,7 @@ collect.R6Flow <- function(x, ...) {
 #' @export
 collect.Element <- function(x, ...) {
     
-    if (length(list(...)) > 0L) warning("all arguments ignored")
+    if (length(list(...)) > 0L) warning("all other arguments ignored")
     
     x$self$collect(name = x$elem_name)
 }

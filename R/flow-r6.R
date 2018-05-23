@@ -689,3 +689,25 @@ R6Flow$set("active", "is_evaluated", function() {
     index <- self$state_index
     self$is_valid_at_index(index) && !is.na(self$state$out_hash[index])
 }, overwrite = TRUE)
+
+
+
+# print.Element ----
+# nocov start
+print.Element <- function(x, ...) {
+    
+    if (length(list(...)) > 0L) warning("all other arguments ignored")
+    
+    emph_obj1 <- paste0("<", crayon::italic("Element"), ">")
+    emph_obj2 <- paste0("<", crayon::italic(class(x$self)[[1L]]), ">")
+    fn_name <- crayon::bold(x$self$fn_name)
+    cat(emph_obj1, "of", emph_obj2, "for function", fn_name, "\n",
+        " - elem_name:", x$elem_name %||% "<full result>", "\n",
+        " - elem_hash:", x$elem_hash, "\n",
+        " - is_valid:", x$self$is_valid, "\n",
+        " - is_evalauted:", x$self$is_evaluated, "\n"
+    )
+    
+    invisible(x)
+}
+# nocov end
