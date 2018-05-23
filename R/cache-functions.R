@@ -23,6 +23,8 @@ cache_memory <- function() {
 #' 
 #' All cache data will be stored only on the local disk.
 #' 
+#' @param cache_dir Directory where to store the cache files.
+#' 
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 
 #' @family cache functions
@@ -38,6 +40,8 @@ cache_file <- function(cache_dir) {
 #' 
 #' The cache data will be stored both in memory (for quick access) and on
 #'   disk (for persistence).
+#' 
+#' @param cache_dir Directory where to store the cache files.
 #' 
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 

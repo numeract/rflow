@@ -6,6 +6,9 @@
 \usage{
 cache_file(cache_dir)
 }
+\arguments{
+\item{cache_dir}{Directory where to store the cache files.}
+}
 \value{
 A cache object that inherits from \code{R6Cache}.
 }

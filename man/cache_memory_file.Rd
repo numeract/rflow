@@ -4,7 +4,10 @@
 \alias{cache_memory_file}
 \title{Get the memory-file cache engine.}
 \usage{
-cache_memory_file()
+cache_memory_file(cache_dir)
+}
+\arguments{
+\item{cache_dir}{Directory where to store the cache files.}
 }
 \value{
 A cache object that inherits from \code{R6Cache}.
