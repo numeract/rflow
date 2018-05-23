@@ -18,7 +18,7 @@
 make_file_source <- function(fn,
                              file_arg = 1,
                              split_output_fn = NULL,
-                             eddy = get_default_eddy()
+                             eddy = get_current_eddy()
 ) {
     # follow make_rflow, with some changes
     

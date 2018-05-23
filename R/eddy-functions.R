@@ -208,7 +208,7 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #' @param eval_arg_fn Custom function to parse the input arguments and create
 #'   a list of evaluated arguments to be hashed. This function should have the
 #'   exact same arguments as the original function. If an \code{eval_arg_fn}
-#'   is provided, \code{excluded_arg} and \code{source_file_arg} will be
+#'   is provided, \code{source_file_arg} will be
 #'   ignored when computing the input hash. Try to use \code{excluded_arg} or 
 #'   rflow source before creating a custom function. Because each custom 
 #'   function is rflow specific, it is not possible to set this option at 

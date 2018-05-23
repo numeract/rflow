@@ -16,7 +16,7 @@
 #' @export
 make_sink <- function(fn,
                       hash_input_fn = NULL,
-                      eddy = get_default_eddy()
+                      eddy = get_current_eddy()
 ) {
     # follow make_rflow, with some changes
     # sink cannot be a function as collect() because we need to store the 
@@ -93,7 +93,7 @@ to_ns <- function(x, var, ns) {
 #' 
 #' @export
 make_ns_sink <- function(fn = to_ns,
-                         eddy = get_default_eddy()) {
+                         eddy = get_current_eddy()) {
     
     stopifnot(is.function(fn))
     stopifnot(inherits(eddy, "R6Eddy"))
