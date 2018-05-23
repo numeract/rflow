@@ -19,7 +19,41 @@ require_keys <- function(...) {
     key_lgl <- purrr::map_lgl(list(...), ~ is_key(.))
     
     if (sum(!key_lgl) > 0L) {
-        # stop("key arguments must be valid strings", call. = FALSE)
         rlang::abort("key arguments must be valid strings")
     }
+}
+
+
+parse_call <- function(pos = 2L) {
+    
+    # the full call into the caller of this function
+    parent_call <- match.call(
+        definition = sys.function(-1L),
+        call = sys.call(-1L),
+        expand.dots = TRUE,
+        envir = parent.frame(3L)
+    )
+    
+    # un-matched argument of the parent call
+    # this is the as.is call to function (and its arguments) to be rflow-ed
+    unmatched_fn_call <- parent_call[[pos]]
+    
+    fn <- eval(unmatched_fn_call[[1L]])
+    if (!is.function(fn)) {
+        format_fn_call <- paste(format(unmatched_fn_call), collapse = " ")
+        rlang::abort(paste("Not a function call:", format_fn_call))
+    }
+    if (grepl("\\.Primitive", format(fn))) {
+        rlang::abort("Primitive functions not supported.")
+    }
+    
+    # match.call for the function (and its arguments) to be rflow-ed
+    fn_call <- match.call(
+        definition = fn,
+        call = unmatched_fn_call,
+        expand.dots = TRUE,
+        envir = parent.frame(3L)
+    )
+    
+    fn_call
 }
