@@ -137,7 +137,7 @@ NULL
 
 #' Get the data from an \code{R6Flow} or an \code{Element} object.
 #' 
-#' @param x Function cached with RFlow.
+#' @param x An rflow object, e.g. as returned by \code{\link{rf}}.
 #' @param ... Element of the output data to be selected. If present, it must
 #'   be named \code{name}. otherwise the first item of the \code{...} list
 #'   will be used. The default is \code{name = NULL}, which returns all the
@@ -175,7 +175,7 @@ collect.Element <- function(x, ...) {
 
 #' Extract an element from an \code{R6Flow} object.
 #' 
-#' @param x Function cached with RFlow.
+#' @param rflow An rflow object, e.g. as returned by \code{\link{rf}}.
 #' @param name Element of the output data to be selected. The default is 
 #'   \code{name = NULL}, which returns the element version of the \code{R6Flow} 
 #'   input object.
@@ -183,22 +183,57 @@ collect.Element <- function(x, ...) {
 #' @return An object with class \code{Element}.
 #' 
 #' @export
-element <- function(x, name = NULL) {
+element <- function(rflow, name = NULL) {
     
-    stopifnot(inherits(x, "R6Flow"))
+    stopifnot(inherits(rflow, "R6Flow"))
     
-    x$get_element(name = name)
+    rflow$get_element(name = name)
 }
 
 
 #' @rdname element
 #' 
 #' @export
-`[.R6Flow` <- function(x, name) {
+`[.R6Flow` <- function(rflow, name) {
     
     if (missing(name)) {
-        x$get_element()
+        rflow$get_element()
     } else {
-        x$get_element(name = name)
+        rflow$get_element(name = name)
     }
+}
+
+
+#' Is the rflow in a valid state?
+#' 
+#' It is used mostly for dignostic purposes. Invalid states also occur
+#'   when the object is reconstructed from cache before any function call,
+#'   i.e., as in the case of \code{\link{make_rf}}.
+#' 
+#' @param rflow An rflow object, e.g. as returned by \code{\link{rf}}.
+#' 
+#' @return A logical value, whether the current state is valid.
+#' 
+#' @export
+is_valid <- function(rflow) {
+    
+    stopifnot(inherits(rflow, "R6Flow"))
+    
+    rflow$is_valid
+}
+
+
+#' Is the current state computed (stored in the cache)?
+#' 
+#' @param rflow An rflow object, e.g. as returned by \code{\link{rf}}.
+#' 
+#' @return A logical value, whether the value can be obtained without
+#'   triggering the computation chain.
+#' 
+#' @export
+is_computed <- function(rflow) {
+    
+    stopifnot(inherits(rflow, "R6Flow"))
+    
+    rflow$is_computed
 }
