@@ -4,7 +4,7 @@
 # !diagnostics suppress=., 
 
 
-make_fn_key <- function(fn, eddy) {
+make_fn_key <- function(fn, rflow_options, eddy) {
     
     # unique fn_key = hash of fn's defined arguments and body
     fn_formals <- formals(args(fn))
@@ -13,7 +13,11 @@ make_fn_key <- function(fn, eddy) {
         collapse = ", "
     )
     body_chr <- as.character(body(fn))
-    fn_key <- eddy$digest(c(arg_chr, body_chr))
+    rfo_chr <- 
+        rflow_options %>%
+        discard_at("eddy") %>%
+        format()
+    fn_key <- eddy$digest(c(arg_chr, body_chr, rfo_chr))
     
     fn_key
 }
@@ -53,7 +57,7 @@ make_rf <- function(fn,
     } else {
         rlang::abort("Anonymous functions not supported.")
     }
-    fn_key <- make_fn_key(fn, eddy)
+    fn_key <- make_fn_key(fn, rflow_options, eddy)
     
     if (eddy$has_rflow(fn_key)) {
         # the R6Flow obj exists in eddy, we can use it
@@ -103,7 +107,7 @@ rf <- function(fn_call,
     } else {
         rlang::abort("Anonymous functions not supported.")
     }
-    fn_key <- make_fn_key(fn, eddy)
+    fn_key <- make_fn_key(fn, rflow_options, eddy)
     
     if (eddy$has_rflow(fn_key)) {
         rflow <- eddy$get_rflow(fn_key)
@@ -135,8 +139,9 @@ NULL
 #' 
 #' @param x Function cached with RFlow.
 #' @param ... Element of the output data to be selected. If present, it must
-#'   be named \code{name}. The default is \code{name = NULL}, which returns 
-#'   all the data.
+#'   be named \code{name}. otherwise the first item of the \code{...} list
+#'   will be used. The default is \code{name = NULL}, which returns all the
+#'   data.
 #' 
 #' @return Data associated with the output of the function.
 #' 
@@ -149,9 +154,8 @@ collect.R6Flow <- function(x, ...) {
         # NULL if no arguments present
         arg_lst$name
     } else {
-        rlang::abort(paste(
-            "Unused argument(s):", paste(names(arg_lst), collapse = ", ")
-        ))
+        # there is at least one argument, not `name`; assume it is `name`
+        arg_lst[[1L]]
     }
     x$collect(name = arg_name)
 }
