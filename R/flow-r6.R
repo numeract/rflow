@@ -57,7 +57,7 @@ R6Flow <- R6::R6Class(
         get_out_hash = function(name = NULL) {},
         get_element = function(name = NULL) {},
         # eval & collect
-        evaluate = function() {},
+        compute = function() {},
         collect = function(name = NULL) {},
         # misc
         save = function() {},
@@ -65,12 +65,12 @@ R6Flow <- R6::R6Class(
         forget = function() {},
         is_valid_at_index = function(index = NULL) {},
         require_valid_at_index = function(index = NULL) {},
-        is_evaluated_at_index = function(index = NULL) {},
-        require_evaluated_at_index = function(index = NULL) {}
+        is_computed_at_index = function(index = NULL) {},
+        require_computed_at_index = function(index = NULL) {}
     ),
     active = list(
         is_valid = function() {},
-        is_evaluated = function() {}
+        is_computed = function() {}
     )
 )
 
@@ -88,7 +88,7 @@ R6Flow$set("public", "calc_in_hash_default", function(rf_env = parent.frame()) {
             .f = function(x) {
                 x$self$require_valid_at_index()
                 state <- x$self$get_state()
-                # we must return some data even if elem is not yet evaluated
+                # we must return some data even if elem is not yet computed
                 # uniquely identify fn, its input state, and which elem
                 list(
                     fn_key = state$fn_key,
@@ -127,7 +127,7 @@ R6Flow$set("public", "rf_fn_default", function(...) {
     match_call <- match.call()
     
     # follow memoise logic to separate supplied and default arguments
-    # we are still at symbolic stage, have not evaluated them yet
+    # we are still at symbolic stage, have not yet evaluated them
     # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
     #     #Argument-evaluation
     
@@ -393,23 +393,23 @@ R6Flow$set("public", "add_output_state", function(out_hash,
 
 # get_out_hash ----
 R6Flow$set("public", "get_out_hash", function(name = NULL) {
-    # invalid state OK; not yet evaluated OK
+    # invalid state OK; not yet computed OK
     
     if (!self$is_valid) {
         # invalid state, cannot talk about hashes
         return(NULL)
     }
-    if (!self$is_evaluated) {
-        # valid, but not yet evaluated
+    if (!self$is_computed) {
+        # valid, but not yet computed
         return(NA_character_)
     }
     
     state <- self$get_state()
     if (is.null(name)) {
-        # valid & evaluated - no element
+        # valid & computed - no element
         out_hash <- state$out_hash
     } else {
-        # valid & evaluated - element requested
+        # valid & computed - element requested
         found_state_idx <- which(
             self$output_state$out_hash == state$out_hash &
             self$output_state$elem_name == name
@@ -426,27 +426,27 @@ R6Flow$set("public", "get_out_hash", function(name = NULL) {
 
 # get_element ----
 R6Flow$set("public", "get_element", function(name = NULL) {
-    # invalid state OK; not yet evaluated OK
+    # invalid state OK; not yet computed OK
     
     elem_hash <- self$get_out_hash(name = name)
     if (is.null(elem_hash)) {
         # invalid state, cannot talk about hashes
         is_valid <- FALSE
-        is_evaluated <- FALSE
+        is_computed <- FALSE
     } else if (is.na(elem_hash)) {
-        # valid, but not yet evaluated
+        # valid, but not yet computed
         is_valid <- TRUE
-        is_evaluated <- FALSE
+        is_computed <- FALSE
     } else {
         is_valid <- TRUE
-        is_evaluated <- TRUE
+        is_computed <- TRUE
     }
     
     # class does not inherit R6Flow since it has a different structure
     rflow_elem <- list(
         self = self,
         is_valid = is_valid,
-        is_evaluated = is_evaluated,
+        is_computed = is_computed,
         elem_name = name,
         elem_hash = elem_hash
     )
@@ -456,12 +456,12 @@ R6Flow$set("public", "get_element", function(name = NULL) {
 }, overwrite = TRUE)
 
 
-# evaluate ----
-R6Flow$set("public", "evaluate", function() {
-    # do not evaluate if already evaluated
+# compute ----
+R6Flow$set("public", "compute", function() {
+    # do not compute if already computed
     # return TRUE/FALSE not an actual value since there might be elements
     
-    if (self$is_evaluated) {
+    if (self$is_computed) {
         return(TRUE)
     }
     if (!self$is_valid) {
@@ -470,7 +470,7 @@ R6Flow$set("public", "evaluate", function() {
     state <- self$get_state()
     
     if (!base::exists(state$in_hash, where = self$lazy_env, inherits = FALSE)) {
-        # cannot find input args ==> cannot evaluate
+        # cannot find input args ==> cannot compute
         return(FALSE)
     }
     elem_args <- self$lazy_env[[state$in_hash]]
@@ -551,9 +551,9 @@ R6Flow$set("public", "collect", function(name = NULL) {
     # require valid state since cannot return NULL (NULL can be a valid result)
     self$require_valid_at_index()
     
-    # if not yet evaluated ==> trigger evaluation
-    if (!self$evaluate()) {
-        rlang::abort("Cannot evaluate the current state.")
+    # if not yet computed ==> trigger compute
+    if (!self$compute()) {
+        rlang::abort("Cannot compute the current state.")
     }
     
     out_hash <- self$get_out_hash(name = name)
@@ -596,7 +596,7 @@ R6Flow$set("public", "print", function() {
         " - number of states:", nrow(self$state), "\n",
         " - current state index:", self$state_index, "\n",
         " - is_valid:", self$is_valid, "\n",
-        " - is_evalauted:", self$is_evaluated, "\n"
+        " - is_computed:", self$is_computed, "\n"
     )
     print(self$state)
     
@@ -646,23 +646,23 @@ R6Flow$set("public", "require_valid_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-# is_evaluated_at_index ----
-R6Flow$set("public", "is_evaluated_at_index", function(index = NULL) {
+# is_computed_at_index ----
+R6Flow$set("public", "is_computed_at_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
     self$is_valid_at_index(index) && !is.na(self$state$out_hash[index])
 }, overwrite = TRUE)
 
 
-# require_evaluated_at_index ----
-R6Flow$set("public", "require_evaluated_at_index", function(index = NULL) {
+# require_computed_at_index ----
+R6Flow$set("public", "require_computed_at_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    if (!self$is_evaluated_at_index(index)) {
+    if (!self$is_computed_at_index(index)) {
         if (identical(index, self$state_index)) {
-            rlang::abort(paste("Unevaluated current state, index =", index))
+            rlang::abort(paste("Not-computed current state, index =", index))
         } else {
-            rlang::abort(paste("Unevaluated state, index =", index))
+            rlang::abort(paste("Not-computed state, index =", index))
         }
     }
 }, overwrite = TRUE)
@@ -676,13 +676,12 @@ R6Flow$set("active", "is_valid", function() {
 }, overwrite = TRUE)
 
 
-# is_evaluated ----
-R6Flow$set("active", "is_evaluated", function() {
+# is_computed ----
+R6Flow$set("active", "is_computed", function() {
     
     index <- self$state_index
     self$is_valid_at_index(index) && !is.na(self$state$out_hash[index])
 }, overwrite = TRUE)
-
 
 
 # print.Element ----
@@ -698,7 +697,7 @@ print.Element <- function(x, ...) {
         " - elem_name:", x$elem_name %||% "<full result>", "\n",
         " - elem_hash:", x$elem_hash, "\n",
         " - is_valid:", x$self$is_valid, "\n",
-        " - is_evalauted:", x$self$is_evaluated, "\n"
+        " - is_computed:", x$self$is_computed, "\n"
     )
     
     invisible(x)
