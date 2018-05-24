@@ -87,7 +87,7 @@ make_rf <- function(fn,
 rf <- function(fn_call, 
                rflow_options = get_rflow_options()) {
     
-    # fn_call will be replaced by its orgianl call
+    # fn_call will be replaced by its original call
     # this is to avoid triggering evaluation of fn_call
     fn_call <- parse_call()
     fn <- eval(fn_call[[1L]])
@@ -206,7 +206,7 @@ element <- function(rflow, name = NULL) {
 
 #' Is the rflow in a valid state?
 #' 
-#' It is used mostly for dignostic purposes. Invalid states also occur
+#' It is used mostly for diagnostic purposes. Invalid states also occur
 #'   when the object is reconstructed from cache before any function call,
 #'   i.e., as in the case of \code{\link{make_rf}}.
 #' 
@@ -236,4 +236,23 @@ is_computed <- function(rflow) {
     stopifnot(inherits(rflow, "R6Flow"))
     
     rflow$is_computed
+}
+
+
+#' Forgets the computation for the current state.
+#' 
+#' @param rflow An rflow object, e.g. as returned by \code{\link{rf}}.
+#' 
+#' @return A logical value, whether the deletion was successful.
+#' 
+#' @export
+forget <- function(rflow) {
+    
+    stopifnot(inherits(rflow, "R6Flow"))
+    
+    if (!rflow$is_valid) {
+        rlang::abort("rflow not valid, cannot determine state to delete.")
+    }
+    
+    rflow$delete_state(rflow$state_index)
 }

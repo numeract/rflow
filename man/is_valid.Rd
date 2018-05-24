@@ -13,7 +13,7 @@ is_valid(rflow)
 A logical value, whether the current state is valid.
 }
 \description{
-It is used mostly for dignostic purposes. Invalid states also occur
+It is used mostly for diagnostic purposes. Invalid states also occur
   when the object is reconstructed from cache before any function call,
   i.e., as in the case of \code{\link{make_rf}}.
 }
