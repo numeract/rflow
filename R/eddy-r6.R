@@ -15,13 +15,10 @@ R6Eddy <- R6::R6Class(
         # attributes
         is_reactive = NULL,
         algo = NULL,
-        
+        # init
         initialize = function(cache,
                               is_reactive = FALSE,
                               algo = "xxhash64") {},
-        
-        digest = function(object, is_file_path =  FALSE) {},
-        digest_each = function(objects, is_file_path =  FALSE) {},
         # rflow
         has_cache = function(fn_key) {},
         has_rflow = function(fn_key) {},
@@ -38,7 +35,9 @@ R6Eddy <- R6::R6Class(
         # misc
         print = function() {},
         reset = function() {},
-        terminate = function() {}
+        terminate = function() {},
+        digest = function(object, is_file_path =  FALSE) {},
+        digest_each = function(objects, is_file_path =  FALSE) {}
     )
 )
 
@@ -61,22 +60,6 @@ R6Eddy$set("public", "initialize", function(
     self$algo <- algo
     
     invisible(NULL)
-}, overwrite = TRUE)
-
-
-# digest ----
-R6Eddy$set("public", "digest", function(object, is_file_path = FALSE) {
-    
-    digest::digest(object, file = is_file_path, algo = self$algo)
-}, overwrite = TRUE)
-
-
-R6Eddy$set("public", "digest_each", function(objects, is_file_path = FALSE) {
-    
-    purrr::map_chr(
-        .x = objects, 
-        .f = ~ digest::digest(., file = is_file_path, algo = self$algo)
-    )
 }, overwrite = TRUE)
 
 
@@ -261,4 +244,20 @@ R6Eddy$set("public", "terminate", function() {
     self$rflow_options <- NULL
     
     invisible(NULL)
+}, overwrite = TRUE)
+
+
+# digest ----
+R6Eddy$set("public", "digest", function(object, is_file_path = FALSE) {
+    
+    digest::digest(object, file = is_file_path, algo = self$algo)
+}, overwrite = TRUE)
+
+
+R6Eddy$set("public", "digest_each", function(objects, is_file_path = FALSE) {
+    
+    purrr::map_chr(
+        .x = objects, 
+        .f = ~ digest::digest(., file = is_file_path, algo = self$algo)
+    )
 }, overwrite = TRUE)

@@ -23,20 +23,20 @@ R6Flow <- R6::R6Class(
         split_fn = NULL,
         # link to R6Eddy obj were data is stored
         eddy = NULL,
-        
         # internal states
         state = NULL,
         state_index = 0L,   # 0 ==> NA
         # data frame to store elements of fn output
         output_state = NULL,
-        
+        # an local cache used for lazy eval
+        lazy_env = NULL,
         # functions with the same arguments as fn
         # (functions declared as obj to bypass locking of R6 methods)
         calc_in_hash = NULL,
         rf_fn = NULL,
         exists_cache = NULL,
         delete_cache = NULL,
-        
+        # init
         initialize = function(fn,
                               fn_key,
                               fn_name,
@@ -59,7 +59,6 @@ R6Flow <- R6::R6Class(
         # eval & collect
         evaluate = function() {},
         collect = function(name = NULL) {},
-        
         # misc
         save = function() {},
         print = function() {},
@@ -78,31 +77,27 @@ R6Flow <- R6::R6Class(
 
 # calc_in_hash ----
 R6Flow$set("public", "calc_in_hash_default", function(rf_env = parent.frame()) {
+    # goal: replace Element obj with their $elem_hash, then hash the list
     
-    rflow_hash <- NULL
-    if (length(rf_env$rflow_args) > 0L && !self$eddy$is_reactive) {
-        # non-reactive case, all rflow args must to be valid & evaluated
-        invalid_rflow_args <- !(
-            purrr::map_lgl(rf_env$rflow_args, "is_valid") &
-            purrr::map_lgl(rf_env$rflow_args, "is_evaluated")
+    elem_args <- rf_env$elem_args
+    data_hash_args <-
+        elem_args %>% 
+        discard_at(self$excluded_arg) %>%
+        purrr::map_if(
+            .p = ~ inherits(., "Element"),
+            .f = function(x) {
+                x$self$require_valid_at_index()
+                state <- x$self$get_state()
+                # we must return some data even if elem is not yet evaluated
+                # uniquely identify fn, its input state, and which elem
+                list(
+                    fn_key = state$fn_key,
+                    in_hash = state$in_hash,
+                    elem_name = x$elem_name
+                )
+            }
         )
-        if (any(invalid_rflow_args)) {
-            invalid_names <- names(rf_env$rflow_args)[invalid_rflow_args]
-            invalid_names <- paste(invalid_names, collapse = ", ")
-            stop("Invalid/Unevaluated rflow args: ", invalid_names)
-        }
-        rflow_hash <- purrr::map(rf_env$rflow_args, "elem_hash")
-    }
-    if (length(rf_env$rflow_args) > 0L && self$eddy$is_reactive) {
-        stop("reactive eddies not yet implemented")
-    }
-    
-    # non-rflow / static args use their data for hashing
-    static_data <- 
-        rf_env$eval_args %>% 
-        discard_at(names(rf_env$rflow_args))
-    
-    in_hash <- self$eddy$digest(c(rflow_hash, static_data))
+    in_hash <- self$eddy$digest(data_hash_args)
     
     in_hash
 }, overwrite = TRUE)
@@ -136,19 +131,15 @@ R6Flow$set("public", "rf_fn_default", function(...) {
     # https://cran.r-project.org/doc/manuals/r-release/R-lang.html
     #     #Argument-evaluation
     
-    # supplied arguments
+    # supplied arguments, in the order received, might not be named
     supplied_args <- as.list(match_call)[-1]
-    if (any(names(supplied_args) %in% self$excluded_arg)) {
-        rlang::abort("Excluded arguments must not be supplied values")
-    }
     
     # default arguments that have not been supplied
     # excluded arguments have defaults, drop them from hash / eval / saving
     default_args <-
         as.list(formals()) %>%
         purrr::discard(~ identical(., quote(expr = ))) %>%      # nolint
-        discard_at(names(supplied_args)) %>% 
-        discard_at(self$excluded_arg)
+        discard_at(names(supplied_args))
     # supplied args eval in the evaluation frame of the calling function
     # default args eval in the evaluation frame of the original function
     eval_args <- c(
@@ -156,11 +147,9 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         lapply(default_args, eval, envir = environment(self$fn))
     )
     
-    # Element/R6Flow args are treated differently
-    # for consistency, transform R6Flow into an Element
-    rflow_args <-
+    # for consistency, transform any R6Flow into its Element
+    elem_args <-
         eval_args %>%
-        purrr::keep(~ inherits(., c("Element", "R6Flow"))) %>%
         purrr::map_if(
             .p = ~ inherits(., "R6Flow"),
             .f = ~ .$get_element(name = NULL)
@@ -178,17 +167,8 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         # if found_state_idx == self$state_index no processing is needed
     } else {
         # not in cache, prepare for lazy eval:
-        # save enough args into cache to reconstruct the call later
-        # TODO: reactivity: what if collect cannot provide data now?
-        
-        # we need to replace R6Flow args with their data
-        for (nm in names(rflow_args)) {
-            rflow_elem <- rflow_args[[nm]]
-            eval_args[[nm]] <- rflow_elem$self$collect(rflow_elem$elem_name)
-        }
-        
-        # store eval_args in cache
-        self$eddy$add_data(self$fn_key, in_hash, eval_args)
+        # save args (including Elements) into lazy_env to be called later
+        self$lazy_env[[in_hash]] <- elem_args
         # adding a new state makes the new state current
         self$add_state(
             in_hash = in_hash, 
@@ -247,9 +227,9 @@ R6Flow$set("public", "initialize", function(
     if (is.null(rflow_data)) {
         # state
         self$state <- tibble::data_frame(
+            fn_key = character(),
             in_hash = character(),
             out_hash = character(),
-            fn_key = character(),
             time_stamp = now_utc(0L)
         )
         self$state_index <- 0L
@@ -264,6 +244,7 @@ R6Flow$set("public", "initialize", function(
         self$state_index <- 0L
         self$output_state <- rflow_data$output_state
     }
+    self$lazy_env <- new.env(hash = TRUE, parent = emptyenv())
     
     # register itself in eddy (error if fn_key already present)
     self$eddy$add_rflow(fn_key, self)
@@ -297,8 +278,8 @@ R6Flow$set("public", "which_state", function(in_hash) {
     # since we just looking for the index, we do not check if the
     # eddy contains the cached values
     found_state_idx <- which(
-        self$state$in_hash == in_hash &
-        self$state$fn_key == self$fn_key
+        self$state$fn_key == self$fn_key &
+        self$state$in_hash == in_hash
     )
     len <- length(found_state_idx)
     # there should not be duplicate states for the same fn_key and in_hash
@@ -333,9 +314,9 @@ R6Flow$set("public", "add_state", function(in_hash,
     self$state <-
         self$state %>%
         tibble::add_row(
+            fn_key = self$fn_key,
             in_hash = in_hash,
             out_hash = out_hash,
-            fn_key = self$fn_key,
             time_stamp = now_utc()
         )
     if (make_current) self$state_index <- nrow(self$state)
@@ -353,9 +334,9 @@ R6Flow$set("public", "update_state", function(index,
     self$require_valid_at_index(index)
     
     self$state[index, ] <- list(
+        fn_key = self$fn_key,
         in_hash = in_hash,
         out_hash = out_hash,
-        fn_key = self$fn_key,
         time_stamp = now_utc()
     )
     if (make_current) self$state_index <- index
@@ -477,19 +458,33 @@ R6Flow$set("public", "get_element", function(name = NULL) {
 
 # evaluate ----
 R6Flow$set("public", "evaluate", function() {
-    # we evalaute even if already evaluated
+    # do not evaluate if already evaluated
     # return TRUE/FALSE not an actual value since there might be elements
     
+    if (self$is_evaluated) {
+        return(TRUE)
+    }
     if (!self$is_valid) {
         return(FALSE)
     }
     state <- self$get_state()
     
-    if (!self$eddy$has_key(self$fn_key, state$in_hash)) {
+    if (!base::exists(state$in_hash, where = self$lazy_env, inherits = FALSE)) {
         # cannot find input args ==> cannot evaluate
         return(FALSE)
     }
-    eval_args <- self$eddy$get_data(self$fn_key, state$in_hash)
+    elem_args <- self$lazy_env[[state$in_hash]]
+    
+    # need to collect output of any Element
+    eval_args <-
+        elem_args %>%
+        purrr::map_if(
+            .p = ~ inherits(., "Element"),
+            .f = function(x) {
+                x$self$collect(x$elem_name)
+            }
+        )
+    base::rm(list = state$in_hash, pos = self$lazy_env)
     
     # eval in .GlobalEnv to avoid name collisions
     out_data <- withVisible(do.call(
@@ -557,10 +552,8 @@ R6Flow$set("public", "collect", function(name = NULL) {
     self$require_valid_at_index()
     
     # if not yet evaluated ==> trigger evaluation
-    if (!self$is_evaluated) {
-        if (!self$evaluate()) {
-            rlang::abort("Cannot evaluate the current state.")
-        }
+    if (!self$evaluate()) {
+        rlang::abort("Cannot evaluate the current state.")
     }
     
     out_hash <- self$get_out_hash(name = name)
@@ -677,7 +670,7 @@ R6Flow$set("public", "require_evaluated_at_index", function(index = NULL) {
 
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
-    # so far, we look only athe index, but this might change
+    # so far, we look only at the index, but this might change
     
     self$is_valid_at_index(self$state_index)
 }, overwrite = TRUE)

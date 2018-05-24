@@ -243,6 +243,7 @@ parse_rflow_options <- function(excluded_arg,
     allow_null <- !is.null(eddy)
     stopifnot(
         (allow_null && is.null(excluded_arg)) || 
+        !is.na(excluded_arg) ||
         is.character(excluded_arg))
     stopifnot(
         (allow_null && is.null(source_file_arg)) || 
