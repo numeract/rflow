@@ -167,10 +167,12 @@ R6Flow$set("public", "rf_fn_default", function(...) {
     found_state_idx <- self$which_state(in_hash)
     if (found_state_idx > 0L) {
         if (found_state_idx != self$state_index) {
-            # no need to calc or get the data, just update the state index
             self$state_index <- found_state_idx
         }
-        # if found_state_idx == self$state_index no processing is needed
+        if (is.na(self$state$out_hash[found_state_idx])) {
+            # state exists but no output cached ==> prep for re-compute
+            self$state_env[[in_hash]] <- elem_args
+        }
     } else {
         # not in cache, prepare for lazy eval: save args to be called later
         self$add_state(
@@ -297,6 +299,9 @@ R6Flow$set("public", "add_state", function(in_hash,
                                            elem_args,
                                            make_current = TRUE) {
     require_keys(in_hash)
+    if (in_hash %in% self$state$in_hash) {
+        rlang::abort(paste("`in_hash` already present:", in_hash))
+    }
     
     self$state <-
         self$state %>%
@@ -440,7 +445,7 @@ R6Flow$set("public", "delete_state_output", function(out_hash) {
     deleted_keys <- 
         delete_keys %>%
         rlang::set_names() %>%
-        purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
+        purrr::map_lgl(~ self$eddy$delete_data(self$fn_key, .))
     if (any(!deleted_keys)) {
         txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
         rlang::warn(paste("flow", self$fn_key, "- cannot delete keys:", txt))

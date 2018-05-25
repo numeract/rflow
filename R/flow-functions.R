@@ -256,9 +256,8 @@ forget <- function(flow, state = "current") {
     stopifnot(inherits(flow, "R6Flow"))
     stopifnot(identical(state, "current"))
     
-    if (!flow$is_current) {
-        rlang::abort("flow not valid, cannot forget current state.")
-    }
+    flow$require_good_index()
+    flow$forget_state(flow$state_index)
     
-    flow$delete_state(flow$state_index)
+    flow
 }
