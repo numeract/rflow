@@ -25,9 +25,11 @@ R6Eddy <- R6::R6Class(
         require_rflow = function(fn_key) {},
         get_rflow = function(fn_key) {},
         add_rflow = function(fn_key) {},
-        delete_rflow = function(fn_key) {},
+        remove_rflow = function(fn_key) {},
         forget_rflow = function(fn_key) {},
+        delete_rflow = function(fn_key) {},
         # key / data
+        list_keys = function(group) {},
         has_key = function(fn_key, key) {},
         get_data = function(fn_key, key) {},
         add_data = function(fn_key, key, value) {},
@@ -113,7 +115,32 @@ R6Eddy$set("public", "add_rflow", function(fn_key, rflow) {
         # TODO: reactive: update adjacency matrix
     }
     
-    self$cache$has_group(fn_key)
+    self$has_rflow(fn_key) && self$cache$has_group(fn_key)
+}, overwrite = TRUE)
+
+
+# remove_rflow ----
+R6Eddy$set("public", "delete_rflow", function(fn_key) {
+    
+    self$require_rflow(fn_key)
+    
+    # do not delete the cache, just remove the R6Flow obj
+    self$rflow_lst[[fn_key]] <- NULL
+    # TODO: reactive: update adjacency matrix
+    
+    !self$has_rflow(fn_key)
+}, overwrite = TRUE)
+
+
+# forget_rflow ----
+R6Eddy$set("public", "forget_rflow", function(fn_key) {
+    
+    self$require_rflow(fn_key)
+    
+    self$cache$forget_group(fn_key)
+    # empty the cache without deleting the group, keep the R6Flow obj
+    
+    self$has_rflow(fn_key) && length(self$cache$list_keys(fn_key)) == 0L
 }, overwrite = TRUE)
 
 
@@ -126,20 +153,16 @@ R6Eddy$set("public", "delete_rflow", function(fn_key) {
     self$rflow_lst[[fn_key]] <- NULL
     # TODO: reactive: update adjacency matrix
     
-    !self$cache$has_group(fn_key)
+    !self$has_rflow(fn_key) && !self$cache$has_group(fn_key)
 }, overwrite = TRUE)
 
 
-# forget_rflow ----
-R6Eddy$set("public", "forget_rflow", function(fn_key) {
-    # empty the cache without deleting the group
+# list_keys ----
+R6Eddy$set("public", "list_keys", function(fn_key) {
     
     self$require_rflow(fn_key)
     
-    self$cache$forget_group(fn_key)
-    self$rflow_lst[[fn_key]] <- list()
-    
-    length(self$cache$list_keys(fn_key)) == 0L
+    self$cache$list_keys(fn_key)
 }, overwrite = TRUE)
 
 
@@ -192,7 +215,7 @@ R6Eddy$set("public", "print", function() {
         fn_name = purrr::map_chr(self$rflow_lst, "fn_name"),
         fn_key = as.character(names(self$rflow_lst)),
         class = purrr::map_chr(self$rflow_lst, ~ class(.)[[1L]]),
-        n_states = purrr::map_int(self$rflow_lst, ~ nrow(.$state))
+        n_states = purrr::map_int(self$rflow_lst, ~ NROW(.$state))
     ) %>%
         dplyr::left_join(cache_df, by = "fn_key")
     
@@ -228,7 +251,7 @@ R6Eddy$set("public", "reset", function() {
     self$rflow_lst <- list()
     # do not modify self$rflow_options
     
-    invisible(NULL)
+    invisible(self)
 }, overwrite = TRUE)
 
 
