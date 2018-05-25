@@ -5,20 +5,20 @@
 \title{Create a new eddy. Does not affect the current eddy.}
 \usage{
 new_eddy(eddy_name, cache = default_cache(),
-  rflow_options = default_rflow_options(), eddy_env = default_eddy_env())
+  flow_options = default_flow_options(), eddy_env = default_eddy_env())
 }
 \arguments{
 \item{eddy_name}{Unique name for the eddy to allow retrieving later.}
 
 \item{cache}{An cache object returned by one of the \code{cache} functions.}
 
-\item{rflow_options}{Options to store for future rflow invocations. They
+\item{flow_options}{Options to store for future flow invocations. They
 do not affect the \code{eddy}, they are only stored for ease of access.}
 
 \item{eddy_env}{An environment where to put (bind) the eddy.}
 }
 \value{
-An eddy object to be used for storing rflows.
+An eddy object to be used for storing flows.
 }
 \description{
 Create a new eddy. Does not affect the current eddy.

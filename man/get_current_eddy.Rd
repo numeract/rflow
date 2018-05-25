@@ -10,7 +10,7 @@ get_current_eddy(eddy_env = default_eddy_env())
 \item{eddy_env}{An environment where to put (bind) the eddy.}
 }
 \value{
-An eddy object to be used for storing rflows.
+An eddy object to be used for storing flows.
 }
 \description{
 If the current eddy was not previously set with \code{set_current_eddy},

@@ -5,12 +5,12 @@
 \alias{[.R6Flow}
 \title{Extract an element from an \code{R6Flow} object.}
 \usage{
-element(rflow, name = NULL)
+element(flow, name = NULL)
 
-\method{[}{R6Flow}(rflow, name)
+\method{[}{R6Flow}(flow, name)
 }
 \arguments{
-\item{rflow}{An rflow object, e.g. as returned by \code{\link{rf}}.}
+\item{flow}{An flow object, e.g. as returned by \code{\link{flow}}.}
 
 \item{name}{Element of the output data to be selected. The default is 
 \code{name = NULL}, which returns the element version of the \code{R6Flow} 

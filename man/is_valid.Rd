@@ -2,18 +2,20 @@
 % Please edit documentation in R/flow-functions.R
 \name{is_valid}
 \alias{is_valid}
-\title{Is the rflow in a valid state?}
+\title{Is the current state valid (stored in the cache)?}
 \usage{
-is_valid(rflow)
+is_valid(flow, state = "current")
 }
 \arguments{
-\item{rflow}{An rflow object, e.g. as returned by \code{\link{rf}}.}
+\item{flow}{An flow object, e.g. as returned by \code{\link{flow}}.}
+
+\item{state}{An flow state. Only the \code{current} state is 
+accepted for now.}
 }
 \value{
-A logical value, whether the current state is valid.
+A logical value, whether the value can be obtained without
+  triggering computation.
 }
 \description{
-It is used mostly for diagnostic purposes. Invalid states also occur
-  when the object is reconstructed from cache before any function call,
-  i.e., as in the case of \code{\link{make_rf}}.
+Is the current state valid (stored in the cache)?
 }

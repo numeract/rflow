@@ -4,12 +4,12 @@
 \alias{forget}
 \title{Forgets the computation for the current state.}
 \usage{
-forget(rflow, state = "current")
+forget(flow, state = "current")
 }
 \arguments{
-\item{rflow}{An rflow object, e.g. as returned by \code{\link{rf}}.}
+\item{flow}{An flow object, e.g. as returned by \code{\link{flow}}.}
 
-\item{state}{An rflow state. Only the \code{current} state is 
+\item{state}{An flow state. Only the \code{current} state is 
 accepted for now.}
 }
 \value{

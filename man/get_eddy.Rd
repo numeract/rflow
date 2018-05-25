@@ -12,7 +12,7 @@ get_eddy(eddy_name, eddy_env = default_eddy_env())
 \item{eddy_env}{An environment where to put (bind) the eddy.}
 }
 \value{
-An eddy object to be used for storing rflows.
+An eddy object to be used for storing flows.
 }
 \description{
 Retrieves an eddy.
