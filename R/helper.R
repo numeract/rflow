@@ -35,7 +35,7 @@ parse_call <- function(pos = 2L) {
     )
     
     # un-matched argument of the parent call
-    # this is the as.is call to function (and its arguments) to be rflow-ed
+    # this is the as.is call to function (and its arguments) to be flow-ed
     unmatched_fn_call <- parent_call[[pos]]
     
     fn <- eval(unmatched_fn_call[[1L]])
@@ -47,7 +47,7 @@ parse_call <- function(pos = 2L) {
         rlang::abort("Primitive functions not supported.")
     }
     
-    # match.call for the function (and its arguments) to be rflow-ed
+    # match.call for the function (and its arguments) to be flow-ed
     fn_call <- match.call(
         definition = fn,
         call = unmatched_fn_call,

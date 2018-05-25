@@ -9,13 +9,13 @@
 R6Flow <- R6::R6Class(
     classname = "R6Flow",
     public = list(
-        # original fn to be rflow-ed 
+        # original fn to be flow-ed 
         fn = NULL,
         # hash of fn's arguments (as defined) and its body (excludes comments)
         fn_key = character(),
         # original function name, mostly for debug purposes
         fn_name = character(),
-        # from rflow_options
+        # from flow_options
         excluded_arg = character(),
         eval_arg_fn = NULL,
         split_bare_list = TRUE,
@@ -38,7 +38,7 @@ R6Flow <- R6::R6Class(
         initialize = function(fn,
                               fn_key,
                               fn_name,
-                              rflow_options = get_rflow_options()) {},
+                              flow_options = get_flow_options()) {},
         # state
         which_state = function(in_hash) {},
         get_state = function(index = NULL) {},
@@ -75,7 +75,7 @@ R6Flow <- R6::R6Class(
         require_valid_at_index = function(index = NULL) {}
     ),
     active = list(
-        is_flowing = function() {},
+        is_current = function() {},
         is_valid = function() {}
     )
 )
@@ -195,32 +195,32 @@ R6Flow$set("public", "initialize", function(
         fn,
         fn_key,
         fn_name,
-        rflow_options = get_rflow_options()
+        flow_options = get_flow_options()
 ) {
     stopifnot(is.function(fn))
     require_keys(fn_key, fn_name)
     
     # register itself in eddy (error if fn_key already present)
-    self$eddy <- rflow_options$eddy
-    if (!self$eddy$add_rflow(fn_key, self)) {
-        rlang::abort(paste("Failed to register rflow:", fn_key))
+    self$eddy <- flow_options$eddy
+    if (!self$eddy$add_flow(fn_key, self)) {
+        rlang::abort(paste("Failed to register flow:", fn_key))
     }
     
     # init self$
     self$fn <- fn
     self$fn_key <- fn_key
     self$fn_name <- fn_name
-    self$excluded_arg <- rflow_options$excluded_arg
-    self$eval_arg_fn <- rflow_options$eval_arg_fn
-    self$split_bare_list <- rflow_options$split_bare_list
-    self$split_dataframe <- rflow_options$split_dataframe
-    self$split_fn <- rflow_options$split_fn
+    self$excluded_arg <- flow_options$excluded_arg
+    self$eval_arg_fn <- flow_options$eval_arg_fn
+    self$split_bare_list <- flow_options$split_bare_list
+    self$split_dataframe <- flow_options$split_dataframe
+    self$split_fn <- flow_options$split_fn
     
     # 'group' in cache; does it have state data?
     if (self$eddy$has_key(fn_key, .STATE_KEY)) {
-        rflow_data <- self$eddy$get_data(fn_key, .STATE_KEY)
-        self$state <- rflow_data$state
-        self$state_output <- rflow_data$state_output
+        flow_data <- self$eddy$get_data(fn_key, .STATE_KEY)
+        self$state <- flow_data$state
+        self$state_output <- flow_data$state_output
     } else {
         # state
         self$state <- tibble::data_frame(
@@ -443,7 +443,7 @@ R6Flow$set("public", "delete_state_output", function(out_hash) {
         purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
     if (any(!deleted_keys)) {
         txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
-        rlang::warn(paste("rflow", self$fn_key, "- cannot delete keys:", txt))
+        rlang::warn(paste("flow", self$fn_key, "- cannot delete keys:", txt))
     }
     
     invisible(NULL)
@@ -454,7 +454,7 @@ R6Flow$set("public", "delete_state_output", function(out_hash) {
 R6Flow$set("public", "get_out_hash", function(name = NULL) {
     # invalid state OK; not yet computed OK
     
-    if (!self$is_flowing) {
+    if (!self$is_current) {
         # invalid state, cannot talk about hashes
         return(NULL)
     }
@@ -490,28 +490,28 @@ R6Flow$set("public", "get_element", function(name = NULL) {
     elem_hash <- self$get_out_hash(name = name)
     if (is.null(elem_hash)) {
         # invalid state, cannot talk about hashes
-        is_flowing <- FALSE
+        is_current <- FALSE
         is_valid <- FALSE
     } else if (is.na(elem_hash)) {
         # valid, but not yet computed
-        is_flowing <- TRUE
+        is_current <- TRUE
         is_valid <- FALSE
     } else {
-        is_flowing <- TRUE
+        is_current <- TRUE
         is_valid <- TRUE
     }
     
     # class does not inherit R6Flow since it has a different structure
-    rflow_elem <- list(
+    flow_elem <- list(
         self = self,
-        is_flowing = is_flowing,
+        is_current = is_current,
         is_valid = is_valid,
         elem_name = name,
         elem_hash = elem_hash
     )
-    class(rflow_elem) <- c("Element", "list")
+    class(flow_elem) <- c("Element", "list")
     
-    rflow_elem
+    flow_elem
 }, overwrite = TRUE)
 
 
@@ -521,7 +521,7 @@ R6Flow$set("public", "compute", function() {
     # return TRUE/FALSE not an actual value since there might be elements
     
     if (self$is_valid) return(TRUE)
-    if (!self$is_flowing) return(FALSE)
+    if (!self$is_current) return(FALSE)
     state <- self$get_state()
     
     if (!base::exists(
@@ -545,7 +545,7 @@ R6Flow$set("public", "compute", function() {
     # eval in .GlobalEnv to avoid name collisions
     out_data <- withVisible(do.call(
         what = self$fn, args = eval_args, envir = globalenv()))
-    # we store the out_hash to avoid (re)hashing for rflow objects
+    # we store the out_hash to avoid (re)hashing for flow objects
     out_hash <- self$eddy$digest(out_data)
     
     # update the current state
@@ -618,7 +618,7 @@ R6Flow$set("public", "collect", function(name = NULL) {
 R6Flow$set("public", "check_all", function() {
     
     # save current index / in_hash
-    if (self$is_flowing) {
+    if (self$is_current) {
         in_hash <- self$state$in_hash[self$state_index]
     } else {
         in_hash <- NA_character_
@@ -648,7 +648,7 @@ R6Flow$set("public", "check_all", function() {
         purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
     if (any(!deleted_keys)) {
         txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
-        rlang::warn(paste("rflow", self$fn_key, "- cannot delete keys:", txt))
+        rlang::warn(paste("flow", self$fn_key, "- cannot delete keys:", txt))
     }
     
     if (changed) {
@@ -670,7 +670,7 @@ R6Flow$set("public", "forget_all", function() {
     self$state_output <- self$state_output[0L, , drop = FALSE]
     
     # clear cache
-    self$eddy$forget_rflow(self$fn_key)
+    self$eddy$forget_flow(self$fn_key)
     
     self$save()
 }, overwrite = TRUE)
@@ -679,7 +679,7 @@ R6Flow$set("public", "forget_all", function() {
 # save ----
 R6Flow$set("public", "save", function() {
     
-    rflow_data <- list(
+    flow_data <- list(
         fn_key = self$fn_key,
         fn_name = self$fn_name,
         state = self$state,
@@ -688,9 +688,9 @@ R6Flow$set("public", "save", function() {
     )
     
     # returns TRUE if cache for fn_key contains the key .STATE_KEY
-    save_ok <- self$eddy$add_data(self$fn_key, .STATE_KEY, rflow_data)
+    save_ok <- self$eddy$add_data(self$fn_key, .STATE_KEY, flow_data)
     if (!save_ok) {
-        rlang::warn("rflow cannot save its own state")
+        rlang::warn("flow cannot save its own state")
     }
     save_ok
 }, overwrite = TRUE)
@@ -704,7 +704,7 @@ R6Flow$set("public", "print", function() {
     cat(emph_obj, "for function", crayon::bold(self$fn_name), "\n",
         " - number of states:", nrow(self$state), "\n",
         " - current state index:", self$state_index, "\n",
-        " - is_flowing:", self$is_flowing, "\n",
+        " - is_current:", self$is_current, "\n",
         " - is_valid:", self$is_valid, "\n"
     )
     print(self$state)
@@ -723,7 +723,7 @@ print.Element <- function(x, ...) {
     cat(emph_obj1, "of", emph_obj2, "for function", fn_name, "\n",
         " - elem_name:", x$elem_name %||% "<full result>", "\n",
         " - elem_hash:", x$elem_hash, "\n",
-        " - is_flowing:", x$self$is_flowing, "\n",
+        " - is_current:", x$self$is_current, "\n",
         " - is_valid:", x$self$is_valid, "\n"
     )
     
@@ -780,8 +780,8 @@ R6Flow$set("public", "require_valid_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-# is_flowing ----
-R6Flow$set("active", "is_flowing", function() {
+# is_current ----
+R6Flow$set("active", "is_current", function() {
     # so far, we look only at the index, but this might change
     
     self$is_good_index(self$state_index)

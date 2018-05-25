@@ -28,18 +28,18 @@ default_eddy_env <- function() {
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param cache An cache object returned by one of the \code{cache} functions.
-#' @param rflow_options Options to store for future rflow invocations. They
+#' @param flow_options Options to store for future flow invocations. They
 #'   do not affect the \code{eddy}, they are only stored for ease of access.
 #' @param eddy_env An environment where to put (bind) the eddy.
 #' 
-#' @return An eddy object to be used for storing rflows.
+#' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
 #' 
 #' @export
 new_eddy <- function(eddy_name,
                      cache = default_cache(),
-                     rflow_options = default_rflow_options(),
+                     flow_options = default_flow_options(),
                      eddy_env = default_eddy_env()) {
     # using the name `new_eddy`, not `add_eddy` to convey fresh/empty idea
     # new guarantees a clean eddy (for tests)
@@ -49,13 +49,13 @@ new_eddy <- function(eddy_name,
     stopifnot(inherits(cache, "R6Cache"))
     stopifnot(is.environment(eddy_env))
     if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        # we cannot return the eddy since the rflow_options might be different
+        # we cannot return the eddy since the flow_options might be different
         stop("Cannot create a new eddy, name already present: ", eddy_name)
     }
     
     eddy <- R6Eddy$new(
         cache = cache,
-        rflow_options = rflow_options
+        flow_options = flow_options
     )
     assign(eddy_name, eddy, envir = eddy_env)
     
@@ -68,7 +68,7 @@ new_eddy <- function(eddy_name,
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param eddy_env An environment where to put (bind) the eddy.
 #' 
-#' @return An eddy object to be used for storing rflows.
+#' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
 #' 
@@ -123,12 +123,12 @@ delete_eddy <- function(eddy_name,
 }
 
 
-#' Set the current eddy to be used in future rflow calls.
+#' Set the current eddy to be used in future flow calls.
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param eddy_env An environment where to put (bind) the eddy.
 #' 
-#' @return An eddy object to be used for storing rflows.
+#' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
 #' 
@@ -157,7 +157,7 @@ set_current_eddy <- function(eddy_name,
 #' 
 #' @param eddy_env An environment where to put (bind) the eddy.
 #' 
-#' @return An eddy object to be used for storing rflows.
+#' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
 #' 
@@ -187,12 +187,12 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 }
 
 
-#' rflow options used to initialize or update an eddy.
+#' flow options used to initialize or update an eddy.
 #' 
 #' @details
-#' If used in \code{set_rflow_options}, these options will be stored in 
-#'   \code{eddy} and retrieved by each rflow subsequently executed. E.g. if not
-#'   careful, it is possible to force all following rflows to use a custom 
+#' If used in \code{set_flow_options}, these options will be stored in 
+#'   \code{eddy} and retrieved by each flow subsequently executed. E.g. if not
+#'   careful, it is possible to force all following flows to use a custom 
 #'   \code{split_fn} function, which is not recommended.
 #' 
 #' @param excluded_arg A vector of argument names to be excluded when computing
@@ -200,39 +200,39 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #'   the running state, e.g. a Shiny session, a parallel cluster, etc. 
 #'   Excluded arguments must have a default value to permit lazy computations.
 #'   The default is not to exclude any arguments from the input hash.
-#' @param source_file_arg For \code{source} rflows only(!), which argument(s) 
-#'   indicate the file path(s). A file path argument tell rflow to calculate
+#' @param source_file_arg For \code{source} flows only(!), which argument(s) 
+#'   indicate the file path(s). A file path argument tell flow to calculate
 #'   the hash of the file on disk instead the hash of the path string.
 #'   The default is to look only at the first argument within 
-#'   \code{source} rflows.
+#'   \code{source} flows.
 #' @param eval_arg_fn Custom function to parse the input arguments and create
 #'   a list of evaluated arguments to be hashed. This function should have the
 #'   exact same arguments as the original function. If an \code{eval_arg_fn}
 #'   is provided, \code{source_file_arg} will be
 #'   ignored when computing the input hash. Try to use \code{excluded_arg} or 
-#'   rflow source before creating a custom function. Because each custom 
-#'   function is rflow specific, it is not possible to set this option at 
-#'   the eddy level using \code{set_rflow_options}.
+#'   flow source before creating a custom function. Because each custom 
+#'   function is flow specific, it is not possible to set this option at 
+#'   the eddy level using \code{set_flow_options}.
 #' @param split_bare_list If the function output is a bare list 
 #'   (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
 #'   whether to calculate the hash of each list element and create
-#'   corresponding rflow elements.
+#'   corresponding flow elements.
 #' @param split_dataframe If the function output is a data.frame or tibble,
 #'   determines whether to calculate the hash of each column and create
-#'   corresponding rflow elements.
+#'   corresponding flow elements.
 #' @param split_fn Custom function to generate a list of elements from the
-#'   output of the rflow-ed function. Useful only if the output is not a list
-#'   but a rflow elements are still desired. Consider returning a list
+#'   output of the flow-ed function. Useful only if the output is not a list
+#'   but a flow elements are still desired. Consider returning a list
 #'   as output before using this option.  If an \code{split_fn}
 #'   is provided, \code{split_bare_list} and \code{split_dataframe} will be
 #'   ignored.
 #' @param eddy Eddy to apply / retrieve options to / from.
 #' 
-#' @name rflow_options
+#' @name flow_options
 NULL
 
 
-parse_rflow_options <- function(excluded_arg,
+parse_flow_options <- function(excluded_arg,
                                 source_file_arg,
                                 eval_arg_fn = NULL,
                                 split_bare_list,
@@ -261,7 +261,7 @@ parse_rflow_options <- function(excluded_arg,
     if (is.null(eddy)) {
         rfo <- list()
     } else {
-        rfo <- eddy$rflow_options
+        rfo <- eddy$flow_options
     }
     
     # recreating the list gets around NULL values
@@ -276,12 +276,12 @@ parse_rflow_options <- function(excluded_arg,
 }
 
 
-#' @return For \code{default_rflow_options}, a list of options.
+#' @return For \code{default_flow_options}, a list of options.
 #' 
-#' @rdname rflow_options
+#' @rdname flow_options
 #' 
 #' @export
-default_rflow_options <- function(excluded_arg = character(),
+default_flow_options <- function(excluded_arg = character(),
                                   source_file_arg = 1,
                                   split_bare_list = TRUE,
                                   split_dataframe = FALSE,
@@ -289,22 +289,22 @@ default_rflow_options <- function(excluded_arg = character(),
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
     .args["eval_arg_fn"] <- list(NULL)
-    rfo <- do.call(parse_rflow_options, .args)
+    rfo <- do.call(parse_flow_options, .args)
     
     rfo
 }
 
 
 #' @details 
-#' \code{set_rflow_options} does not overwrite the current options when the 
+#' \code{set_flow_options} does not overwrite the current options when the 
 #'   argument is \code{NULL}.
 #' 
-#' @return For \code{set_rflow_options}, \code{NULL}.
+#' @return For \code{set_flow_options}, \code{NULL}.
 #' 
-#' @rdname rflow_options
+#' @rdname flow_options
 #' 
 #' @export
-set_rflow_options <- function(excluded_arg = NULL,
+set_flow_options <- function(excluded_arg = NULL,
                               source_file_arg = NULL,
                               split_bare_list = NULL,
                               split_dataframe = NULL,
@@ -313,19 +313,19 @@ set_rflow_options <- function(excluded_arg = NULL,
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
     .args["eval_arg_fn"] <- list(NULL)
-    rfo <- do.call(parse_rflow_options, .args)
-    eddy$rflow_options <- rfo
+    rfo <- do.call(parse_flow_options, .args)
+    eddy$flow_options <- rfo
     
     invisible(NULL)
 }
 
 
-#' @return For \code{get_rflow_options}, a list of options including the eddy.
+#' @return For \code{get_flow_options}, a list of options including the eddy.
 #' 
-#' @rdname rflow_options
+#' @rdname flow_options
 #' 
 #' @export
-get_rflow_options <- function(excluded_arg = NULL,
+get_flow_options <- function(excluded_arg = NULL,
                               source_file_arg = NULL,
                               eval_arg_fn = NULL,
                               split_bare_list = NULL,
@@ -334,7 +334,7 @@ get_rflow_options <- function(excluded_arg = NULL,
                               eddy = get_current_eddy()
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
-    rfo <- do.call(parse_rflow_options, .args)
+    rfo <- do.call(parse_flow_options, .args)
     rfo$eddy <- eddy
     
     rfo
