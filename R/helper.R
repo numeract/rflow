@@ -34,9 +34,24 @@ parse_call <- function(pos = 2L) {
         envir = parent.frame(3L)
     )
     
-    # un-matched argument of the parent call
-    # this is the as.is call to function (and its arguments) to be flow-ed
-    unmatched_fn_call <- parent_call[[pos]]
+    token <- parent_call[[pos]]
+    if (is.symbol(token)) {
+        if (as.character(token) == "." && pos == 2L) {
+            # assume . from %>% ==> hack
+            unmatched_fn_call <- parent_call[[3L]]
+            parent <- parent.frame()
+            unmatched_fn_call[[2L]] <- parent[["fn_call"]]
+            parent[["flow_options"]] <- get_flow_options()
+        } else {
+            rlang::abort("The first argument must be a function call.")
+        }
+    } else if (is.language(token)) {
+        # un-matched argument of the parent call
+        # this is the as.is call to function (and its arguments) to be flow-ed
+        unmatched_fn_call <- token
+    } else {
+        rlang::abort("Unrecognized argument type, expected a function call.")
+    }
     
     fn <- eval(unmatched_fn_call[[1L]])
     if (!is.function(fn)) {
