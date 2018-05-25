@@ -69,14 +69,14 @@ R6Flow <- R6::R6Class(
         forget_all = function() {},
         save = function() {},
         print = function() {},
+        is_good_index = function(index = NULL) {},
+        require_good_index = function(index = NULL) {},
         is_valid_at_index = function(index = NULL) {},
-        require_valid_at_index = function(index = NULL) {},
-        is_computed_at_index = function(index = NULL) {},
-        require_computed_at_index = function(index = NULL) {}
+        require_valid_at_index = function(index = NULL) {}
     ),
     active = list(
-        is_valid = function() {},
-        is_computed = function() {}
+        is_flowing = function() {},
+        is_valid = function() {}
     )
 )
 
@@ -92,7 +92,7 @@ R6Flow$set("public", "calc_in_hash_default", function(rf_env = parent.frame()) {
         purrr::map_if(
             .p = ~ inherits(., "Element"),
             .f = function(x) {
-                x$self$require_valid_at_index()
+                x$self$require_good_index()
                 state <- x$self$get_state()
                 # we must return some data even if elem is not yet computed
                 # uniquely identify fn, its input state, and which elem
@@ -280,7 +280,7 @@ R6Flow$set("public", "which_state", function(in_hash) {
 R6Flow$set("public", "get_state", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    if (self$is_valid_at_index(index)) {
+    if (self$is_good_index(index)) {
         state <- self$state[index, , drop = FALSE]
     } else {
         # to preserve type, return a zero-row df if index not valid
@@ -320,7 +320,7 @@ R6Flow$set("public", "update_state", function(index,
                                               out_hash,
                                               out_data,
                                               make_current = TRUE) {
-    self$require_valid_at_index(index)
+    self$require_good_index(index)
     require_keys(in_hash, out_hash)
     
     # store out_data in cache
@@ -349,7 +349,7 @@ R6Flow$set("public", "update_state", function(index,
 # forget_state ----
 R6Flow$set("public", "forget_state", function(index) {
     
-    self$require_valid_at_index(index)
+    self$require_good_index(index)
     old_state <- self$state[index, , drop = FALSE]
     
     # update state
@@ -376,7 +376,7 @@ R6Flow$set("public", "forget_state", function(index) {
 # delete_state ----
 R6Flow$set("public", "delete_state", function(index) {
     
-    self$require_valid_at_index(index)
+    self$require_good_index(index)
     old_state <- self$state[index, , drop = FALSE]
     
     self$forget_state(index)
@@ -454,11 +454,11 @@ R6Flow$set("public", "delete_state_output", function(out_hash) {
 R6Flow$set("public", "get_out_hash", function(name = NULL) {
     # invalid state OK; not yet computed OK
     
-    if (!self$is_valid) {
+    if (!self$is_flowing) {
         # invalid state, cannot talk about hashes
         return(NULL)
     }
-    if (!self$is_computed) {
+    if (!self$is_valid) {
         # valid, but not yet computed
         return(NA_character_)
     }
@@ -490,22 +490,22 @@ R6Flow$set("public", "get_element", function(name = NULL) {
     elem_hash <- self$get_out_hash(name = name)
     if (is.null(elem_hash)) {
         # invalid state, cannot talk about hashes
+        is_flowing <- FALSE
         is_valid <- FALSE
-        is_computed <- FALSE
     } else if (is.na(elem_hash)) {
         # valid, but not yet computed
-        is_valid <- TRUE
-        is_computed <- FALSE
+        is_flowing <- TRUE
+        is_valid <- FALSE
     } else {
+        is_flowing <- TRUE
         is_valid <- TRUE
-        is_computed <- TRUE
     }
     
     # class does not inherit R6Flow since it has a different structure
     rflow_elem <- list(
         self = self,
+        is_flowing = is_flowing,
         is_valid = is_valid,
-        is_computed = is_computed,
         elem_name = name,
         elem_hash = elem_hash
     )
@@ -520,8 +520,8 @@ R6Flow$set("public", "compute", function() {
     # do not compute if already computed
     # return TRUE/FALSE not an actual value since there might be elements
     
-    if (self$is_computed) return(TRUE)
-    if (!self$is_valid) return(FALSE)
+    if (self$is_valid) return(TRUE)
+    if (!self$is_flowing) return(FALSE)
     state <- self$get_state()
     
     if (!base::exists(
@@ -592,7 +592,7 @@ R6Flow$set("public", "compute", function() {
 R6Flow$set("public", "collect", function(name = NULL) {
     
     # require valid state since cannot return NULL (NULL can be a valid result)
-    self$require_valid_at_index()
+    self$require_good_index()
     
     # if not yet computed ==> trigger compute
     if (!self$compute()) {
@@ -618,7 +618,7 @@ R6Flow$set("public", "collect", function(name = NULL) {
 R6Flow$set("public", "check_all", function() {
     
     # save current index / in_hash
-    if (self$is_valid) {
+    if (self$is_flowing) {
         in_hash <- self$state$in_hash[self$state_index]
     } else {
         in_hash <- NA_character_
@@ -627,21 +627,21 @@ R6Flow$set("public", "check_all", function() {
     keys <- self$eddy$list_keys(self$fn_key)
     changed <- FALSE
     
-    # state: delete states missing from cache
-    keep_rows_lgl <- self$state$out_hash %in% keys
-    changed <- changed | any(!keep_rows_lgl)
-    self$state <- self$state[keep_rows_lgl, , drop = FALSE]
+    # state: forget states missing from cache
+    changed_lgl <- !(self$state$out_hash %in% keys)
+    changed <- changed || any(changed_lgl)
+    self$state$out_hash[changed_lgl] <- NA_character_
     
-    # output state
+    # output state: forget implies deleting rows
     keep_rows_lgl <- (self$state_output$elem_hash %in% keys) &
         (self$state_output$out_hash %in% self$state$out_hash)
-    changed <- changed | any(!keep_rows_lgl)
+    changed <- changed || any(!keep_rows_lgl)
     self$state_output <- self$state_output[keep_rows_lgl, , drop = FALSE]
     
     # delete cache of missing states
     delete_keys <- keys %if_not_in% c(
         self$state$out_hash, self$state_output$elem_hash)
-    changed <- changed | (length(delete_keys) > 0L)
+    changed <- changed || (length(delete_keys) > 0L)
     deleted_keys <- 
         delete_keys %>%
         rlang::set_names() %>%
@@ -704,8 +704,8 @@ R6Flow$set("public", "print", function() {
     cat(emph_obj, "for function", crayon::bold(self$fn_name), "\n",
         " - number of states:", nrow(self$state), "\n",
         " - current state index:", self$state_index, "\n",
-        " - is_valid:", self$is_valid, "\n",
-        " - is_computed:", self$is_computed, "\n"
+        " - is_flowing:", self$is_flowing, "\n",
+        " - is_valid:", self$is_valid, "\n"
     )
     print(self$state)
     
@@ -723,8 +723,8 @@ print.Element <- function(x, ...) {
     cat(emph_obj1, "of", emph_obj2, "for function", fn_name, "\n",
         " - elem_name:", x$elem_name %||% "<full result>", "\n",
         " - elem_hash:", x$elem_hash, "\n",
-        " - is_valid:", x$self$is_valid, "\n",
-        " - is_computed:", x$self$is_computed, "\n"
+        " - is_flowing:", x$self$is_flowing, "\n",
+        " - is_valid:", x$self$is_valid, "\n"
     )
     
     invisible(x)
@@ -732,8 +732,8 @@ print.Element <- function(x, ...) {
 # nocov end
 
 
-# is_valid_at_index ----
-R6Flow$set("public", "is_valid_at_index", function(index = NULL) {
+# is_good_index ----
+R6Flow$set("public", "is_good_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
     
@@ -744,11 +744,11 @@ R6Flow$set("public", "is_valid_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-# require_valid_at_index ----
-R6Flow$set("public", "require_valid_at_index", function(index = NULL) {
+# require_good_index ----
+R6Flow$set("public", "require_good_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    if (!self$is_valid_at_index(index)) {
+    if (!self$is_good_index(index)) {
         if (identical(index, self$state_index)) {
             rlang::abort(paste("Invalid current state, index =", index))
         } else {
@@ -758,19 +758,19 @@ R6Flow$set("public", "require_valid_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-# is_computed_at_index ----
-R6Flow$set("public", "is_computed_at_index", function(index = NULL) {
+# is_valid_at_index ----
+R6Flow$set("public", "is_valid_at_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    self$is_valid_at_index(index) && !is.na(self$state$out_hash[index])
+    self$is_good_index(index) && !is.na(self$state$out_hash[index])
 }, overwrite = TRUE)
 
 
-# require_computed_at_index ----
-R6Flow$set("public", "require_computed_at_index", function(index = NULL) {
+# require_valid_at_index ----
+R6Flow$set("public", "require_valid_at_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    if (!self$is_computed_at_index(index)) {
+    if (!self$is_valid_at_index(index)) {
         if (identical(index, self$state_index)) {
             rlang::abort(paste("Not-computed current state, index =", index))
         } else {
@@ -780,17 +780,17 @@ R6Flow$set("public", "require_computed_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-# is_valid ----
-R6Flow$set("active", "is_valid", function() {
+# is_flowing ----
+R6Flow$set("active", "is_flowing", function() {
     # so far, we look only at the index, but this might change
     
-    self$is_valid_at_index(self$state_index)
+    self$is_good_index(self$state_index)
 }, overwrite = TRUE)
 
 
-# is_computed ----
-R6Flow$set("active", "is_computed", function() {
+# is_valid ----
+R6Flow$set("active", "is_valid", function() {
     
     index <- self$state_index
-    self$is_valid_at_index(index) && !is.na(self$state$out_hash[index])
+    self$is_good_index(index) && !is.na(self$state$out_hash[index])
 }, overwrite = TRUE)
