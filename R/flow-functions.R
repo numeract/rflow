@@ -242,16 +242,19 @@ is_computed <- function(rflow) {
 #' Forgets the computation for the current state.
 #' 
 #' @param rflow An rflow object, e.g. as returned by \code{\link{rf}}.
+#' @param state An rflow state. Only the \code{current} state is 
+#'   accepted for now.
 #' 
 #' @return A logical value, whether the deletion was successful.
 #' 
 #' @export
-forget <- function(rflow) {
+forget <- function(rflow, state = "current") {
     
     stopifnot(inherits(rflow, "R6Flow"))
+    stopifnot(identical(state, "current"))
     
     if (!rflow$is_valid) {
-        rlang::abort("rflow not valid, cannot determine state to delete.")
+        rlang::abort("rflow not valid, cannot forget current state.")
     }
     
     rflow$delete_state(rflow$state_index)

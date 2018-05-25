@@ -4,10 +4,13 @@
 \alias{forget}
 \title{Forgets the computation for the current state.}
 \usage{
-forget(rflow)
+forget(rflow, state = "current")
 }
 \arguments{
 \item{rflow}{An rflow object, e.g. as returned by \code{\link{rf}}.}
+
+\item{state}{An rflow state. Only the \code{current} state is 
+accepted for now.}
 }
 \value{
 A logical value, whether the deletion was successful.

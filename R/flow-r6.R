@@ -25,17 +25,15 @@ R6Flow <- R6::R6Class(
         eddy = NULL,
         # internal states
         state = NULL,
-        state_index = 0L,   # 0 ==> NA
+        state_index = 0L,   # 0 ==> missing (do not use NA)
         # data frame to store elements of fn output
-        output_state = NULL,
-        # an local cache used for lazy eval
-        lazy_env = NULL,
+        state_output = NULL,
+        # an local cache used for lazy calc
+        state_env = NULL,
         # functions with the same arguments as fn
         # (functions declared as obj to bypass locking of R6 methods)
         calc_in_hash = NULL,
         rf_fn = NULL,
-        exists_cache = NULL,
-        delete_cache = NULL,
         # init
         initialize = function(fn,
                               fn_key,
@@ -43,16 +41,23 @@ R6Flow <- R6::R6Class(
                               rflow_options = get_rflow_options()) {},
         # state
         which_state = function(in_hash) {},
-        get_state = function(index = NULL, required = FALSE) {},
-        add_state = function(in_hash, 
-                             out_hash, 
+        get_state = function(index = NULL) {},
+        add_state = function(in_hash,
+                             out_hash,
+                             elem_args,
                              make_current = TRUE) {},
-        update_state = function(index, 
-                                in_hash, 
-                                out_hash, 
+        update_state = function(index,
+                                in_hash,
+                                out_hash,
+                                out_data,
                                 make_current = TRUE) {},
+        forget_state = function(index) {},
         delete_state = function(index) {},
-        add_output_state = function(out_hash, elem_name, elem_hash) {},
+        add_state_output = function(out_hash,
+                                    elem_name,
+                                    elem_hash,
+                                    elem_data) {},
+        delete_state_output = function(out_hash) {},
         # elements
         get_out_hash = function(name = NULL) {},
         get_element = function(name = NULL) {},
@@ -60,9 +65,10 @@ R6Flow <- R6::R6Class(
         compute = function() {},
         collect = function(name = NULL) {},
         # misc
+        check_all = function() {},
+        forget_all = function() {},
         save = function() {},
         print = function() {},
-        forget = function() {},
         is_valid_at_index = function(index = NULL) {},
         require_valid_at_index = function(index = NULL) {},
         is_computed_at_index = function(index = NULL) {},
@@ -166,18 +172,14 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         }
         # if found_state_idx == self$state_index no processing is needed
     } else {
-        # not in cache, prepare for lazy eval:
-        # save args (including Elements) into lazy_env to be called later
-        self$lazy_env[[in_hash]] <- elem_args
-        # adding a new state makes the new state current
+        # not in cache, prepare for lazy eval: save args to be called later
         self$add_state(
             in_hash = in_hash, 
-            out_hash = NA_character_, 
+            out_hash = NA_character_,
+            elem_args = elem_args,
             make_current = TRUE
         )
-        if (!self$save()) {
-            rlang::abort("rflow cannot save its own state, aborting.")
-        }
+        self$save()
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get data
@@ -198,6 +200,12 @@ R6Flow$set("public", "initialize", function(
     stopifnot(is.function(fn))
     require_keys(fn_key, fn_name)
     
+    # register itself in eddy (error if fn_key already present)
+    self$eddy <- rflow_options$eddy
+    if (!self$eddy$add_rflow(fn_key, self)) {
+        rlang::abort(paste("Failed to register rflow:", fn_key))
+    }
+    
     # init self$
     self$fn <- fn
     self$fn_key <- fn_key
@@ -207,24 +215,13 @@ R6Flow$set("public", "initialize", function(
     self$split_bare_list <- rflow_options$split_bare_list
     self$split_dataframe <- rflow_options$split_dataframe
     self$split_fn <- rflow_options$split_fn
-    self$eddy <- rflow_options$eddy
     
-    # new states / load states from cache
-    if (self$eddy$has_rflow(fn_key)) {
-        stop("rflow object with key ", fn_key, " already present in eddy")
-    } else if (self$eddy$has_cache(fn_key)) {
-        # data in cache but not loaded
-        if (self$eddy$has_key(fn_key, .STATE_KEY)) {
-            rflow_data <- self$eddy$get_data(fn_key, .STATE_KEY)
-        } else {
-            # cache present but no _state file ==> start with no states
-            rflow_data <- NULL
-        }
+    # 'group' in cache; does it have state data?
+    if (self$eddy$has_key(fn_key, .STATE_KEY)) {
+        rflow_data <- self$eddy$get_data(fn_key, .STATE_KEY)
+        self$state <- rflow_data$state
+        self$state_output <- rflow_data$state_output
     } else {
-        # no data in cache ==> start with no states
-        rflow_data <- NULL
-    }
-    if (is.null(rflow_data)) {
         # state
         self$state <- tibble::data_frame(
             fn_key = character(),
@@ -232,22 +229,16 @@ R6Flow$set("public", "initialize", function(
             out_hash = character(),
             time_stamp = now_utc(0L)
         )
-        self$state_index <- 0L
         # output state
-        self$output_state <- tibble::data_frame(
+        self$state_output <- tibble::data_frame(
             out_hash = character(),
             elem_name = character(),
             elem_hash = character()
         )
-    } else {
-        self$state <- rflow_data$state
-        self$state_index <- 0L
-        self$output_state <- rflow_data$output_state
     }
-    self$lazy_env <- new.env(hash = TRUE, parent = emptyenv())
-    
-    # register itself in eddy (error if fn_key already present)
-    self$eddy$add_rflow(fn_key, self)
+    self$state_index <- 0L
+    self$check_all()
+    self$state_env <- new.env(hash = TRUE, parent = emptyenv())
     
     # calc_in_hash
     if (!is.null(self$eval_arg_fn)) {
@@ -259,14 +250,6 @@ R6Flow$set("public", "initialize", function(
     # rf_fn: its enclosing envir is not changed to preserve access to self$
     self$rf_fn <- self$rf_fn_default
     formals(self$rf_fn) <- formals(args(fn))
-    
-    # # exists_cache
-    # self$exists_cache <- self$exists_cache_default
-    # formals(self$exists_cache) <- formals(args(fn))
-    # 
-    # # delete_cache
-    # self$delete_cache <- self$delete_cache_default
-    # formals(self$delete_cache) <- formals(args(fn))
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -298,18 +281,22 @@ R6Flow$set("public", "get_state", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
     if (self$is_valid_at_index(index)) {
-        self$state[index, , drop = FALSE]
+        state <- self$state[index, , drop = FALSE]
     } else {
         # to preserve type, return a zero-row df if index not valid
-        self$state[0L, , drop = FALSE]
+        state <- self$state[0L, , drop = FALSE]
     }
+    
+    state
 }, overwrite = TRUE)
 
 
 # add_state ----
 R6Flow$set("public", "add_state", function(in_hash,
                                            out_hash,
+                                           elem_args,
                                            make_current = TRUE) {
+    require_keys(in_hash)
     
     self$state <-
         self$state %>%
@@ -319,6 +306,7 @@ R6Flow$set("public", "add_state", function(in_hash,
             out_hash = out_hash,
             time_stamp = now_utc()
         )
+    self$state_env[[in_hash]] <- elem_args
     if (make_current) self$state_index <- nrow(self$state)
     
     # return TRUE if state can be found
@@ -330,8 +318,14 @@ R6Flow$set("public", "add_state", function(in_hash,
 R6Flow$set("public", "update_state", function(index,
                                               in_hash,
                                               out_hash,
+                                              out_data,
                                               make_current = TRUE) {
     self$require_valid_at_index(index)
+    require_keys(in_hash, out_hash)
+    
+    # store out_data in cache
+    eddy_add_OK <- self$eddy$add_data(self$fn_key, out_hash, out_data)
+    if (!eddy_add_OK) return(FALSE)
     
     self$state[index, ] <- list(
         fn_key = self$fn_key,
@@ -339,6 +333,12 @@ R6Flow$set("public", "update_state", function(index,
         out_hash = out_hash,
         time_stamp = now_utc()
     )
+    if (!is.na(out_hash) && 
+        base::exists(in_hash, where = self$state_env, inherits = FALSE)
+    ) {
+        # the main reason to update is to add out_hash ==> args no longer needed
+        base::rm(list = in_hash, pos = self$state_env)
+    }
     if (make_current) self$state_index <- index
     
     # return TRUE if state can be found
@@ -346,48 +346,107 @@ R6Flow$set("public", "update_state", function(index,
 }, overwrite = TRUE)
 
 
+# forget_state ----
+R6Flow$set("public", "forget_state", function(index) {
+    
+    self$require_valid_at_index(index)
+    old_state <- self$state[index, , drop = FALSE]
+    
+    # update state
+    self$state[index, ] <- list(
+        fn_key = self$fn_key,
+        in_hash = old_state$in_hash,
+        out_hash = NA_character_,
+        time_stamp = now_utc()
+    )
+    # delete data from cache
+    # only if not present somewhere else (same output for the same input)
+    delete_key <- old_state$out_hash %if_not_in% self$out_hash
+    if (is_key(delete_key)) {
+        self$eddy$delete_data(self$fn_key, delete_key)
+    }
+    # delete data from state_output
+    self$delete_state_output(old_state$out_hash)
+    
+    # return TRUE if state can be found
+    self$which_state(old_state$in_hash) == index
+}, overwrite = TRUE)
+
+
 # delete_state ----
 R6Flow$set("public", "delete_state", function(index) {
     
     self$require_valid_at_index(index)
+    old_state <- self$state[index, , drop = FALSE]
     
-    in_hash <- self$state$in_hash[index]
+    self$forget_state(index)
+    # delete state
     self$state <- self$state[-index, , drop = FALSE]
-    if (self$state_index == index) {
-        self$state_index <- 0L
-    } else if (self$state_index > index) {
-        self$state_index <- self$state_index - 1L
-    }
+    # update index
+    self$state_index <- self$which_state(old_state$in_hash)
     
     # return TRUE if state cannot be found
-    self$which_state(in_hash) == 0L
+    self$which_state(old_state$in_hash) == 0L
 }, overwrite = TRUE)
 
 
-# add_output_state ----
-R6Flow$set("public", "add_output_state", function(out_hash,
+# add_state_output ----
+R6Flow$set("public", "add_state_output", function(out_hash,
                                                   elem_name,
-                                                  elem_hash) {
+                                                  elem_hash,
+                                                  elem_data) {
+    require_keys(out_hash, elem_name, elem_hash)
     
-    output_state <- self$output_state
+    # store elem data in cache
+    self$eddy$add_data(self$fn_key, elem_hash, elem_data)
+    
+    state_output <- self$state_output
     found_state_idx <- which(
-        output_state$out_hash == out_hash &
-        output_state$elem_name == elem_name
+        state_output$out_hash == out_hash &
+        state_output$elem_name == elem_name
     )
     len <- length(found_state_idx)
     stopifnot(len <= 1L)
     if (len == 1L) {
-        output_state <- output_state[-found_state_idx, , drop = FALSE]
+        state_output <- state_output[-found_state_idx, , drop = FALSE]
     }
     
-    self$output_state <-
-        output_state %>%
+    self$state_output <-
+        state_output %>%
         tibble::add_row(
             out_hash = out_hash,
             elem_name = elem_name,
             elem_hash = elem_hash
         )
     
+    invisible(NULL)
+}, overwrite = TRUE)
+
+
+# delete_state_output ----
+R6Flow$set("public", "delete_state_output", function(out_hash) {
+    
+    if (length(out_hash) == 0L) return(invisible(NULL))
+    
+    keep_lgl <- self$state_output$out_hash != out_hash
+    old_state_output <- self$state_output[!keep_lgl, , drop = FALSE]
+    
+    # delete form state_output
+    self$state_output <- self$state_output[keep_lgl, , drop = FALSE]
+    # delete data from cache
+    # only if not present somewhere else (same output for the same input)
+    delete_keys <- 
+        old_state_output$elem_hash %if_not_in% self$state_output$elem_hash
+    deleted_keys <- 
+        delete_keys %>%
+        rlang::set_names() %>%
+        purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
+    if (any(!deleted_keys)) {
+        txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
+        rlang::warn(paste("rflow", self$fn_key, "- cannot delete keys:", txt))
+    }
+    
+    invisible(NULL)
 }, overwrite = TRUE)
 
 
@@ -411,13 +470,13 @@ R6Flow$set("public", "get_out_hash", function(name = NULL) {
     } else {
         # valid & computed - element requested
         found_state_idx <- which(
-            self$output_state$out_hash == state$out_hash &
-            self$output_state$elem_name == name
+            self$state_output$out_hash == state$out_hash &
+            self$state_output$elem_name == name
         )
         if (length(found_state_idx) != 1L) {
             rlang::abort(paste("Cannot find output element:", name))
         }
-        out_hash <- self$output_state$elem_hash[found_state_idx]
+        out_hash <- self$state_output$elem_hash[found_state_idx]
     }
     
     out_hash
@@ -461,21 +520,19 @@ R6Flow$set("public", "compute", function() {
     # do not compute if already computed
     # return TRUE/FALSE not an actual value since there might be elements
     
-    if (self$is_computed) {
-        return(TRUE)
-    }
-    if (!self$is_valid) {
-        return(FALSE)
-    }
+    if (self$is_computed) return(TRUE)
+    if (!self$is_valid) return(FALSE)
     state <- self$get_state()
     
-    if (!base::exists(state$in_hash, where = self$lazy_env, inherits = FALSE)) {
+    if (!base::exists(
+        state$in_hash, where = self$state_env, inherits = FALSE)
+    ) {
         # cannot find input args ==> cannot compute
         return(FALSE)
     }
-    elem_args <- self$lazy_env[[state$in_hash]]
+    elem_args <- self$state_env[[state$in_hash]]
     
-    # need to collect output of any Element
+    # need to collect output of Elements (if any)
     eval_args <-
         elem_args %>%
         purrr::map_if(
@@ -484,7 +541,6 @@ R6Flow$set("public", "compute", function() {
                 x$self$collect(x$elem_name)
             }
         )
-    base::rm(list = state$in_hash, pos = self$lazy_env)
     
     # eval in .GlobalEnv to avoid name collisions
     out_data <- withVisible(do.call(
@@ -492,21 +548,14 @@ R6Flow$set("public", "compute", function() {
     # we store the out_hash to avoid (re)hashing for rflow objects
     out_hash <- self$eddy$digest(out_data)
     
-    # store out_data in cache
-    eddy_add_OK <- self$eddy$add_data(self$fn_key, out_hash, out_data)
-    if (!eddy_add_OK) {
-        return(FALSE)
-    }
-    
     # update the current state
     update_OK <- self$update_state(
         index = self$state_index, 
         in_hash = state$in_hash, 
-        out_hash = out_hash
+        out_hash = out_hash,
+        out_data = out_data
     )
-    if (!update_OK) {
-        return(FALSE)
-    }
+    if (!update_OK) return(FALSE)
     
     # split into elements by function
     split_using_fn <- !is.null(self$split_fn)
@@ -531,17 +580,11 @@ R6Flow$set("public", "compute", function() {
                 visible = out_data$visible
             )
             elem_hash <- self$eddy$digest(vis_elem_lst)
-            self$eddy$add_data(self$fn_key, elem_hash, vis_elem_lst)
-            self$add_output_state(out_hash, elem_name, elem_hash)
+            self$add_state_output(out_hash, elem_name, elem_hash, vis_elem_lst)
         }
-        
     }
     
-    if (!self$save()) {
-        rlang::abort("rflow cannot save its own state, aborting.")
-    }
-    
-    TRUE
+    self$save()
 }, overwrite = TRUE)
 
 
@@ -571,6 +614,68 @@ R6Flow$set("public", "collect", function(name = NULL) {
 }, overwrite = TRUE)
 
 
+# check_all ----
+R6Flow$set("public", "check_all", function() {
+    
+    # save current index / in_hash
+    if (self$is_valid) {
+        in_hash <- self$state$in_hash[self$state_index]
+    } else {
+        in_hash <- NA_character_
+    }
+    
+    keys <- self$eddy$list_keys(self$fn_key)
+    changed <- FALSE
+    
+    # state: delete states missing from cache
+    keep_rows_lgl <- self$state$out_hash %in% keys
+    changed <- changed | any(!keep_rows_lgl)
+    self$state <- self$state[keep_rows_lgl, , drop = FALSE]
+    
+    # output state
+    keep_rows_lgl <- (self$state_output$elem_hash %in% keys) &
+        (self$state_output$out_hash %in% self$state$out_hash)
+    changed <- changed | any(!keep_rows_lgl)
+    self$state_output <- self$state_output[keep_rows_lgl, , drop = FALSE]
+    
+    # delete cache of missing states
+    delete_keys <- keys %if_not_in% c(
+        self$state$out_hash, self$state_output$elem_hash)
+    changed <- changed | (length(delete_keys) > 0L)
+    deleted_keys <- 
+        delete_keys %>%
+        rlang::set_names() %>%
+        purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
+    if (any(!deleted_keys)) {
+        txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
+        rlang::warn(paste("rflow", self$fn_key, "- cannot delete keys:", txt))
+    }
+    
+    if (changed) {
+        # update index
+        self$state_index <- self$which_state(in_hash)
+        self$save()
+    }
+    
+    changed
+}, overwrite = TRUE)
+
+
+# forget_all ----
+R6Flow$set("public", "forget_all", function() {
+    
+    # clear all states
+    self$state <- self$state[0L, , drop = FALSE]
+    self$state_index <- 0L
+    self$state_output <- self$state_output[0L, , drop = FALSE]
+    
+    # clear cache
+    self$eddy$forget_rflow(self$fn_key)
+    
+    self$save()
+}, overwrite = TRUE)
+
+
 # save ----
 R6Flow$set("public", "save", function() {
     
@@ -579,11 +684,15 @@ R6Flow$set("public", "save", function() {
         fn_name = self$fn_name,
         state = self$state,
         state_index = self$state_index,
-        output_state = self$output_state
+        state_output = self$state_output
     )
     
     # returns TRUE if cache for fn_key contains the key .STATE_KEY
-    self$eddy$add_data(self$fn_key, .STATE_KEY, rflow_data)
+    save_ok <- self$eddy$add_data(self$fn_key, .STATE_KEY, rflow_data)
+    if (!save_ok) {
+        rlang::warn("rflow cannot save its own state")
+    }
+    save_ok
 }, overwrite = TRUE)
 
 
@@ -621,21 +730,6 @@ print.Element <- function(x, ...) {
     invisible(x)
 }
 # nocov end
-
-
-# forget ----
-R6Flow$set("public", "forget", function() {
-    
-    # clear states
-    self$state <- self$state[0L, , drop = FALSE]
-    self$state_index <- 0L
-    self$output_state <- self$output_state[0L, , drop = FALSE]
-    
-    # clear cache
-    self$eddy$forget_rflow(self$fn_key)
-    
-    invisible(self)
-}, overwrite = TRUE)
 
 
 # is_valid_at_index ----
