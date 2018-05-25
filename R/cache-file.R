@@ -64,22 +64,6 @@ R6CacheFile$set("public", "add_group", function(group) {
 }, overwrite = TRUE)
 
 
-# delete_group ----
-R6CacheFile$set("public", "delete_group", function(group) {
-    
-    require_keys(group)
-    
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
-    group_dir <- fs::path(self$cache_dir, group)
-    if (fs::dir_exists(group_dir)) {
-        fs::dir_delete(group_dir)
-    }
-    
-    !self$has_group(group)
-}, overwrite = TRUE)
-
-
 # forget_group ----
 R6CacheFile$set("public", "forget_group", function(group) {
     
@@ -94,7 +78,23 @@ R6CacheFile$set("public", "forget_group", function(group) {
     }
     fs::dir_create(group_dir)
     
-    length(fs::dir_ls(group_dir)) == 0L
+    self$has_group(group) && length(fs::dir_ls(group_dir)) == 0L
+}, overwrite = TRUE)
+
+
+# delete_group ----
+R6CacheFile$set("public", "delete_group", function(group) {
+    
+    require_keys(group)
+    
+    stopifnot(fs::dir_exists(self$cache_dir))
+    
+    group_dir <- fs::path(self$cache_dir, group)
+    if (fs::dir_exists(group_dir)) {
+        fs::dir_delete(group_dir)
+    }
+    
+    !self$has_group(group)
 }, overwrite = TRUE)
 
 
@@ -192,7 +192,7 @@ R6CacheFile$set("public", "reset", function() {
     fs::dir_delete(self$cache_dir)
     fs::dir_create(self$cache_dir)
     
-    invisible(NULL)
+    invisible(self)
 }, overwrite = TRUE)
 
 

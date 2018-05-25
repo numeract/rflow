@@ -80,6 +80,28 @@ R6CacheMemoryFile$set("public", "add_group", function(group) {
 }, overwrite = TRUE)
 
 
+# forget_group ----
+R6CacheMemoryFile$set("public", "forget_group", function(group) {
+    
+    stopifnot(fs::dir_exists(self$cache_dir))
+    
+    require_keys(group)
+    
+    # this also adds the group in memory, if missing
+    base::assign(group, value = list(), pos = self$cache_env)
+    
+    # this also adds the group on disk, if missing
+    group_dir <- fs::path(self$cache_dir, group)
+    if (fs::dir_exists(group_dir)) {
+        fs::dir_delete(group_dir)
+    }
+    fs::dir_create(group_dir)
+    
+    self$has_group(group) && 
+        length(self$cache_env[[group]]) + length(fs::dir_ls(group_dir)) == 0L
+}, overwrite = TRUE)
+
+
 # delete_group ----
 R6CacheMemoryFile$set("public", "delete_group", function(group) {
     
@@ -98,27 +120,6 @@ R6CacheMemoryFile$set("public", "delete_group", function(group) {
     }
     
     !self$has_group(group)
-}, overwrite = TRUE)
-
-
-# forget_group ----
-R6CacheMemoryFile$set("public", "forget_group", function(group) {
-    
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
-    require_keys(group)
-    
-    # this also adds the group in memory, if missing
-    base::assign(group, value = list(), pos = self$cache_env)
-    
-    # this also adds the group on disk, if missing
-    group_dir <- fs::path(self$cache_dir, group)
-    if (fs::dir_exists(group_dir)) {
-        fs::dir_delete(group_dir)
-    }
-    fs::dir_create(group_dir)
-    
-    length(self$cache_env[[group]]) + length(fs::dir_ls(group_dir)) == 0L
 }, overwrite = TRUE)
 
 
@@ -271,7 +272,7 @@ R6CacheMemoryFile$set("public", "reset", function() {
     fs::dir_create(self$cache_dir)
     
     gc()
-    invisible(NULL)
+    invisible(self)
 }, overwrite = TRUE)
 
 

@@ -53,6 +53,18 @@ R6CacheMemory$set("public", "add_group", function(group) {
 }, overwrite = TRUE)
 
 
+# forget_group ----
+R6CacheMemory$set("public", "forget_group", function(group) {
+    
+    require_keys(group)
+    
+    # this also adds the group in memory, if missing
+    base::assign(group, value = list(), pos = self$cache_env)
+    
+    self$has_group(group) && length(self$cache_env[[group]]) == 0L
+}, overwrite = TRUE)
+
+
 # delete_group ----
 R6CacheMemory$set("public", "delete_group", function(group) {
     
@@ -63,18 +75,6 @@ R6CacheMemory$set("public", "delete_group", function(group) {
     }
     
     !self$has_group(group)
-}, overwrite = TRUE)
-
-
-# forget_group ----
-R6CacheMemory$set("public", "forget_group", function(group) {
-    
-    require_keys(group)
-    
-    # this also adds the group in memory, if missing
-    base::assign(group, value = list(), pos = self$cache_env)
-    
-    length(self$cache_env[[group]]) == 0L
 }, overwrite = TRUE)
 
 
