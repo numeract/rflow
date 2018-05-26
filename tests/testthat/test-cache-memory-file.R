@@ -171,6 +171,21 @@ test_that("get_data() works", {
 })
 
 
+test_that("get_data() works with empty memory", {
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+    
+    cache_fmem_test$add_data(fn_group, "key", "value")
+    base::rm(list = fn_group, pos = cache_fmem_test$cache_env)
+    expect_true(
+        fs::file_exists(fs::path(cache_group_dir, "key")))
+    
+    expect_equal(cache_fmem_test$get_data(fn_group, "key"), "value")
+    
+    cache_fmem_test$terminate()
+})
+
+
 test_that("get_data() stops with non-existent group", {
     cache_fmem_test <- cache_memory_file(cache_dir)
     cache_fmem_test$add_data(fn_group, "key", "value")
