@@ -7,7 +7,7 @@ fn_group <- "default_group"
 test_that("add_group() works", {
     
     cache_fmem_test <- cache_memory_file(cache_dir)
-    cache_fmem_test$add_group(fn_group)
+    expect_true(cache_fmem_test$add_group(fn_group))
     cache_group_dir <- fs::path(cache_dir, fn_group)
     
     expect_true(fs::dir_exists(cache_group_dir))
@@ -62,7 +62,7 @@ test_that("delete_group() works with non existent group", {
     cache_fmem_test <- cache_memory_file(cache_dir)
     cache_group_dir <- fs::path(cache_dir, fn_group)
     
-    expect_silent(
+    expect_true(
         cache_fmem_test$delete_group(fn_group))
     expect_false(fs::dir_exists(cache_group_dir))
     expect_false(base::exists(fn_group,
@@ -80,7 +80,7 @@ test_that("forget_group() works", {
     cache_group_dir <- fs::path(cache_dir, fn_group)
     
     expect_equal(length(fs::dir_ls(cache_group_dir)), 1)
-    cache_fmem_test$forget_group(fn_group)
+    expect_true(cache_fmem_test$forget_group(fn_group))
     expect_equal(
         cache_fmem_test$list_keys(fn_group),
         character())
@@ -185,8 +185,10 @@ test_that("get_data() stops with non-existent group", {
 # add_data tests ----------------------------------------------------------
 test_that("add_data() works", {
     cache_fmem_test <- cache_memory_file(cache_dir)
-    cache_fmem_test$add_data(fn_group, "key", "value")
-    cache_fmem_test$add_data(fn_group, "key1", "value1")
+    expect_true(
+        cache_fmem_test$add_data(fn_group, "key", "value"))
+    expect_true(
+        cache_fmem_test$add_data(fn_group, "key1", "value1"))
     cache_group_dir <- fs::path(cache_dir, fn_group)
 
     expect_equal(cache_fmem_test$get_data(fn_group, "key"), "value")
