@@ -5,16 +5,16 @@ fn_group <- "default_group"
 
 # add_group tests ----------------------------------------------------
 test_that("add_group() works", {
-
+    
     cache_memory_test <- cache_memory()
-    cache_memory_test$add_group(fn_group)
+    expect_true(cache_memory_test$add_group(fn_group))
     expect_true(cache_memory_test$has_group(fn_group))
     cache_memory_test$terminate()
 })
 
 
 test_that("add_group() stops with non valid input", {
-
+    
     cache_memory_test <- cache_memory()
     expect_error(cache_memory_test$add_group(NULL))
     expect_error(cache_memory_test$add_group(NA))
@@ -33,22 +33,22 @@ test_that("add_group() stops with non valid input", {
 
 # has_group tests ----------------------------------------------------
 test_that("has_group() works", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     expect_false(cache_memory_test$has_group(fn_group))
     cache_memory_test$add_group(fn_group)
     expect_true(cache_memory_test$has_group(fn_group))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("has_group() stops non valid input", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_group(fn_group)
-
+    
     expect_error(cache_memory_test$has_group(NULL))
     expect_error(cache_memory_test$has_group(NA))
     expect_error(cache_memory_test$has_group(character()))
@@ -61,41 +61,41 @@ test_that("has_group() stops non valid input", {
     expect_error(
         cache_memory_test$has_group(c("a_group", NA)))
     
-
+    
     cache_memory_test$terminate()
 })
 
 
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_group(fn_group)
-
+    
     expect_true(
         cache_memory_test$delete_group(fn_group))
     expect_false(
         cache_memory_test$has_group(fn_group))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("delete_group() works with non existent group", {
-
+    
     cache_memory_test <- cache_memory()
-
-    expect_silent(
+    
+    expect_true(
         cache_memory_test$delete_group(fn_group))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("delete_group() stops with non valid input", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     expect_error(
         cache_memory_test$delete_group(NULL))
     expect_error(
@@ -113,8 +113,8 @@ test_that("delete_group() stops with non valid input", {
 test_that("forget_group() works", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
-
-    cache_memory_test$forget_group(fn_group)
+    
+    expect_true(cache_memory_test$forget_group(fn_group))
     expect_equal(
         cache_memory_test$list_keys(fn_group),
         character())
@@ -125,7 +125,7 @@ test_that("forget_group() works", {
 test_that("forget_group() stops with non valid input", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
-
+    
     expect_error(
         cache_memory_test$forget_group(NULL))
     expect_error(
@@ -149,35 +149,35 @@ test_that("forget_group() stops with non valid input", {
 
 # list_keys tests ----------------------------------------------------
 test_that("list_keys() works", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_equal(
         cache_memory_test$list_keys(fn_group), c("key", "key1"))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("list_keys() works with non-existent group", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_silent(
         cache_memory_test$list_keys("a_group"))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("list_keys() stops with non valid input", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     expect_error(
         cache_memory_test$list_keys(NULL))
     expect_error(
@@ -192,31 +192,31 @@ test_that("list_keys() stops with non valid input", {
         cache_memory_test$list_keys(c(NA, "a_group")))
     expect_error(
         cache_memory_test$list_keys(c(fn_group, NA)))
-
+    
     cache_memory_test$terminate()
 })
 
 
 # has_key tests ----------------------------------------------------
 test_that("has_key() works", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_true(
         cache_memory_test$has_key(fn_group, "key"))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("has_key() works with non valid key", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_error(
         cache_memory_test$has_key(fn_group, c("key", "key1")))
     expect_error(
@@ -237,9 +237,9 @@ test_that("get_data() works", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_equal(cache_memory_test$get_data(fn_group, "key"), "value")
-
+    
     cache_memory_test$terminate()
 })
 
@@ -248,9 +248,9 @@ test_that("get_data() stops with non-existent key", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_error(cache_memory_test$get_data(fn_group, "key2"))
-
+    
     cache_memory_test$terminate()
 })
 
@@ -259,9 +259,9 @@ test_that("get_data() stops with non-existent group", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_error(cache_memory_test$get_data("a_group", "key2"))
-
+    
     cache_memory_test$terminate()
 })
 
@@ -270,12 +270,12 @@ test_that("get_data() stops with non valid key", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_error(cache_memory_test$get_data(fn_group, NULL))
     expect_error(cache_memory_test$get_data(fn_group, NA))
     expect_error(cache_memory_test$get_data(fn_group, character()))
     expect_error(cache_memory_test$get_data(fn_group, c("key", "key1")))
-
+    
     cache_memory_test$terminate()
 })
 
@@ -283,23 +283,26 @@ test_that("get_data() stops with non valid key", {
 # add_data tests ----------------------------------------------------------
 test_that("add_data() works", {
     cache_memory_test <- cache_memory()
-    cache_memory_test$add_data(fn_group, "key", "value")
-    expect_equal(cache_memory_test$get_data(fn_group, "key"), "value")
+    expect_true(
+        cache_memory_test$add_data(fn_group, "key", "value"))
+    expect_equal(
+        cache_memory_test$get_data(fn_group, "key"), "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-    expect_silent(cache_memory_test$add_data(fn_group, "key", NULL))
-  
+    expect_true(
+        cache_memory_test$add_data(fn_group, "key", NULL))
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("add_data() stops with non valid key", {
     cache_memory_test <- cache_memory()
-
+    
     expect_error(cache_memory_test$add_data(fn_group, NULL, "value"))
     expect_error(cache_memory_test$add_data(fn_group, NA, "value"))
     expect_error(cache_memory_test$add_data(fn_group, c("a", "b"), "value"))
     expect_error(cache_memory_test$add_data(fn_group, character(), "value"))
-
+    
     cache_memory_test$terminate()
 })
 
@@ -311,40 +314,40 @@ test_that("add_data() stops with non valid group", {
     expect_error(cache_memory_test$add_data(NA, "key", "value"))
     expect_error(cache_memory_test$add_data(c("a", "b"), "key", "value"))
     expect_error(cache_memory_test$add_data(character(), "key", "value"))
-  
+    
     cache_memory_test$terminate()
 })
 
 
 # delete_data tests ----------------------------------------------------------
 test_that("delete_data() works", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     cache_memory_test$add_data(fn_group, "key", "value")
-    cache_memory_test$delete_data(fn_group, "key")
+    expect_true(cache_memory_test$delete_data(fn_group, "key"))
     expect_false(cache_memory_test$has_key(fn_group, "key"))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("delete_data() works with group not present", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     cache_memory_test$delete_data(fn_group, "key")
     expect_false(cache_memory_test$has_key(fn_group, "key"))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("delete_data() stops with non valid args", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
-
+    
     expect_error(cache_memory_test$delete_data(NULL, "key"))
     expect_error(cache_memory_test$delete_data(fn_group, NULL))
     
@@ -360,56 +363,56 @@ test_that("delete_data() stops with non valid args", {
         cache_memory_test$delete_data(fn_group, c("key", "key2")))
     expect_error(
         cache_memory_test$delete_data(fn_group, c(NA, "key2")))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("delete_data() works with non-existent key", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key2", "value2")
     cache_memory_test$add_data("a_group", "key3", "value3")
-
-    expect_silent(cache_memory_test$delete_data(fn_group, "key3"))
-
+    
+    expect_true(cache_memory_test$delete_data(fn_group, "key3"))
+    
     cache_memory_test$terminate()
 })
 
 
 # reset tests -----------------------------------------------------------------
 test_that("reset() works", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
-
+    
     cache_memory_test$reset()
     expect_equal(cache_memory_test, cache_memory())
     expect_true(is.environment(cache_memory_test$cache_env))
-
+    
     cache_memory_test$terminate()
 })
 
 
 test_that("reset() works with empty cache", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     cache_memory_test$reset()
     expect_equal(cache_memory_test, cache_memory())
     expect_true(is.environment(cache_memory_test$cache_env))
-
+    
     cache_memory_test$terminate()
 })
 
 
 # terminate tests -----------------------------------------------------------------
 test_that("terminate() works", {
-
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
-
+    
     cache_memory_test$terminate()
     expect_equal(cache_memory_test$cache_env, NULL)
     expect_false(is.environment(cache_memory_test$cache_env))
@@ -417,11 +420,11 @@ test_that("terminate() works", {
 
 
 test_that("terminate() works with empty cache", {
-
+    
     cache_memory_test <- cache_memory()
-
+    
     expect_true(is.environment(cache_memory_test$cache_env))
-
+    
     cache_memory_test$terminate()
     expect_equal(cache_memory_test$cache_env, NULL)
     expect_false(is.environment(cache_memory_test$cache_env))
