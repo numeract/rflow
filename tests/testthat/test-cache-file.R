@@ -19,7 +19,7 @@ test_that("add_group() works", {
 
 test_that("add_group() stops with non valid input", {
     
-    cache_file_test <- cache_memory()
+    cache_file_test <- cache_file(cache_dir)
     expect_error(cache_file_test$add_group(NULL))
     expect_error(cache_file_test$add_group(NA))
     expect_error(cache_file_test$add_group(character()))
@@ -54,7 +54,7 @@ test_that("has_group() works", {
 
 test_that("has_group() stops non valid input", {
     
-    cache_file_test <- cache_memory()
+    cache_file_test <- cache_file(cache_dir)
     cache_file_test$add_group(fn_group)
     
     expect_error(cache_file_test$has_group(NULL))
@@ -73,6 +73,17 @@ test_that("has_group() stops non valid input", {
     cache_file_test$terminate()
 })
 
+# list_groups tests ----------------------------------------------------
+test_that("list_groups() works",{
+    cache_file_test <- cache_file(cache_dir)
+    cache_file_test$add_group(fn_group)
+    expected_value <- as.character(
+        fs::dir_ls(cache_file_test$cache_dir, type = "directory"))
+    
+    expect_equal(cache_file_test$list_groups(), expected_value)
+    
+    cache_file_test$terminate()
+})
 
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
@@ -106,7 +117,7 @@ test_that("delete_group() works with non existent group", {
 
 test_that("delete_group() stops with non valid input", {
     
-    cache_file_test <- cache_memory()
+    cache_file_test <- cache_file(cache_dir)
     
     expect_error(
         cache_file_test$delete_group(NULL))
@@ -139,7 +150,7 @@ test_that("forget_group() works", {
 
 
 test_that("forget_group() stops with non valid input", {
-    cache_file_test <- cache_memory()
+    cache_file_test <- cache_file(cache_dir)
     cache_file_test$add_data(fn_group, "key", "value")
     
     expect_error(
@@ -182,7 +193,7 @@ test_that("list_keys() works", {
 
 test_that("list_keys() works with non-existent group", {
     
-    cache_file_test <- cache_memory()
+    cache_file_test <- cache_file(cache_dir)
     cache_file_test$add_data(fn_group, "key", "value")
     cache_file_test$add_data(fn_group, "key1", "value1")
     

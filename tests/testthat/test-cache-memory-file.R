@@ -36,6 +36,21 @@ test_that("has_group() works", {
     cache_fmem_test$terminate()
 })
 
+# list_groups tests ----------------------------------------------------
+test_that("list_groups() works",{
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_fmem_test$add_group(fn_group)
+    
+    in_memory <- as.character(ls.str(pos = cache_fmem_test$cache_env, all.names = TRUE))
+    on_disk <- as.character(fs::dir_ls(cache_fmem_test$cache_dir, type = "directory"))
+ 
+    expected_value <- c(in_memory, on_disk %if_not_in% in_memory)
+    
+    expect_equal(cache_fmem_test$list_groups(), expected_value)
+    
+    cache_fmem_test$terminate()
+})
+
 
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {

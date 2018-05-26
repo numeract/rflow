@@ -66,6 +66,19 @@ test_that("has_group() stops non valid input", {
 })
 
 
+# list_groups tests ----------------------------------------------------
+test_that("list_groups() works",{
+    cache_memory_test <- cache_memory()
+    cache_memory_test$add_group(fn_group)
+    expected_value <- as.character(
+        ls.str(pos = cache_memory_test$cache_env, all.names = TRUE))
+    
+    expect_equal(cache_memory_test$list_groups(), expected_value)
+    
+    cache_memory_test$terminate()
+})
+
+
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
     
