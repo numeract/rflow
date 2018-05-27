@@ -42,15 +42,19 @@ test_that("list_groups() works",{
     cache_fmem_test <- cache_memory_file(cache_dir)
     cache_fmem_test$add_group(fn_group)
     
-    in_memory <- as.character(ls.str(pos = cache_fmem_test$cache_env, all.names = TRUE))
-    on_disk <- as.character(fs::dir_ls(cache_fmem_test$cache_dir, type = "directory"))
- 
-    expected_value <- c(in_memory, on_disk %if_not_in% in_memory)
-    
-    expect_equal(cache_fmem_test$list_groups(), expected_value)
+    expect_equal(cache_fmem_test$list_groups(), fn_group)
     
     cache_fmem_test$terminate()
 })
+
+test_that("list_groups() works with no group",{
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    
+    expect_equal(cache_fmem_test$list_groups(), character())
+    
+    cache_fmem_test$terminate()
+})
+
 
 
 # delete_group tests ----------------------------------------------------
@@ -383,20 +387,76 @@ test_that("delete_data() works with non-existent key", {
 })
 
 
-# summary tests 
-# 
-# test_that("summary() works", {
-#     
-#     cache_fmem_test <- cache_memory_file(cache_dir)
-#     cache_group_dir <- fs::path(cache_dir, fn_group)
-#     
-#     cache_fmem_test$add_data(fn_group, "key", "value")
-#     cache_fmem_test$add_data(fn_group, "key2", "value2")
-#     cache_fmem_test$add_data("a_group", "key3", "value3")
-#     
-#     
-#     cache_fmem_test$terminate()
-# })
+# summary tests ---------------------------------------------------
+test_that("summary() works", {
+
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+
+    cache_fmem_test$add_data(fn_group, "key", "value")
+    cache_fmem_test$add_data(fn_group, "key2", "value2")
+    cache_fmem_test$add_data("a_group", "key3", "value3")
+    kv_lst <- base::get(
+        fn_group, envir = cache_fmem_test$cache_env, inherits = FALSE)
+    kv_lst[["key"]] <- NULL
+    base::assign(fn_group, value = kv_lst, pos = cache_fmem_test$cache_env)
+
+    groups <- c("a_group", fn_group)
+    in_memory <- c(1L, 1L)
+    on_disk <- c(1L, 2L)
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        in_memory = in_memory,
+        on_disk = on_disk)
+    
+    expect_equal(cache_fmem_test$summary(), expected_output)
+    
+    cache_fmem_test$terminate()
+})
+
+
+test_that("summary() works with no file cache", {
+    
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+    
+    cache_fmem_test$add_data(fn_group, "key", "value")
+    fs::dir_delete(cache_group_dir)
+    
+    groups <- c(fn_group)
+    in_memory <- c(1L)
+    on_disk <- c(0L)
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        in_memory = in_memory,
+        on_disk = on_disk)
+    
+    expect_equal(cache_fmem_test$summary(), expected_output)
+    
+    cache_fmem_test$terminate()
+})
+
+
+test_that("summary() works with no data", {
+    
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    
+    groups <- character()
+    in_memory <- integer()
+    on_disk <- integer()
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        in_memory = in_memory,
+        on_disk = on_disk)
+    
+    expect_equal(cache_fmem_test$summary(), expected_output)
+    
+    cache_fmem_test$terminate()
+})
+
 
 # reset tests -----------------------------------------------------------------
 test_that("reset() works", {

@@ -39,7 +39,8 @@ R6CacheMemoryFile$set("public", "list_groups", function() {
     # error if cache_env not an environment
     in_memory <- as.character(ls.str(pos = self$cache_env, all.names = TRUE))
     # error if cache_dir does not exist
-    on_disk <- as.character(fs::dir_ls(self$cache_dir, type = "directory"))
+    on_disk <- as.character(
+        fs::path_file(fs::dir_ls(self$cache_dir, type = "directory")))
     
     # unique groups, in memory groups listed first
     groups <- c(in_memory, on_disk %if_not_in% in_memory)
