@@ -16,25 +16,6 @@ test_that("add_group() works", {
 })
 
 
-
-test_that("add_group() stops with non valid input", {
-    
-    cache_file_test <- cache_file(cache_dir)
-    expect_error(cache_file_test$add_group(NULL))
-    expect_error(cache_file_test$add_group(NA))
-    expect_error(cache_file_test$add_group(character()))
-    expect_error(
-        cache_file_test$add_group(c("a_group", "b_group")))
-    expect_error(
-        cache_file_test$add_group(c("a_group", NA_character_)))
-    expect_error(
-        cache_file_test$add_group(c(NA_character_, "b_group")))
-    expect_error(
-        cache_file_test$add_group(c(NA_character_, NA_character_)))
-    cache_file_test$terminate()
-})
-
-
 # has_group tests ----------------------------------------------------
 test_that("has_group() works", {
 
@@ -51,27 +32,6 @@ test_that("has_group() works", {
     cache_file_test$terminate()
 })
 
-
-test_that("has_group() stops non valid input", {
-    
-    cache_file_test <- cache_file(cache_dir)
-    cache_file_test$add_group(fn_group)
-    
-    expect_error(cache_file_test$has_group(NULL))
-    expect_error(cache_file_test$has_group(NA))
-    expect_error(cache_file_test$has_group(character()))
-    expect_error(
-        cache_file_test$has_group(c(fn_group, "b_group")))
-    expect_error(
-        cache_file_test$has_group(c(NA, NA)))
-    expect_error(
-        cache_file_test$has_group(c(NA, "b_group")))
-    expect_error(
-        cache_file_test$has_group(c("a_group", NA)))
-    
-    
-    cache_file_test$terminate()
-})
 
 # list_groups tests ----------------------------------------------------
 test_that("list_groups() works",{
@@ -115,23 +75,6 @@ test_that("delete_group() works with non existent group", {
 })
 
 
-test_that("delete_group() stops with non valid input", {
-    
-    cache_file_test <- cache_file(cache_dir)
-    
-    expect_error(
-        cache_file_test$delete_group(NULL))
-    expect_error(
-        cache_file_test$delete_group(NA))
-    expect_error(
-        cache_file_test$delete_group(character()))
-    expect_error(
-        cache_file_test$delete_group(c(fn_group,"a_group")))
-    
-    cache_file_test$terminate()
-})
-
-
 # forget_group tests ----------------------------------------------------
 test_that("forget_group() works", {
     cache_file_test <- cache_file(cache_dir)
@@ -145,31 +88,6 @@ test_that("forget_group() works", {
         character())
     expect_equal(length(fs::dir_ls(cache_group_dir)), 0)
 
-    cache_file_test$terminate()
-})
-
-
-test_that("forget_group() stops with non valid input", {
-    cache_file_test <- cache_file(cache_dir)
-    cache_file_test$add_data(fn_group, "key", "value")
-    
-    expect_error(
-        cache_file_test$forget_group(NULL))
-    expect_error(
-        cache_file_test$forget_group(NA))
-    expect_error(
-        cache_file_test$forget_group(c(NA, NA)))
-    expect_error(
-        cache_file_test$forget_group(c()))
-    expect_error(
-        cache_file_test$forget_group(c(fn_group, "a_group")))
-    expect_error(
-        cache_file_test$forget_group(c(NA, "a_group")))
-    expect_error(
-        cache_file_test$forget_group(c(fn_group, NA)))
-    expect_error(
-        cache_file_test$forget_group(character()))
-    
     cache_file_test$terminate()
 })
 
