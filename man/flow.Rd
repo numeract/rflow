@@ -10,8 +10,9 @@ flow(fn_call, fn_id = NULL, flow_options = get_flow_options())
 \item{fn_call}{Function call to be processed.}
 
 \item{fn_id}{Optional id to uniquely identify the function. By default,
-rflow functions do not allow re-caching of the same function. The id allows
-you to indicate either to reuse the old cache or create a new one.}
+rflow functions reuse the cache if the same function is given. The id 
+allows the user to suppress console messages and to
+indicate whether to reuse the old cache or create a new one.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.}
 }

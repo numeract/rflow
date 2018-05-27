@@ -27,8 +27,9 @@ make_fn_key <- function(fn, fn_id, flow_options) {
 #' 
 #' @param fn Function to be cached, ideally a pure function.
 #' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions do not allow re-caching of the same function. The id allows
-#'   you to indicate either to reuse the old cache or create a new one.
+#'   rflow functions reuse the cache if the same function is given. The id 
+#'   allows the user to suppress console messages and to
+#'   indicate whether to reuse the old cache or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The cached version of the function.
@@ -60,20 +61,47 @@ flow_fn <- function(fn,
     } else {
         rlang::abort("Anonymous functions not supported.")
     }
-    fn_key <- make_fn_key(fn, fn_id, flow_options)
     
-    if (eddy$has_flow(fn_key)) {
-        if (is.null(fn_id)) {
-            rlang::abort(paste(
-                "Function", fn_name, "already present in eddy.",
-                "To reuse it, please supply `fn_id`.")
-            )
-        } else {
-            # the R6Flow obj exists in eddy, re-use it since fn_id was given
+    fn_key <- make_fn_key(fn, fn_id, flow_options)
+    fn_names <- purrr::map_chr(eddy$flow_lst, "fn_name")
+    if (fn_name %in% fn_names) {
+        if (eddy$has_flow(fn_key)) {
+            # the R6Flow obj exists ==> re-use it; message if no fn_id
+            if (is.null(fn_id)) {
+                rlang::inform(paste("Reusing cache for function", fn_name))
+            }
             flow <- eddy$get_flow(fn_key)
+        } else {
+            # obj does not exist but same fn_name ==> new; message if no fn_id
+            if (is.null(fn_id)) {
+                rlang::inform(paste(
+                    "Function", fn_name, "exists with different options,",
+                    "creating a new cache."))
+                fn_ids <- eddy$flow_lst %>%
+                    purrr::keep(~ .$fn_name == fn_name) %>%
+                    purrr::keep(~ rlang::is_integerish(.$fn_id)) %>%
+                    purrr::map_int("fn_id")
+                if (length(fn_ids) > 0L) {
+                    fn_id <- as.integer(max(fn_ids) + 1)
+                } else {
+                    fn_id <- 1L
+                }
+                fn_key <- make_fn_key(fn, fn_id, flow_options)
+            }
+            flow <- R6Flow$new(
+                fn = fn,
+                fn_key = fn_key,
+                fn_name = fn_name,
+                fn_id = fn_id %||% 1L,
+                flow_options = flow_options
+            )
         }
     } else {
-        # obj does not exists in eddy, but there might be data in cache
+        if (eddy$has_flow(fn_key)) {
+            rlang::inform(paste(
+                "A cache for a function with the same signature but a", 
+                "different name already exists, creating a new cache."))
+        }
         flow <- R6Flow$new(
             fn = fn,
             fn_key = fn_key,
@@ -91,8 +119,9 @@ flow_fn <- function(fn,
 #' 
 #' @param fn_call Function call to be processed.
 #' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions do not allow re-caching of the same function. The id allows
-#'   you to indicate either to reuse the old cache or create a new one.
+#'   rflow functions reuse the cache if the same function is given. The id 
+#'   allows the user to suppress console messages and to
+#'   indicate whether to reuse the old cache or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The cached version of the function.
@@ -126,19 +155,47 @@ flow <- function(fn_call,
     } else {
         rlang::abort("Anonymous functions not supported.")
     }
-    fn_key <- make_fn_key(fn, fn_id, flow_options)
     
-    if (eddy$has_flow(fn_key)) {
-        if (is.null(fn_id)) {
-            rlang::abort(paste(
-                "Function", fn_name, "already present in eddy.",
-                "To reuse it, please supply `fn_id`.")
-            )
-        } else {
-            # the R6Flow obj exists in eddy, re-use it since fn_id was given
+    fn_key <- make_fn_key(fn, fn_id, flow_options)
+    fn_names <- purrr::map_chr(eddy$flow_lst, "fn_name")
+    if (fn_name %in% fn_names) {
+        if (eddy$has_flow(fn_key)) {
+            # the R6Flow obj exists ==> re-use it; message if no fn_id
+            if (is.null(fn_id)) {
+                rlang::inform(paste("Reusing cache for function", fn_name))
+            }
             flow <- eddy$get_flow(fn_key)
+        } else {
+            # obj does not exist but same fn_name ==> new; message if no fn_id
+            if (is.null(fn_id)) {
+                rlang::inform(paste(
+                    "Function", fn_name, "exists with different options,",
+                    "creating a new cache."))
+                fn_ids <- eddy$flow_lst %>%
+                    purrr::keep(~ .$fn_name == fn_name) %>%
+                    purrr::keep(~ rlang::is_integerish(.$fn_id)) %>%
+                    purrr::map_int("fn_id")
+                if (length(fn_ids) > 0L) {
+                    fn_id <- as.integer(max(fn_ids) + 1)
+                } else {
+                    fn_id <- 1L
+                }
+                fn_key <- make_fn_key(fn, fn_id, flow_options)
+            }
+            flow <- R6Flow$new(
+                fn = fn,
+                fn_key = fn_key,
+                fn_name = fn_name,
+                fn_id = fn_id %||% 1L,
+                flow_options = flow_options
+            )
         }
     } else {
+        if (eddy$has_flow(fn_key)) {
+            rlang::inform(paste(
+                "A cache for a function with the same signature but different",
+                "name already exists, creating a new cache."))
+        }
         flow <- R6Flow$new(
             fn = fn,
             fn_key = fn_key,
