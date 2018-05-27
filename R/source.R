@@ -1,7 +1,10 @@
-# functions to indicate data sources for rflow (monitor for changes, etc.)
+# functions to indicate data sources (other than R variables)
 
 
 # !diagnostics suppress=.
+
+
+# flow_source <- function(fn)
 
 
 #' Cache a function - TODO.

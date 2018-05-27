@@ -233,29 +233,32 @@ NULL
 
 
 parse_flow_options <- function(excluded_arg,
-                                source_file_arg,
-                                eval_arg_fn = NULL,
-                                split_bare_list,
-                                split_dataframe,
-                                split_fn,
-                                eddy = NULL
+                               source_file_arg,
+                               eval_arg_fn = NULL,
+                               split_bare_list,
+                               split_dataframe,
+                               split_fn,
+                               eddy = NULL
 ) {
     allow_null <- !is.null(eddy)
     stopifnot(
         (allow_null && is.null(excluded_arg)) || 
-        !is.na(excluded_arg) ||
         is.character(excluded_arg))
     stopifnot(
         (allow_null && is.null(source_file_arg)) || 
         is.character(source_file_arg) || rlang::is_integerish(source_file_arg))
-    stopifnot(is.null(eval_arg_fn) || is.function(eval_arg_fn))
+    stopifnot(
+        is.null(eval_arg_fn) || 
+        is.function(eval_arg_fn))
     stopifnot(
         (allow_null && is.null(split_bare_list)) || 
         rlang::is_true(split_bare_list) || rlang::is_false(split_bare_list))
     stopifnot(
         (allow_null && is.null(split_dataframe)) || 
         rlang::is_true(split_dataframe) || rlang::is_false(split_dataframe))
-    stopifnot(is.null(split_fn) || is.function(split_fn))
+    stopifnot(
+        is.null(split_fn) || 
+        is.function(split_fn))
     stopifnot(is.null(eddy) || inherits(eddy, "R6Eddy"))
     
     if (is.null(eddy)) {
@@ -268,7 +271,7 @@ parse_flow_options <- function(excluded_arg,
     list(
         excluded_arg = excluded_arg %||% rfo$excluded_arg,
         source_file_arg = source_file_arg %||% rfo$source_file_arg,
-        eval_arg_fn = eval_arg_fn %||% rfo$eval_arg_fn,
+        eval_arg_fn = eval_arg_fn,
         split_bare_list = split_bare_list %||% rfo$split_bare_list,
         split_dataframe = split_dataframe %||% rfo$split_dataframe,
         split_fn = split_fn %||% rfo$split_fn
@@ -282,10 +285,10 @@ parse_flow_options <- function(excluded_arg,
 #' 
 #' @export
 default_flow_options <- function(excluded_arg = character(),
-                                  source_file_arg = 1,
-                                  split_bare_list = TRUE,
-                                  split_dataframe = FALSE,
-                                  split_fn = NULL
+                                 source_file_arg = 1,
+                                 split_bare_list = TRUE,
+                                 split_dataframe = FALSE,
+                                 split_fn = NULL
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
     .args["eval_arg_fn"] <- list(NULL)
@@ -305,11 +308,11 @@ default_flow_options <- function(excluded_arg = character(),
 #' 
 #' @export
 set_flow_options <- function(excluded_arg = NULL,
-                              source_file_arg = NULL,
-                              split_bare_list = NULL,
-                              split_dataframe = NULL,
-                              split_fn = NULL,
-                              eddy = get_current_eddy()
+                             source_file_arg = NULL,
+                             split_bare_list = NULL,
+                             split_dataframe = NULL,
+                             split_fn = NULL,
+                             eddy = get_current_eddy()
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
     .args["eval_arg_fn"] <- list(NULL)
@@ -320,18 +323,19 @@ set_flow_options <- function(excluded_arg = NULL,
 }
 
 
-#' @return For \code{get_flow_options}, a list of options including the eddy.
+#' @return For \code{get_flow_options} and \code{gfo}, a list of options 
+#' including the eddy. \code{gfo} is just an alias of \code{get_flow_options}.
 #' 
 #' @rdname flow_options
 #' 
 #' @export
 get_flow_options <- function(excluded_arg = NULL,
-                              source_file_arg = NULL,
-                              eval_arg_fn = NULL,
-                              split_bare_list = NULL,
-                              split_dataframe = NULL,
-                              split_fn = NULL,
-                              eddy = get_current_eddy()
+                             source_file_arg = NULL,
+                             eval_arg_fn = NULL,
+                             split_bare_list = NULL,
+                             split_dataframe = NULL,
+                             split_fn = NULL,
+                             eddy = get_current_eddy()
 ) {
     .args <- mget(names(formals()), sys.frame(sys.nframe()))
     rfo <- do.call(parse_flow_options, .args)
@@ -339,3 +343,9 @@ get_flow_options <- function(excluded_arg = NULL,
     
     rfo
 }
+
+
+#' @rdname flow_options
+#' 
+#' @export
+gfo <- get_flow_options

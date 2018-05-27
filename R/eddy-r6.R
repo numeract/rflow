@@ -213,10 +213,12 @@ R6Eddy$set("public", "print", function() {
     cache_df <- self$cache$summary()
     df <- tibble::tibble(
         fn_name = purrr::map_chr(self$flow_lst, "fn_name"),
+        fn_id = purrr::map_chr(self$flow_lst, "fn_id"),
         fn_key = as.character(names(self$flow_lst)),
         class = purrr::map_chr(self$flow_lst, ~ class(.)[[1L]]),
         n_states = purrr::map_int(self$flow_lst, ~ NROW(.$state))
     ) %>%
+        dplyr::arrange(fn_name, fn_id) %>%
         dplyr::left_join(cache_df, by = "fn_key")
     
     rfo <- self$flow_options

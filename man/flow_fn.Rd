@@ -4,10 +4,14 @@
 \alias{flow_fn}
 \title{Explicit cache of a function.}
 \usage{
-flow_fn(fn, flow_options = get_flow_options())
+flow_fn(fn, fn_id = NULL, flow_options = get_flow_options())
 }
 \arguments{
 \item{fn}{Function to be cached, ideally a pure function.}
+
+\item{fn_id}{Optional id to uniquely identify the function. By default,
+rflow functions do not allow re-caching of the same function. The id allows
+you to indicate either to reuse the old cache or create a new one.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.}
 }

@@ -4,6 +4,7 @@
 # !diagnostics suppress=., self, private
 
 
+# nocov start
 R6Cache <- R6::R6Class(
     classname = "R6Cache",
     public = list(
@@ -32,7 +33,6 @@ R6Cache <- R6::R6Class(
 
 
 # print ----
-# nocov start
 R6Cache$set("public", "print", function() {
     
     df <- self$summary()

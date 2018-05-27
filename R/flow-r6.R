@@ -16,6 +16,7 @@ R6Flow <- R6::R6Class(
         # original function name, mostly for debug purposes
         fn_name = character(),
         # from flow_options
+        fn_id = NULL,
         excluded_arg = character(),
         eval_arg_fn = NULL,
         split_bare_list = TRUE,
@@ -38,6 +39,7 @@ R6Flow <- R6::R6Class(
         initialize = function(fn,
                               fn_key,
                               fn_name,
+                              fn_id,
                               flow_options = get_flow_options()) {},
         # state
         which_state = function(in_hash) {},
@@ -197,6 +199,7 @@ R6Flow$set("public", "initialize", function(
         fn,
         fn_key,
         fn_name,
+        fn_id,
         flow_options = get_flow_options()
 ) {
     stopifnot(is.function(fn))
@@ -212,6 +215,7 @@ R6Flow$set("public", "initialize", function(
     self$fn <- fn
     self$fn_key <- fn_key
     self$fn_name <- fn_name
+    self$fn_id <- fn_id
     self$excluded_arg <- flow_options$excluded_arg
     self$eval_arg_fn <- flow_options$eval_arg_fn
     self$split_bare_list <- flow_options$split_bare_list
@@ -706,7 +710,8 @@ R6Flow$set("public", "save", function() {
 R6Flow$set("public", "print", function() {
     
     emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
-    cat(emph_obj, "for function", crayon::bold(self$fn_name), "\n",
+    fn_name <- paste(crayon::bold(self$fn_name), "/", self$fn_id)
+    cat(emph_obj, "for function", fn_name, "\n",
         " - number of states:", nrow(self$state), "\n",
         " - current state index:", self$state_index, "\n",
         " - is_current:", self$is_current, "\n",
@@ -724,7 +729,7 @@ print.Element <- function(x, ...) {
     
     emph_obj1 <- paste0("<", crayon::italic("Element"), ">")
     emph_obj2 <- paste0("<", crayon::italic(class(x$self)[[1L]]), ">")
-    fn_name <- crayon::bold(x$self$fn_name)
+    fn_name <- paste(crayon::bold(x$self$fn_name), "/", x$self$fn_id)
     cat(emph_obj1, "of", emph_obj2, "for function", fn_name, "\n",
         " - elem_name:", x$elem_name %||% "<full result>", "\n",
         " - elem_hash:", x$elem_hash, "\n",
