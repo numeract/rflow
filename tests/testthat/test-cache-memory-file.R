@@ -36,6 +36,7 @@ test_that("has_group() works", {
     cache_fmem_test$terminate()
 })
 
+
 # list_groups tests ----------------------------------------------------
 test_that("list_groups() works",{
     cache_fmem_test <- cache_memory_file(cache_dir)
@@ -195,7 +196,7 @@ test_that("get_data() works with empty memory", {
     kv_lst <- base::get(
         fn_group, envir = cache_fmem_test$cache_env, inherits = FALSE)
     kv_lst[["key"]] <- NULL
-    
+    base::assign(fn_group, value = kv_lst, pos = cache_fmem_test$cache_env)
     expect_true(
         fs::file_exists(fs::path(cache_group_dir, "key")))
     
@@ -203,6 +204,43 @@ test_that("get_data() works with empty memory", {
     
     cache_fmem_test$terminate()
 })
+
+
+test_that("get_data() works with empty memory and no file", {
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+    
+    cache_fmem_test$add_data(fn_group, "key", "value")
+    
+    kv_lst <- base::get(
+        fn_group, envir = cache_fmem_test$cache_env, inherits = FALSE)
+    kv_lst[["key"]] <- NULL
+    base::assign(fn_group, value = kv_lst, pos = cache_fmem_test$cache_env)
+    
+    fs::file_delete(fs::path(cache_group_dir, "key"))
+    
+    expect_error(cache_fmem_test$get_data(fn_group, "key"))
+    
+    cache_fmem_test$terminate()
+})
+
+
+test_that("get_data() works with empty memory and NULL value", {
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+    
+    cache_fmem_test$add_data(fn_group, "key", NULL)
+    
+    kv_lst <- base::get(
+        fn_group, envir = cache_fmem_test$cache_env, inherits = FALSE)
+    kv_lst[["key"]] <- NULL
+    base::assign(fn_group, value = kv_lst, pos = cache_fmem_test$cache_env)
+    
+    expect_silent(cache_fmem_test$get_data(fn_group, "key"))
+    
+    cache_fmem_test$terminate()
+})
+
 
 
 test_that("get_data() stops with non-existent group", {
@@ -344,6 +382,21 @@ test_that("delete_data() works with non-existent key", {
     cache_fmem_test$terminate()
 })
 
+
+# summary tests 
+# 
+# test_that("summary() works", {
+#     
+#     cache_fmem_test <- cache_memory_file(cache_dir)
+#     cache_group_dir <- fs::path(cache_dir, fn_group)
+#     
+#     cache_fmem_test$add_data(fn_group, "key", "value")
+#     cache_fmem_test$add_data(fn_group, "key2", "value2")
+#     cache_fmem_test$add_data("a_group", "key3", "value3")
+#     
+#     
+#     cache_fmem_test$terminate()
+# })
 
 # reset tests -----------------------------------------------------------------
 test_that("reset() works", {
