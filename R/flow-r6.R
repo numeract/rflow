@@ -572,24 +572,43 @@ R6Flow$set("public", "compute", function() {
         self$split_bare_list && rlang::is_bare_list(out_data$value)
     split_dataframe <- self$split_dataframe && is.data.frame(out_data$value)
     if (split_using_fn || split_bare_list || split_dataframe) {
+        abort_split <- FALSE
         if (split_using_fn) {
             out_lst <- self$split_fn(out_data$value)
-            if (!is.list(out_lst) || !rlang::is_named(out_lst)) {
-                rlang::abort("split_fn() must return a named list")
+            if (!rlang::is_dictionaryish(out_lst)) {
+                rlang::warn(paste(
+                    "Cannot create flow elements,",
+                    "`split_fn` must return a list with unique names."))
+                abort_split <- TRUE
             }
         } else if (split_bare_list) {
             out_lst <- out_data$value
+            if (!rlang::is_dictionaryish(out_lst)) {
+                rlang::inform(paste(
+                    "Cannot create flow elements,",
+                    "the returned list must have unique names."))
+                abort_split <- TRUE
+            }
         } else {
             out_lst <- as.list(out_data$value)
+            if (!rlang::is_dictionaryish(out_lst)) {
+                rlang::inform(paste(
+                    "Cannot create flow elements,",
+                    "the returned data frame must have unique names."))
+                abort_split <- TRUE
+            }
         }
-        for (elem_name in names(out_lst)) {
-            # reconstruct the withVisible list for each element
-            vis_elem_lst <- list(
-                value = out_lst[[elem_name]],
-                visible = out_data$visible
-            )
-            elem_hash <- self$eddy$digest(vis_elem_lst)
-            self$add_state_output(out_hash, elem_name, elem_hash, vis_elem_lst)
+        if (!abort_split) {
+            for (elem_name in names(out_lst)) {
+                # reconstruct the withVisible list for each element
+                vis_elem_lst <- list(
+                    value = out_lst[[elem_name]],
+                    visible = out_data$visible
+                )
+                elem_hash <- self$eddy$digest(vis_elem_lst)
+                self$add_state_output(
+                    out_hash, elem_name, elem_hash, vis_elem_lst)
+            }
         }
     }
     

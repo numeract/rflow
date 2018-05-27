@@ -41,8 +41,9 @@ parse_call <- function(pos = 2L) {
             unmatched_fn_call <- parent_call[[3L]]
             parent <- parent.frame()
             unmatched_fn_call[[2L]] <- parent[["fn_call"]]
-            parent[["fn_id"]] <- parent[["flow_options"]]
-            parent[["flow_options"]] <- get_flow_options()
+            # TODO: %>% still does not work
+            # parent[["fn_id"]] <- parent[["flow_options"]]
+            # parent[["flow_options"]] <- get_flow_options()
         } else {
             rlang::abort("The first argument must be a function call.")
         }
