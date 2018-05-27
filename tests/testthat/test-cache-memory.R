@@ -204,6 +204,44 @@ test_that("delete_data() works with non-existent key", {
     cache_memory_test$terminate()
 })
 
+# summary tests ---------------------------------------------------
+test_that("summary() works", {
+    
+    cache_memory_test <- cache_memory()
+    
+    cache_memory_test$add_data(fn_group, "key", "value")
+    cache_memory_test$add_data(fn_group, "key2", "value2")
+    cache_memory_test$add_data("a_group", "key3", "value3")
+    
+    groups <- c("a_group", fn_group)
+    in_memory <- c(1L, 2L)
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        in_memory = in_memory)
+    
+    expect_equal(cache_memory_test$summary(), expected_output)
+    
+    cache_memory_test$terminate()
+})
+
+
+test_that("summary() works with no data", {
+    
+    cache_memory_test <- cache_memory()
+    
+    groups <- character()
+    in_memory <- integer()
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        in_memory = in_memory)
+    
+    expect_equal(cache_memory_test$summary(), expected_output)
+    
+    cache_memory_test$terminate()
+})
+
 
 # reset tests -----------------------------------------------------------------
 test_that("reset() works", {
