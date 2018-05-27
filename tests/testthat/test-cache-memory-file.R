@@ -56,7 +56,6 @@ test_that("list_groups() works with no group",{
 })
 
 
-
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
     

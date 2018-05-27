@@ -34,7 +34,9 @@ R6CacheFile$set("public", "initialize", function(cache_dir) {
 R6CacheFile$set("public", "list_groups", function() {
     
     # error if cache_dir does not exist
-    as.character(fs::dir_ls(self$cache_dir, type = "directory"))
+    as.character(
+        fs::path_file(fs::dir_ls(self$cache_dir, type = "directory")))
+    
 }, overwrite = TRUE)
 
 

@@ -37,13 +37,21 @@ test_that("has_group() works", {
 test_that("list_groups() works",{
     cache_file_test <- cache_file(cache_dir)
     cache_file_test$add_group(fn_group)
-    expected_value <- as.character(
-        fs::dir_ls(cache_file_test$cache_dir, type = "directory"))
     
-    expect_equal(cache_file_test$list_groups(), expected_value)
+    expect_equal(cache_file_test$list_groups(), fn_group)
     
     cache_file_test$terminate()
 })
+
+test_that("list_groups() works with no group",{
+    cache_file_test <- cache_file(cache_dir)
+    
+    expect_equal(cache_file_test$list_groups(), character())
+    
+    cache_file_test$terminate()
+})
+
+
 
 # delete_group tests ----------------------------------------------------
 test_that("delete_group() works", {
@@ -286,6 +294,46 @@ test_that("delete_data() works with non-existent key", {
     expect_false(
         fs::file_exists(fs::path(cache_group_dir, "key3")))
 
+    cache_file_test$terminate()
+})
+
+
+# summary tests ---------------------------------------------------
+test_that("summary() works", {
+    
+    cache_file_test <- cache_file(cache_dir)
+    cache_group_dir <- fs::path(cache_dir, fn_group)
+    
+    cache_file_test$add_data(fn_group, "key", "value")
+    cache_file_test$add_data(fn_group, "key2", "value2")
+    cache_file_test$add_data("a_group", "key3", "value3")
+  
+    groups <- c("a_group", fn_group)
+    on_disk <- c(1L, 2L)
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        on_disk = on_disk)
+    
+    expect_equal(cache_file_test$summary(), expected_output)
+    
+    cache_file_test$terminate()
+})
+
+
+test_that("summary() works with no data", {
+    
+    cache_file_test <- cache_file(cache_dir)
+    
+    groups <- character()
+    on_disk <- integer()
+    
+    expected_output <- tibble::tibble(
+        fn_key = groups,
+        on_disk = on_disk)
+    
+    expect_equal(cache_file_test$summary(), expected_output)
+    
     cache_file_test$terminate()
 })
 
