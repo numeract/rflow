@@ -15,6 +15,15 @@ test_that("flow_fn() works", {
     
 })
 
+test_that("flow_fn() works with cache re-use", {
+    
+    test_flow_fn <- flow_fn(test_fn) 
+    rflow_test <- test_flow_fn(2, 3)
+    expect_message(
+        test_flow_fn2 <- flow_fn(test_fn), "Reusing cache for function test_fn")
+    forget(rflow_test)
+    
+})
 
 test_that("flow_fn() stops with primitives", {
     expect_error(test_flow_fn <- flow_fn(sum)) 
@@ -69,10 +78,9 @@ test_that("flow_fn() works with integer fn_id", {
 
 test_that("flow_fn() works with non valid id", {
     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = NA))
-    
-    # Shouldn't return an error?
-    # expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = NA_character_))
-    # expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = NA_integer_))
+
+    expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = NA_character_))
+    expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = NA_integer_))
     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = character()))
     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = c("a", "b")))
     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = c(1, 2)))
@@ -83,8 +91,61 @@ test_that("flow_fn() works with non valid id", {
 })
 
 
-# test flow 
+test_that("flow_fn() works with options", {
+    flow_options <- get_flow_options(split_dataframe = TRUE)
+    test_flow_fn <-
+        flow_fn(test_fn, fn_id = 1, flow_options = flow_options)
+
+    rflow_test <- test_flow_fn(2, 3)
+    collected_result <- rflow_test %>% collect()
+    expect_equal(collected_result, 5)
+    forget(rflow_test)
+})
+
+
+test_that("flow_fn() works with different options", {
+    test_flow_fn <-
+        flow_fn(test_fn, fn_id = 1)
+    flow_options <- get_flow_options(split_dataframe = TRUE)
+    test_fn <- function(x, y) {x*y}
+    expect_message(
+        test_flow_fn <- flow_fn(test_fn, flow_options = flow_options), 
+        "Function test_fn exists with different options, creating a new cache.")
+    
+    rflow_test <- test_flow_fn(2, 3)
+    collected_result <- rflow_test %>% collect()
+    expect_equal(collected_result, 6)
+    expect_equal(rflow_test$fn_id, 2L)
+    forget(rflow_test)
+})
+
+
+# test_that("flow_fn() works with different options, no id", {
+#     
+#     test_flow_fn <- flow_fn(test_fn)
+#     rflow_test <- test_flow_fn(2, 3)
+#    
+#     
+#     flow_options <- get_flow_options(split_dataframe = TRUE)
+#     
+#     test_fn <- function(x, y) {x*y}
+#     
+#     expect_message(
+#         test_flow_fn <- flow_fn(test_fn, flow_options = flow_options), 
+#         "Function test_fn exists with different options, creating a new cache.")
+#     
+#     rflow_test <- test_flow_fn(2, 3)
+#    
+#     collected_result <- rflow_test %>% collect()
+#     expect_equal(collected_result, 6)
+#     expect_equal(rflow_test$fn_id, 1L)
+#     forget(rflow_test)
+# })
+
+
+#test flow
 # test_that("flow() works", {
+#     test_fn <- function(x, y) { x + y }
 #     test_flow_fn <- flow(test_fn(x = 1, y = 2))
 #     #collected_result <- test_flow_fn %>% collect()
 #     expect_true(TRUE)
