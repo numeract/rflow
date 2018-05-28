@@ -2,9 +2,15 @@
 context("Flow functions tests")
 
 # test flow_fn -----------------------------------------------------------------
-test_fn <- function(x, y) { x + y }
-test_fn2 <- function(x, y) { x * y }
-test_fn3 <- function(x) {x}
+
+setup({
+    test_fn <- function(x, y) { x + y }
+    test_fn2 <- function(x, y) { x * y }
+    test_fn3 <- function(x) {x}
+    assign("test_fn", test_fn, envir = .GlobalEnv)
+    assign("test_fn2", test_fn2, envir = .GlobalEnv)
+    assign("test_fn3", test_fn3, envir = .GlobalEnv)
+})
 
 test_that("flow_fn() works", {
     test_flow_fn <- flow_fn(test_fn) 
@@ -143,13 +149,11 @@ test_that("flow_fn() works with different options", {
 # })
 
 
-#test flow
-# test_that("flow() works", {
-#     test_fn <- function(x, y) { x + y }
-#     test_flow_fn <- flow(test_fn(x = 1, y = 2))
-#     #collected_result <- test_flow_fn %>% collect()
-#     expect_true(TRUE)
-# })
+test_that("flow() works", {
+    test_flow_fn <- flow(test_fn(x = 1, y = 2))
+    collected_result <- test_flow_fn %>% collect()
+    expect_equal(collected_result, 3)
+})
 
 
 test_that("flow() stops with primitives", {
@@ -175,7 +179,7 @@ test_that("flow() stops with non function argument", {
 
 # test_that("flow() works with character fn_id", {
 #     test_flow <-
-#         flow_fn(test_fn(1, 2), fn_id = "id1")
+#         flow(test_fn(1, 2), fn_id = "id1")
 # 
 #     collected_result <- test_flow %>% collect()
 #     expect_equal(collected_result, 5)
@@ -216,3 +220,9 @@ test_that("flow() stops with non function argument", {
 #     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = Inf))
 #     expect_error(test_flow_fn <- flow_fn(test_fn, fn_id = -Inf))
 # })
+
+teardown({
+    base::rm(list = "test_fn", envir = .GlobalEnv)
+    base::rm(list = "test_fn2", envir = .GlobalEnv)
+    base::rm(list = "test_fn3", envir = .GlobalEnv)
+})
