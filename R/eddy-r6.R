@@ -275,14 +275,35 @@ R6Eddy$set("public", "terminate", function() {
 # digest ----
 R6Eddy$set("public", "digest", function(object, is_file_path = FALSE) {
     
-    digest::digest(object, file = is_file_path, algo = self$algo)
+    if (!is_file_path) {
+        digest::digest(object, file = FALSE, algo = self$algo)
+    } else if (length(object) > 1L) {
+        rlang::abort("`digest` can process only one file path at a time.")
+    } else if (rlang::is_string(object) && fs::file_exists(object)) {
+        digest::digest(object, file = TRUE, algo = self$algo)
+    } else {
+        digest::digest(NULL, file = FALSE, algo = self$algo)
+    }
 }, overwrite = TRUE)
 
 
 R6Eddy$set("public", "digest_each", function(objects, is_file_path = FALSE) {
     
-    purrr::map_chr(
-        .x = objects, 
-        .f = ~ digest::digest(., file = is_file_path, algo = self$algo)
-    )
+    if (!is_file_path) {
+        purrr::map_chr(
+            .x = objects,
+            .f = ~ digest::digest(., file = FALSE, algo = self$algo)
+        )
+    } else {
+        purrr::map_chr(
+            .x = objects,
+            .f = function(x) {
+                if (rlang::is_string(x) && fs::file_exists(x)) {
+                    digest::digest(x, file = TRUE, algo = self$algo)
+                } else {
+                    digest::digest(NULL, file = FALSE, algo = self$algo)
+                }
+            }
+        )
+    }
 }, overwrite = TRUE)
