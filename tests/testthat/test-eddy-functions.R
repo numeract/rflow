@@ -19,7 +19,5 @@ test_that("parse_flow_options() works", {
         split_fn = NULL)
     
     expect_equal(options, expected_val)
-    eddy$reset()
-    
-    # delete_eddy() seems to have probles
+    delete_eddy("test_eddy") 
 })

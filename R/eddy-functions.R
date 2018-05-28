@@ -115,7 +115,7 @@ delete_eddy <- function(eddy_name,
     rm(list = eddy_name, envir = eddy_env, inherits = FALSE)
     
     # update the .CURRENT_NAME, if needed
-    if (eddy_env[[".CURRENT_NAME"]] == eddy_name) {
+    if (identical(eddy_env[[".CURRENT_NAME"]], eddy_name)) {
         eddy_env[[".CURRENT_NAME"]] <- NA_character_
     }
     
