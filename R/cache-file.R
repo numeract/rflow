@@ -203,7 +203,8 @@ R6CacheFile$set("public", "terminate", function() {
     # reset + delete its own data structures, e.g. folders
     # object cannot be used afterwards
     
-    fs::dir_delete(self$cache_dir)
+    # fs::dir_delete(self$cache_dir)
+    unlink(self$cache_dir, recursive = TRUE, force = TRUE)
     self$cache_dir <- NULL
     
     invisible(NULL)
