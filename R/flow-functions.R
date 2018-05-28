@@ -44,8 +44,8 @@ flow_fn <- function(fn,
         rlang::abort("Primitive functions not supported.")
     }
     stopifnot(
-        is.null(fn_id) || 
-        rlang::is_string(fn_id) || rlang::is_scalar_integerish(fn_id)
+        is.null(fn_id) || !rlang::is_na(fn_id) && (
+        rlang::is_string(fn_id) || rlang::is_scalar_integerish(fn_id))
     )
     if (rlang::is_scalar_integerish(fn_id)) fn_id <- as.integer(fn_id)
     
@@ -142,8 +142,8 @@ flow <- function(fn_call,
     fn <- eval(fn_call[[1L]])
     stopifnot(is.function(fn))
     stopifnot(
-        is.null(fn_id) || 
-        rlang::is_string(fn_id) || rlang::is_scalar_integerish(fn_id)
+        is.null(fn_id) || !rlang::is_na(fn_id) && (
+        rlang::is_string(fn_id) || rlang::is_scalar_integerish(fn_id))
     )
     if (rlang::is_scalar_integerish(fn_id)) fn_id <- as.integer(fn_id)
     

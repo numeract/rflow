@@ -1,4 +1,4 @@
-# functions to indicate data sources (other than R variables)
+# functions to create file data sources (other than R variables)
 
 
 # !diagnostics suppress=., self, private, super
