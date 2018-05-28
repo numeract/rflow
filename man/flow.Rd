@@ -17,7 +17,7 @@ indicate whether to reuse the old cache or create a new one.}
 \item{flow_options}{List of options created using \code{get_flow_options}.}
 }
 \value{
-The cached version of the function.
+The flow object.
 }
 \description{
 Implicit cache of a function and processing of the given call.
