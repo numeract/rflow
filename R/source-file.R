@@ -69,6 +69,7 @@ flow_file_source <- function(file_path,
     }
     
     flow_options$excluded_arg <- character()
+    flow_options$eval_arg_fn <- NULL
     flow_options$split_bare_list <- TRUE
     flow_options$split_dataframe <- FALSE
     flow_options$split_fn <- as.list

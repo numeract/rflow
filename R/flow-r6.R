@@ -542,7 +542,7 @@ R6Flow$set("public", "compute", function() {
     elem_args <- self$state_env[[state$in_hash]]
     
     # need to collect output of Elements (if any)
-    eval_args <-
+    data_args <-
         elem_args %>%
         purrr::map_if(
             .p = ~ inherits(., "Element"),
@@ -553,7 +553,7 @@ R6Flow$set("public", "compute", function() {
     
     # eval in .GlobalEnv to avoid name collisions
     out_data <- withVisible(do.call(
-        what = self$fn, args = eval_args, envir = globalenv()))
+        what = self$fn, args = data_args, envir = globalenv()))
     # we store the out_hash to avoid (re)hashing for flow objects
     out_hash <- self$eddy$digest(out_data)
     
