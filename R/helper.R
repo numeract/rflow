@@ -38,6 +38,7 @@ parse_call <- function(pos = 2L) {
     if (is.symbol(token)) {
         if (as.character(token) == "." && pos == 2L) {
             # assume . from %>% ==> hack
+            rlang::abort("Pipelines %>% not yet supported.")
             unmatched_fn_call <- parent_call[[3L]]
             parent <- parent.frame()
             unmatched_fn_call[[2L]] <- parent[["fn_call"]]
