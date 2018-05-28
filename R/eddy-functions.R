@@ -200,19 +200,12 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 #'   the running state, e.g. a Shiny session, a parallel cluster, etc. 
 #'   Excluded arguments must have a default value to permit lazy computations.
 #'   The default is not to exclude any arguments from the input hash.
-#' @param source_file_arg For \code{source} flows only(!), which argument(s) 
-#'   indicate the file path(s). A file path argument tell flow to calculate
-#'   the hash of the file on disk instead the hash of the path string.
-#'   The default is to look only at the first argument within 
-#'   \code{source} flows.
 #' @param eval_arg_fn Custom function to parse the input arguments and create
 #'   a list of evaluated arguments to be hashed. This function should have the
-#'   exact same arguments as the original function. If an \code{eval_arg_fn}
-#'   is provided, \code{source_file_arg} will be
-#'   ignored when computing the input hash. Try to use \code{excluded_arg} or 
-#'   flow source before creating a custom function. Because each custom 
-#'   function is flow specific, it is not possible to set this option at 
-#'   the eddy level using \code{set_flow_options}.
+#'   exact same arguments as the original function. Try to use 
+#'   \code{excluded_arg} or flow source before creating a custom function. 
+#'   Because each custom function is flow specific, it is not possible to set 
+#'   this option at the eddy level using \code{set_flow_options}.
 #' @param split_bare_list If the function output is a bare list 
 #'   (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
 #'   whether to calculate the hash of each list element and create
@@ -233,7 +226,6 @@ NULL
 
 
 parse_flow_options <- function(excluded_arg,
-                               source_file_arg,
                                eval_arg_fn = NULL,
                                split_bare_list,
                                split_dataframe,
@@ -244,9 +236,6 @@ parse_flow_options <- function(excluded_arg,
     stopifnot(
         (allow_null && is.null(excluded_arg)) || 
         is.character(excluded_arg))
-    stopifnot(
-        (allow_null && is.null(source_file_arg)) || 
-        is.character(source_file_arg) || rlang::is_integerish(source_file_arg))
     stopifnot(
         is.null(eval_arg_fn) || 
         is.function(eval_arg_fn))
@@ -270,7 +259,6 @@ parse_flow_options <- function(excluded_arg,
     # recreating the list gets around NULL values
     list(
         excluded_arg = excluded_arg %||% rfo$excluded_arg,
-        source_file_arg = source_file_arg %||% rfo$source_file_arg,
         eval_arg_fn = eval_arg_fn,
         split_bare_list = split_bare_list %||% rfo$split_bare_list,
         split_dataframe = split_dataframe %||% rfo$split_dataframe,
@@ -285,7 +273,6 @@ parse_flow_options <- function(excluded_arg,
 #' 
 #' @export
 default_flow_options <- function(excluded_arg = character(),
-                                 source_file_arg = 1,
                                  split_bare_list = TRUE,
                                  split_dataframe = FALSE,
                                  split_fn = NULL
@@ -308,7 +295,6 @@ default_flow_options <- function(excluded_arg = character(),
 #' 
 #' @export
 set_flow_options <- function(excluded_arg = NULL,
-                             source_file_arg = NULL,
                              split_bare_list = NULL,
                              split_dataframe = NULL,
                              split_fn = NULL,
@@ -330,7 +316,6 @@ set_flow_options <- function(excluded_arg = NULL,
 #' 
 #' @export
 get_flow_options <- function(excluded_arg = NULL,
-                             source_file_arg = NULL,
                              eval_arg_fn = NULL,
                              split_bare_list = NULL,
                              split_dataframe = NULL,

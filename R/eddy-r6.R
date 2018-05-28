@@ -223,7 +223,6 @@ R6Eddy$set("public", "print", function() {
     
     rfo <- self$flow_options
     excluded_arg <- paste(rfo$excluded_arg, collapse = ", ")
-    source_file_arg <- paste(rfo$source_file_arg, collapse = ", ")
     eval_arg_fn <- format(args(rfo$eval_arg_fn))[[1]]
     split_fn <- format(args(rfo$split_fn))[[1]]
     
@@ -232,7 +231,6 @@ R6Eddy$set("public", "print", function() {
     n_flows <- crayon::bold(length(self$flow_lst))
     cat(emph_obj1, "with cache", emph_obj2, "and", n_flows, "flow(s)\n",
         " - excluded_arg:", excluded_arg, "\n",
-        " - source_file_arg:", source_file_arg, "\n",
         " - eval_arg_fn:", eval_arg_fn, "\n",
         " - split_bare_list:", rfo$split_bare_list, "\n",
         " - split_dataframe:", rfo$split_dataframe, "\n",

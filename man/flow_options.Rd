@@ -8,20 +8,18 @@
 \alias{gfo}
 \title{flow options used to initialize or update an eddy.}
 \usage{
-default_flow_options(excluded_arg = character(), source_file_arg = 1,
-  split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
+default_flow_options(excluded_arg = character(), split_bare_list = TRUE,
+  split_dataframe = FALSE, split_fn = NULL)
 
-set_flow_options(excluded_arg = NULL, source_file_arg = NULL,
+set_flow_options(excluded_arg = NULL, split_bare_list = NULL,
+  split_dataframe = NULL, split_fn = NULL, eddy = get_current_eddy())
+
+get_flow_options(excluded_arg = NULL, eval_arg_fn = NULL,
   split_bare_list = NULL, split_dataframe = NULL, split_fn = NULL,
   eddy = get_current_eddy())
 
-get_flow_options(excluded_arg = NULL, source_file_arg = NULL,
-  eval_arg_fn = NULL, split_bare_list = NULL, split_dataframe = NULL,
-  split_fn = NULL, eddy = get_current_eddy())
-
-gfo(excluded_arg = NULL, source_file_arg = NULL, eval_arg_fn = NULL,
-  split_bare_list = NULL, split_dataframe = NULL, split_fn = NULL,
-  eddy = get_current_eddy())
+gfo(excluded_arg = NULL, eval_arg_fn = NULL, split_bare_list = NULL,
+  split_dataframe = NULL, split_fn = NULL, eddy = get_current_eddy())
 }
 \arguments{
 \item{excluded_arg}{A vector of argument names to be excluded when computing
@@ -29,12 +27,6 @@ the input hash. Best used to exclude certain arguments that depend on
 the running state, e.g. a Shiny session, a parallel cluster, etc. 
 Excluded arguments must have a default value to permit lazy computations.
 The default is not to exclude any arguments from the input hash.}
-
-\item{source_file_arg}{For \code{source} flows only(!), which argument(s) 
-indicate the file path(s). A file path argument tell flow to calculate
-the hash of the file on disk instead the hash of the path string.
-The default is to look only at the first argument within 
-\code{source} flows.}
 
 \item{split_bare_list}{If the function output is a bare list 
 (\code{\link[rlang:bare-type-predicates]{rlang::is_bare_list}}), determines
@@ -56,12 +48,10 @@ ignored.}
 
 \item{eval_arg_fn}{Custom function to parse the input arguments and create
 a list of evaluated arguments to be hashed. This function should have the
-exact same arguments as the original function. If an \code{eval_arg_fn}
-is provided, \code{source_file_arg} will be
-ignored when computing the input hash. Try to use \code{excluded_arg} or 
-flow source before creating a custom function. Because each custom 
-function is flow specific, it is not possible to set this option at 
-the eddy level using \code{set_flow_options}.}
+exact same arguments as the original function. Try to use 
+\code{excluded_arg} or flow source before creating a custom function. 
+Because each custom function is flow specific, it is not possible to set 
+this option at the eddy level using \code{set_flow_options}.}
 }
 \value{
 For \code{default_flow_options}, a list of options.
