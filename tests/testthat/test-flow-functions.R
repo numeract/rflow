@@ -21,6 +21,17 @@ test_that("make_flow_fn() works", {
     forget(rflow_test)
 })
 
+test_that("make_flow_fn() works with pipes", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    test_make_flow_fn2 <- make_flow_fn(test_fn2) 
+    test_make_flow_fn3 <- make_flow_fn(test_fn3) 
+    rflow_test <- test_make_flow_fn(1, 2) %>%
+        test_make_flow_fn2(2) %>%
+        test_make_flow_fn3()
+    collected_result <- rflow_test %>% collect()
+    expect_equal(collected_result, 6)
+})
+
 
 test_that("make_flow_fn() works with cache re-use", {
     
@@ -203,6 +214,7 @@ test_that("flow_call() works with different options", {
     expect_equal(collected_result, 6)
     forget(test_flow)
 })
+
 
 
 teardown({
