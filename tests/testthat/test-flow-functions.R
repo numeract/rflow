@@ -218,7 +218,7 @@ test_that("flow_call() works with different body/options", {
     forget(test_flow)
 })
 
-
+# element() tests --------------------------------------------------------------
 test_that("element() works", {
     test_fn_flow <- make_flow_fn(test_fn4)
     test_rflow <- test_fn_flow(2,3)
@@ -299,6 +299,38 @@ test_that("collect.Element() warns when multiple arguments", {
     element <- element(test_rflow, "x")
     
     expect_warning(element_value <- collect(element, "x"))
+    
+    forget(test_rflow)
+})
+
+
+# `[.R6Flow` tests -------------------------------------------------------------
+test_that("`[.R6Flow` works", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    
+    expect_equal(test_rflow["x"]$elem_name, "x")
+    
+    forget(test_rflow)
+})
+
+
+test_that("`[.R6Flow` works without element name", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    
+    expect_equal(test_rflow[]$elem_name, NULL)
+    
+    forget(test_rflow)
+})
+
+
+test_that("`[.R6Flow` works with non existent element", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    
+    expect_message(value <- collect(test_rflow["z"]))
+    expect_null(value)
     
     forget(test_rflow)
 })
