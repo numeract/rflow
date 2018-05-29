@@ -21,3 +21,23 @@ test_that("parse_flow_options() works", {
     expect_equal(options, expected_val)
     delete_eddy("test_eddy") 
 })
+
+
+test_that("parse_flow_options() works with NULL args", {
+
+    options <- parse_flow_options(excluded_arg = "x",
+                                  eval_arg_fn = NULL,
+                                  split_bare_list = TRUE,
+                                  split_dataframe = FALSE,
+                                  split_fn = NULL,
+                                  eddy = NULL) 
+    
+    expected_val <- list(
+        excluded_arg = "x",
+        eval_arg_fn = NULL,
+        split_bare_list = TRUE,
+        split_dataframe = FALSE,
+        split_fn = NULL)
+    
+    expect_equal(options, expected_val)
+})
