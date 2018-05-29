@@ -7,9 +7,11 @@ setup({
     test_fn <- function(x, y) { x + y }
     test_fn2 <- function(x, y) { x * y }
     test_fn3 <- function(x) {x}
+    test_fn4 <- function(x, y) {list(x = x, y = y)}
     assign("test_fn", test_fn, envir = .GlobalEnv)
     assign("test_fn2", test_fn2, envir = .GlobalEnv)
     assign("test_fn3", test_fn3, envir = .GlobalEnv)
+    assign("test_fn4", test_fn4, envir = .GlobalEnv)
 })
 
 
@@ -30,6 +32,7 @@ test_that("make_flow_fn() works with pipes", {
         test_make_flow_fn3()
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 6)
+    forget(rflow_test)
 })
 
 
@@ -216,10 +219,91 @@ test_that("flow_call() works with different options", {
 })
 
 
+test_that("element() works", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    flow_element <- element(test_rflow)
+    expect_true(flow_element$is_current)
+    expect_false(flow_element$is_valid)
+    forget(test_rflow)
+})
+
+
+test_that("element() works with valid element", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    collect_result <- collect(test_rflow)
+    element <- element(test_rflow, "x")
+    expect_true(element$is_current)
+    expect_true(element$is_valid)
+    forget(test_rflow)
+})
+
+
+test_that("element() works with non-current flow", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    test_rflow$state_index <- 0
+    element <- element(test_rflow, "x")
+    expect_false(element$is_current)
+    expect_false(element$is_valid)
+})
+
+
+test_that("element() stops with non existent element", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    expect_error(element <- element(test_rflow, "z"))
+    forget(test_rflow)
+})
+
+
+test_that("element() stops with non rflow object", {
+    expect_error(element <- element("test_nonrflow"))
+})
+
+
+# collect.Element tests --------------------------------------------------------
+test_that("collect.Element() works", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    collect_result <- collect(test_rflow)
+    element <- element(test_rflow, "x")
+    element_value <- collect(element)
+    expect_equal(element_value, 2)
+    forget(test_rflow)
+})
+
+
+test_that("collect.Element() works with pipes", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    test_fn_flow2 <- make_flow_fn(test_fn)
+    
+    collected_result <- collect(element(test_rflow, "x")) %>%
+        test_fn_flow2(1) %>%
+        collect()
+    
+    expect(collected_result, 3)
+    forget(test_rflow)
+})
+
+
+test_that("collect.Element() warns when multiple arguments", {
+    test_fn_flow <- make_flow_fn(test_fn4)
+    test_rflow <- test_fn_flow(2,3)
+    element <- element(test_rflow, "x")
+    
+    expect_warning(element_value <- collect(element, "x"))
+    
+    forget(test_rflow)
+})
+
 
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn2", envir = .GlobalEnv)
     base::rm(list = "test_fn3", envir = .GlobalEnv)
+    base::rm(list = "test_fn4", envir = .GlobalEnv)
 })
 
