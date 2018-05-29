@@ -238,7 +238,7 @@ parse_flow_options <- function(excluded_arg,
         is.character(excluded_arg))
     stopifnot(
         is.null(eval_arg_fn) || 
-        is.function(eval_arg_fn))
+        is_not_flow_fn(eval_arg_fn))
     stopifnot(
         (allow_null && is.null(split_bare_list)) || 
         rlang::is_true(split_bare_list) || rlang::is_false(split_bare_list))
@@ -247,7 +247,7 @@ parse_flow_options <- function(excluded_arg,
         rlang::is_true(split_dataframe) || rlang::is_false(split_dataframe))
     stopifnot(
         is.null(split_fn) || 
-        is.function(split_fn))
+        is_not_flow_fn(split_fn))
     stopifnot(is.null(eddy) || inherits(eddy, "R6Eddy"))
     
     if (is.null(eddy)) {

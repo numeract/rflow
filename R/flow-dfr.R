@@ -175,7 +175,7 @@ flow_dfr <- function(df,
 ) {
     # same as make_flow_fn, but using R6FlowDfr (not DRY)
     
-    stopifnot(is.function(fn))
+    stopifnot(is_not_flow_fn(fn))
     if (any(grepl("\\.Primitive", format(fn)))) {
         rlang::abort("Primitive functions not supported.")
     }
