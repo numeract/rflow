@@ -447,6 +447,33 @@ test_that("forget() stops with non current state", {
 })
 
 
+# is_flow tests ----------------------------------------------------------------
+test_that("is_flow() works R6Flow", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    expect_true(is_flow(rflow_test))
+    expect_false(is_flow(test_make_flow_fn))
+    forget(rflow_test)
+})
+
+
+test_that("is_flow() works with Element",{
+    test_make_flow_fn <- make_flow_fn(test_fn4) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    rflow_element <- element(rflow_test, "x")
+    expect_true(is_flow(rflow_element))
+    forget(rflow_test)
+})
+
+
+test_that("is_flow() works with non-Element and non-R6Flow input",{
+    expect_false(is_flow("non-element-rflow"))
+    expect_false(is_flow(NULL))
+    expect_false(is_flow(NA))
+    expect_false(is_flow(list()))
+})
+
+
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn2", envir = .GlobalEnv)
