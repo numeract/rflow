@@ -202,7 +202,7 @@ R6Flow$set("public", "initialize", function(
         fn_id,
         flow_options = get_flow_options()
 ) {
-    stopifnot(is.function(fn))
+    stopifnot(is_not_flow_fn(fn))
     require_keys(fn_key, fn_name)
     
     # register itself in eddy (error if fn_key already present)

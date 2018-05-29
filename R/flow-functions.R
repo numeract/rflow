@@ -39,7 +39,7 @@ make_flow_fn <- function(fn,
                          fn_id = NULL,
                          flow_options = get_flow_options()) {
     
-    stopifnot(is.function(fn))
+    stopifnot(is_not_flow_fn(fn))
     if (any(grepl("\\.Primitive", format(fn)))) {
         rlang::abort("Primitive functions not supported.")
     }
@@ -140,7 +140,7 @@ flow_call <- function(fn_call,
     # this is to avoid triggering evaluation of fn_call
     fn_call <- parse_call()
     fn <- eval(fn_call[[1L]])
-    stopifnot(is.function(fn))
+    stopifnot(is_not_flow_fn(fn))
     stopifnot(
         is.null(fn_id) || !rlang::is_na(fn_id) && (
         rlang::is_string(fn_id) || rlang::is_scalar_integerish(fn_id))
@@ -350,4 +350,40 @@ forget <- function(flow, state = "current") {
     flow$forget_state(flow$state_index)
     
     flow
+}
+
+
+#' Is the object an flow object or an flow element?
+#' 
+#' @param x An object.
+#' 
+#' @return A logical value, whether \code{x} is a flow object.
+#' 
+#' @export
+is_flow <- function(x) {
+    
+    inherits(x, "R6Flow") || inherits(x, "Element")
+}
+
+
+#' Is the function an flow function (as returned by \code{make_flow_fn})?
+#' 
+#' @param fn A function.
+#' 
+#' @return A logical value, whether \code{fn} is a flow function.
+#' 
+#' @export
+is_flow_fn <- function(fn) {
+    
+    if (!is.function(fn)) return(FALSE)
+    flow <- environment(fn)$self
+    inherits(flow, "R6Flow")
+}
+
+
+is_not_flow_fn <- function(fn) {
+    
+    if (!is.function(fn)) return(FALSE)
+    flow <- environment(fn)$self
+    !inherits(flow, "R6Flow")
 }
