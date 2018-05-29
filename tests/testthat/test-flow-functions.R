@@ -218,6 +218,18 @@ test_that("flow_call() works with different body/options", {
     forget(test_flow)
 })
 
+
+# flow_fn tests ----------------------------------------------------------------
+test_that("flow_fn() works", {
+    flow_fn_test <- flow_fn(2, 3, fn = test_fn)
+    collected_result <- flow_fn_test %>% collect()
+    
+    # TBD In console works, problems with environment
+    expect_equal(collected_result, 5)
+    forget(flow_fn_test)
+})
+
+
 # element() tests --------------------------------------------------------------
 test_that("element() works", {
     test_fn_flow <- make_flow_fn(test_fn4)
@@ -473,6 +485,11 @@ test_that("is_flow() works with non-Element and non-R6Flow input",{
     expect_false(is_flow(list()))
 })
 
+
+# is_flow_fn tests -------------------------------------------------------------
+# test_that("is_flow_fn() works", {
+#     
+# })
 
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
