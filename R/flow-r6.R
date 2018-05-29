@@ -461,14 +461,14 @@ R6Flow$set("public", "delete_state_output", function(out_hash) {
 
 # get_out_hash ----
 R6Flow$set("public", "get_out_hash", function(name = NULL) {
-    # invalid state OK; not yet computed OK
+    # no current state OK; not yet computed OK
     
     if (!self$is_current) {
-        # invalid state, cannot talk about hashes
+        # no current state, cannot talk about hashes
         return(NULL)
     }
     if (!self$is_valid) {
-        # valid, but not yet computed
+        # invalid, but not yet computed
         return(NA_character_)
     }
     
@@ -482,10 +482,13 @@ R6Flow$set("public", "get_out_hash", function(name = NULL) {
             self$state_output$out_hash == state$out_hash &
             self$state_output$elem_name == name
         )
-        if (length(found_state_idx) != 1L) {
-            rlang::abort(paste("Cannot find output element:", name))
+        if (length(found_state_idx) == 1L) {
+            out_hash <- self$state_output$elem_hash[found_state_idx]
+        } else {
+            rlang::inform(paste("Cannot find output element named", name))
+            # invalid element
+            out_hash <- NA_character_ 
         }
-        out_hash <- self$state_output$elem_hash[found_state_idx]
     }
     
     out_hash
@@ -498,11 +501,11 @@ R6Flow$set("public", "get_element", function(name = NULL) {
     
     elem_hash <- self$get_out_hash(name = name)
     if (is.null(elem_hash)) {
-        # invalid state, cannot talk about hashes
+        # no current state, cannot talk about hashes
         is_current <- FALSE
         is_valid <- FALSE
     } else if (is.na(elem_hash)) {
-        # valid, but not yet computed
+        # invalid, but not yet computed
         is_current <- TRUE
         is_valid <- FALSE
     } else {
@@ -628,10 +631,20 @@ R6Flow$set("public", "collect", function(name = NULL) {
     }
     
     out_hash <- self$get_out_hash(name = name)
-    if (!self$eddy$has_key(self$fn_key, out_hash)) {
-        rlang::abort(paste("Cached output is missing for out_hash", out_hash))
+    # cannot be NULL (require_good_index), but it may be invalid if wrong name
+    if (is.na(out_hash)) {
+        # return NULL, as is the case with env and lists
+        vis_out_lst <- list(
+            value = NULL,
+            visible = TRUE
+        )
+    } else {
+        if (!self$eddy$has_key(self$fn_key, out_hash)) {
+            rlang::abort(paste(
+                "Cached output is missing for out_hash", out_hash))
+        }
+        vis_out_lst <- self$eddy$get_data(self$fn_key, out_hash)
     }
-    vis_out_lst <- self$eddy$get_data(self$fn_key, out_hash)
     
     # preserve the output visibility of the original result
     if (vis_out_lst$visible) {
