@@ -1,5 +1,8 @@
 # functions from Nmisc
 
+seq_nrow <- function(x) seq_len(nrow(x))
+seq_ncol <- function(x) seq_len(ncol(x))
+
 
 keep_if_in <- function(x, y) {
     

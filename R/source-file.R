@@ -25,11 +25,11 @@ R6FileSource$set("public", "calc_in_hash_file_source", function(
 
 # initialize ----
 R6FileSource$set("public", "initialize", function(
-    fn,
-    fn_key,
-    fn_name,
-    fn_id,
-    flow_options = get_flow_options()
+        fn,
+        fn_key,
+        fn_name,
+        fn_id,
+        flow_options = get_flow_options()
 ) {
     super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
     
@@ -106,7 +106,9 @@ flow_file_source <- function(file_path,
     }
     
     # eval the call
-    res <- do.call(flow$rf_fn, list(x = file_path), envir = parent.frame(n = 2))
-    
-    res
+    do.call(
+        what = flow$rf_fn, 
+        args = list(x = file_path), 
+        envir = parent.frame(n = 2)
+    )
 }
