@@ -105,11 +105,11 @@ R6NsSink$set("public", "rf_fn_ns_sink", function(...) {
 
 # initialize ----
 R6NsSink$set("public", "initialize", function(
-    fn,
-    fn_key,
-    fn_name,
-    fn_id,
-    flow_options = get_flow_options()
+        fn,
+        fn_key,
+        fn_name,
+        fn_id,
+        flow_options = get_flow_options()
 ) {
     super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
     
@@ -185,7 +185,7 @@ to_ns <- function(x, var_name, ns) {
 #' @param ns The name space, either an \code{environment} or a 
 #'   \code{Shiny::reactiveValues} object.
 #' @param flow_options List of options created using \code{get_flow_options}.
-#'   All options except \code{eddy} are ignored.
+#'   All options except \code{excluded_arg} and \code{eddy} are ignored.
 #' 
 #' @return The flow object
 #' 
@@ -198,7 +198,7 @@ flow_ns_sink <- function(x,
     stopifnot(rlang::is_string(var_name))
     stopifnot(is.environment(ns) || identical(class(ns), "reactivevalues"))
     
-    # allow args to be excluded from identifying changes
+    # excluded_arg: allow args to be excluded from identifying changes
     flow_options$eval_arg_fn <- NULL
     flow_options$split_bare_list <- FALSE
     flow_options$split_dataframe <- FALSE

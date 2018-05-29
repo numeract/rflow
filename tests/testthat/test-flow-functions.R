@@ -111,7 +111,7 @@ test_that("make_flow_fn() works with options", {
 })
 
 
-test_that("make_flow_fn() works with different options", {
+test_that("make_flow_fn() works with different body/options", {
     test_make_flow_fn <-
         make_flow_fn(test_fn, fn_id = 1)
     flow_options <- get_flow_options(split_dataframe = TRUE)
@@ -201,7 +201,7 @@ test_that("flow_call() works with options", {
 })
 
 
-test_that("flow_call() works with different options", {
+test_that("flow_call() works with different body/options", {
     test_flow <-
         flow_call(test_fn(2, 3), fn_id = 1)
     flow_options <- get_flow_options(split_dataframe = TRUE)

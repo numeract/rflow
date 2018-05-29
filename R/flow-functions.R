@@ -28,7 +28,7 @@ make_fn_key <- function(fn, fn_id, flow_options) {
 #' @param fn Function to be cached, ideally a pure function.
 #' @param fn_id Optional id to uniquely identify the function. By default,
 #'   rflow functions reuse the cache if the same function is given. The id 
-#'   allows the user to suppress console messages and to
+#'   allows the user to suppress console messages and to explicitly
 #'   indicate whether to reuse the old cache or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
@@ -80,7 +80,7 @@ make_flow_fn <- function(fn,
             # obj does not exist but same fn_name ==> new; message if no fn_id
             if (is.null(fn_id)) {
                 rlang::inform(paste(
-                    "Function", fn_name, "exists with different options,",
+                    "Function", fn_name, "exists with different body/options,",
                     "creating a new cache."))
                 fn_ids <- eddy$flow_lst %>%
                     purrr::keep(~ .$fn_name == fn_name) %>%
@@ -125,7 +125,7 @@ make_flow_fn <- function(fn,
 #' @param fn_call Function call to be processed.
 #' @param fn_id Optional id to uniquely identify the function. By default,
 #'   rflow functions reuse the cache if the same function is given. The id 
-#'   allows the user to suppress console messages and to
+#'   allows the user to suppress console messages and to explicitly
 #'   indicate whether to reuse the old cache or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
@@ -174,7 +174,7 @@ flow_call <- function(fn_call,
             # obj does not exist but same fn_name ==> new; message if no fn_id
             if (is.null(fn_id)) {
                 rlang::inform(paste(
-                    "Function", fn_name, "exists with different options,",
+                    "Function", fn_name, "exists with different body/options,",
                     "creating a new cache."))
                 fn_ids <- eddy$flow_lst %>%
                     purrr::keep(~ .$fn_name == fn_name) %>%

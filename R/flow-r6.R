@@ -527,7 +527,7 @@ R6Flow$set("public", "get_element", function(name = NULL) {
 # compute ----
 R6Flow$set("public", "compute", function() {
     # do not compute if already computed
-    # return TRUE/FALSE not an actual value since there might be elements
+    # return TRUE/FALSE and not the actual value since there might be elements
     
     if (self$is_valid) return(TRUE)
     if (!self$is_current) return(FALSE)

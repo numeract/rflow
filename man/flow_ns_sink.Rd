@@ -15,7 +15,7 @@ flow_ns_sink(x, var_name, ns, flow_options = get_flow_options())
 \code{Shiny::reactiveValues} object.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.
-All options except \code{eddy} are ignored.}
+All options except \code{excluded_arg} and \code{eddy} are ignored.}
 }
 \value{
 The flow object
