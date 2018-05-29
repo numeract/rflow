@@ -7,13 +7,13 @@
 is_current(flow)
 }
 \arguments{
-\item{flow}{An flow object, e.g. as returned by \code{\link{flow}}.}
+\item{flow}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
 }
 \value{
 A logical value, whether the current state is valid.
 }
 \description{
-If there is no current state, e.g. right after \code{\link{flow_fn}},
+If there is no current state, e.g. right after \code{\link{make_flow_fn}},
   the flow is "not flowing", it is preventing downstream flows
   from being computed.
 }

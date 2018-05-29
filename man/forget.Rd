@@ -7,7 +7,7 @@
 forget(flow, state = "current")
 }
 \arguments{
-\item{flow}{An flow object, e.g. as returned by \code{\link{flow}}.}
+\item{flow}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
 
 \item{state}{An flow state. Only the \code{current} state is 
 accepted for now.}

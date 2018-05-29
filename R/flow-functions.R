@@ -35,9 +35,9 @@ make_fn_key <- function(fn, fn_id, flow_options) {
 #' @return The cached version of the function.
 #' 
 #' @export
-flow_fn <- function(fn,
-                    fn_id = NULL,
-                    flow_options = get_flow_options()) {
+make_flow_fn <- function(fn,
+                         fn_id = NULL,
+                         flow_options = get_flow_options()) {
     
     stopifnot(is.function(fn))
     if (any(grepl("\\.Primitive", format(fn)))) {
@@ -132,9 +132,9 @@ flow_fn <- function(fn,
 #' @return The flow object.
 #' 
 #' @export
-flow <- function(fn_call, 
-                 fn_id = NULL,
-                 flow_options = get_flow_options()) {
+flow_call <- function(fn_call, 
+                      fn_id = NULL,
+                      flow_options = get_flow_options()) {
     
     # fn_call will be replaced by its original call
     # this is to avoid triggering evaluation of fn_call
@@ -227,7 +227,7 @@ NULL
 
 #' Get the data from an \code{R6Flow} or an \code{Element} object.
 #' 
-#' @param x An flow object, e.g. as returned by \code{\link{flow}}.
+#' @param x An flow object, e.g. as returned by \code{\link{flow_call}}.
 #' @param ... Element of the output data to be selected. If present, it must
 #'   be named \code{name}. otherwise the first item of the \code{...} list
 #'   will be used. The default is \code{name = NULL}, which returns all the
@@ -265,7 +265,7 @@ collect.Element <- function(x, ...) {
 
 #' Extract an element from an \code{R6Flow} object.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow}}.
+#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
 #' @param name Element of the output data to be selected. The default is 
 #'   \code{name = NULL}, which returns the element version of the \code{R6Flow} 
 #'   input object.
@@ -296,11 +296,11 @@ element <- function(flow, name = NULL) {
 
 #' Does the flow have a "current" state? 
 #' 
-#' If there is no current state, e.g. right after \code{\link{flow_fn}},
+#' If there is no current state, e.g. right after \code{\link{make_flow_fn}},
 #'   the flow is "not flowing", it is preventing downstream flows
 #'   from being computed.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow}}.
+#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
 #' 
 #' @return A logical value, whether the current state is valid.
 #' 
@@ -315,7 +315,7 @@ is_current <- function(flow) {
 
 #' Is the current state valid (stored in the cache)?
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow}}.
+#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
 #' @param state An flow state. Only the \code{current} state is 
 #'   accepted for now.
 #' 
@@ -334,7 +334,7 @@ is_valid <- function(flow, state = "current") {
 
 #' Forgets the computation for the current state.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow}}.
+#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
 #' @param state An flow state. Only the \code{current} state is 
 #'   accepted for now.
 #' 

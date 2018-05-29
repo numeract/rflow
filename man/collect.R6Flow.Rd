@@ -11,7 +11,7 @@
 \method{collect}{Element}(x, ...)
 }
 \arguments{
-\item{x}{An flow object, e.g. as returned by \code{\link{flow}}.}
+\item{x}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
 
 \item{...}{Element of the output data to be selected. If present, it must
 be named \code{name}. otherwise the first item of the \code{...} list
