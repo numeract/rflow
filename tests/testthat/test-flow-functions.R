@@ -336,7 +336,7 @@ test_that("`[.R6Flow` works with non existent element", {
 })
 
 
-# is_current() tests -----------------------------------------------------------
+# is_current tests -----------------------------------------------------------
 test_that("is_current() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     expect_true(is_current(test_flow))
@@ -358,7 +358,8 @@ test_that("is_current() stops with non rflow input", {
     expect_error(is_current(list()))
 })
 
-# is_valid() tests -----------------------------------------------------------
+
+# is_valid tests -----------------------------------------------------------
 test_that("is_valid() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     collected_flow <- collect(test_flow)
@@ -387,6 +388,62 @@ test_that("is_valid() stops with non rflow argument", {
     expect_error(is_valid(NULL))
     expect_error(is_valid(NA))
     expect_error(is_valid(list()))
+})
+
+
+# forget tests -----------------------------------------------------------------
+test_that("forget() works", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    rflow_key <- rflow_test$fn_key
+    rflow_group <- rflow_test$fn_name
+
+    rflow_copy <- rflow_test
+    rflow_copy$forget_state(rflow_copy$state_index)
+    
+    expect_equal(forget(rflow_test), rflow_copy)
+    expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
+    forget(rflow_copy)
+})
+
+
+test_that("forget() stops with forgotten rflow", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    rflow_key <- rflow_test$fn_key
+    rflow_group <- rflow_test$fn_name
+
+    forget(rflow_test)
+    expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
+    
+    # Shouldn't this throw an error?
+    expect_error(forget(rflow_test))
+})
+
+
+test_that("forget() stops with state_index 0", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    rflow_test$state_index <- 0
+    expect_error(forget(rflow_test))
+})
+
+
+test_that("forget() stops with non rflow input", {
+    expect_error(forget("non_rflow"))
+    expect_error(forget(NULL))
+    expect_error(forget(NA))
+    expect_error(forget(list()))
+})
+
+
+test_that("forget() stops with non current state", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    expect_error(forget(rflow_test, state = "non-current"))
+    forget(rflow_test)
 })
 
 
