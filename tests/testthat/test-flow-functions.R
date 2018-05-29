@@ -358,6 +358,37 @@ test_that("is_current() stops with non rflow input", {
     expect_error(is_current(list()))
 })
 
+# is_valid() tests -----------------------------------------------------------
+test_that("is_valid() works", {
+    test_flow <- flow_call(test_fn(2, 3)) 
+    collected_flow <- collect(test_flow)
+    expect_true(is_valid(test_flow))
+    forget(test_flow)
+})
+
+
+test_that("is_valid() works with not current state", {
+    test_flow <- flow_call(test_fn(2, 3)) 
+    expect_false(is_valid(test_flow))
+    forget(test_flow)
+})
+
+
+test_that("is_valid() stops with not current state argument", {
+    test_flow <- flow_call(test_fn(2, 3))
+    collected_flow <- collect(test_flow)
+    expect_error(is_valid(test_flow, state = "next"))
+    forget(test_flow)
+})
+
+
+test_that("is_valid() stops with non rflow argument", {
+    expect_error(is_valid("non_rflow"))
+    expect_error(is_valid(NULL))
+    expect_error(is_valid(NA))
+    expect_error(is_valid(list()))
+})
+
 
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
