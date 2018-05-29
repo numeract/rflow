@@ -120,7 +120,41 @@ make_flow_fn <- function(fn,
 }
 
 
-#' Implicit cache of a function and processing of the given call.
+#' Implicit cache of a function and of the given call.
+#' 
+#' @param ... Named arguments to pass to \code{fn}.
+#' @param fn The function to apply to the data frame. It must accept a data
+#'   frame as the first argument and a numeric index as the second argument.
+#' @param fn_id Optional id to uniquely identify the function. By default,
+#'   rflow functions reuse the cache if the same function is given. The id 
+#'   allows the user to suppress console messages and to explicitly
+#'   indicate whether to reuse the old cache or create a new one.
+#' @param flow_options List of options created using \code{get_flow_options}.
+#' 
+#' @return The flow object.
+#' 
+#' @export
+flow_fn <- function(..., 
+                    fn = NULL,
+                    fn_id = NULL,
+                    flow_options = get_flow_options()
+) {
+    match_call <- match.call()
+    rf_fn <- do.call(
+        what = make_flow_fn, 
+        args = list(match_call$fn, fn_id, flow_options),
+        envir = parent.frame(n = 2)
+    )
+    
+    do.call(
+        what = rf_fn, 
+        args = list(...),
+        envir = parent.frame(n = 2)
+    )
+}
+
+
+#' Implicit cache of a function and of the given call.
 #' 
 #' @param fn_call Function call to be processed.
 #' @param fn_id Optional id to uniquely identify the function. By default,
