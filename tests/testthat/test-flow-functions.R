@@ -336,6 +336,29 @@ test_that("`[.R6Flow` works with non existent element", {
 })
 
 
+# is_current() tests -----------------------------------------------------------
+test_that("is_current() works", {
+    test_flow <- flow_call(test_fn(2, 3)) 
+    expect_true(is_current(test_flow))
+    forget(test_flow)
+})
+
+
+test_that("is_current() works with non current flow", {
+    test_flow <- flow_call(test_fn(2, 3)) 
+    test_flow$state_index <- 0
+    expect_false(is_current(test_flow))
+})
+
+
+test_that("is_current() stops with non rflow input", {
+    expect_error(is_current("non_rflow"))
+    expect_error(is_current(NULL))
+    expect_error(is_current(NA))
+    expect_error(is_current(list()))
+})
+
+
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn2", envir = .GlobalEnv)
