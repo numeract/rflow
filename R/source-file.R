@@ -76,8 +76,8 @@ flow_file_source <- function(file_path,
     eddy <- flow_options$eddy
     
     fn_name <- file_path[1L]
-    if (nchar(fn_name) > 20) {
-        fn_name <- substr(fn_name, nchar(fn_name) - 17 + 1, nchar(fn_name))
+    if (nchar(fn_name) > 30) {
+        fn_name <- substr(fn_name, nchar(fn_name) - 27 + 1, nchar(fn_name))
         fn_name <- paste0("...", fn_name)
     }
     
