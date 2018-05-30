@@ -231,6 +231,38 @@ test_that("flow_fn() works", {
 })
 
 
+test_that("flow_fn() works with id", {
+    flow_fn_test <- flow_fn(2, 3, fn = test_fn, fn_id = "id1")
+    collected_result <- flow_fn_test %>% collect()
+    
+    expect_equal(collected_result, 5)
+    expect_equal(flow_fn_test$fn_id, "id1")
+    forget(flow_fn_test)
+})
+
+
+test_that("flow_fn() works with no arguments for function", {
+    expect_silent(flow_fn_test <- flow_fn(fn = test_fn, fn_id = "id1"))
+    expect_error(collect(flow_fn_test))
+    forget(flow_fn_test)
+})
+
+test_that("flow_fn() stops with more arguments for function", {
+    expect_error(flow_fn_test <- flow_fn(1, 2, 3, fn = test_fn, fn_id = "id1"))
+})
+
+
+test_that("flow_fn() works with options", {
+    flow_options <- get_flow_options(split_dataframe = TRUE)
+    (flow_fn_test <- flow_fn(
+        1, 2, fn = test_fn, fn_id = "id1", 
+        flow_options = flow_options))
+    expect_equal(collect(flow_fn_test), 3)
+    forget(flow_fn_test)
+})
+
+
+
 # element() tests --------------------------------------------------------------
 test_that("element() works", {
     test_fn_flow <- make_flow_fn(test_fn4)
