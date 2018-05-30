@@ -254,13 +254,29 @@ test_that("flow_fn() stops with more arguments for function", {
 
 test_that("flow_fn() works with options", {
     flow_options <- get_flow_options(split_dataframe = TRUE)
-    (flow_fn_test <- flow_fn(
+    flow_fn_test <- flow_fn(
         1, 2, fn = test_fn, fn_id = "id1", 
-        flow_options = flow_options))
+        flow_options = flow_options)
     expect_equal(collect(flow_fn_test), 3)
     forget(flow_fn_test)
 })
 
+
+test_that("flow_fn() works with pipes", {
+    flow_fn_test <- flow_fn(1, 2, fn = test_fn)
+    collected_result <- flow_fn_test %>%
+        flow_fn(3, fn = test_fn2) %>%
+        flow_fn(fn = test_fn3) %>%
+        collect()
+    expect_equal(collected_result, 9)
+    
+    collected_result <- flow_fn_test %>%
+        flow_fn(3, fn = test_fn2) %>%
+        flow_fn(fn = test_fn3) %>%
+        collect()
+    expect_equal(collected_result, 9)
+    forget(flow_fn_test)
+})
 
 
 # element() tests --------------------------------------------------------------
