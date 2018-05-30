@@ -54,7 +54,6 @@ R6CacheFile$set("public", "has_group", function(group) {
 R6CacheFile$set("public", "add_group", function(group) {
     
     require_keys(group)
-    
     stopifnot(fs::dir_exists(self$cache_dir))
     
     group_dir <- fs::path(self$cache_dir, group)
@@ -70,7 +69,6 @@ R6CacheFile$set("public", "add_group", function(group) {
 R6CacheFile$set("public", "forget_group", function(group) {
     
     require_keys(group)
-    
     stopifnot(fs::dir_exists(self$cache_dir))
     
     # this also adds the group on disk, if missing
@@ -89,7 +87,6 @@ R6CacheFile$set("public", "forget_group", function(group) {
 R6CacheFile$set("public", "delete_group", function(group) {
     
     require_keys(group)
-    
     stopifnot(fs::dir_exists(self$cache_dir))
     
     group_dir <- fs::path(self$cache_dir, group)
@@ -106,7 +103,6 @@ R6CacheFile$set("public", "delete_group", function(group) {
 R6CacheFile$set("public", "list_keys", function(group) {
     
     require_keys(group)
-    
     stopifnot(fs::dir_exists(self$cache_dir))
     
     # no error if group NOT present on disk
@@ -132,8 +128,9 @@ R6CacheFile$set("public", "has_key", function(group, key) {
 R6CacheFile$set("public", "get_data", function(group, key) {
     
     require_keys(group, key)
-    
     stopifnot(fs::dir_exists(self$cache_dir))
+    # add group only if not already present
+    self$add_group(group)
     
     key_path <- fs::path(self$cache_dir, group, key)
     stopifnot(fs::file_exists(key_path))
@@ -146,7 +143,6 @@ R6CacheFile$set("public", "get_data", function(group, key) {
 R6CacheFile$set("public", "add_data", function(group, key, value) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     
@@ -161,7 +157,6 @@ R6CacheFile$set("public", "add_data", function(group, key, value) {
 R6CacheFile$set("public", "delete_data", function(group, key) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     

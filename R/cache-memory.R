@@ -104,6 +104,8 @@ R6CacheMemory$set("public", "has_key", function(group, key) {
 R6CacheMemory$set("public", "get_data", function(group, key) {
     
     require_keys(group, key)
+    # add group only if not already present
+    self$add_group(group)
     
     # error if group not present in memory
     kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
@@ -120,7 +122,6 @@ R6CacheMemory$set("public", "get_data", function(group, key) {
 R6CacheMemory$set("public", "add_data", function(group, key, value) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     
@@ -140,7 +141,6 @@ R6CacheMemory$set("public", "add_data", function(group, key, value) {
 R6CacheMemory$set("public", "delete_data", function(group, key) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     

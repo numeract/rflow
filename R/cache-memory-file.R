@@ -61,10 +61,8 @@ R6CacheMemoryFile$set("public", "has_group", function(group) {
 # add_group ----
 R6CacheMemoryFile$set("public", "add_group", function(group) {
     
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
     require_keys(group)
-    
+    stopifnot(fs::dir_exists(self$cache_dir))
     
     # add in memory, if missing
     if (!base::exists(group, where = self$cache_env, inherits = FALSE)) {
@@ -84,9 +82,8 @@ R6CacheMemoryFile$set("public", "add_group", function(group) {
 # forget_group ----
 R6CacheMemoryFile$set("public", "forget_group", function(group) {
     
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
     require_keys(group)
+    stopifnot(fs::dir_exists(self$cache_dir))
     
     # this also adds the group in memory, if missing
     base::assign(group, value = list(), pos = self$cache_env)
@@ -107,9 +104,8 @@ R6CacheMemoryFile$set("public", "forget_group", function(group) {
 # delete_group ----
 R6CacheMemoryFile$set("public", "delete_group", function(group) {
     
-    stopifnot(fs::dir_exists(self$cache_dir))
-
     require_keys(group)
+    stopifnot(fs::dir_exists(self$cache_dir))
     
     # group may exist either in mem, or on disk, or on both, or may not exist
     if (base::exists(group, where = self$cache_env, inherits = FALSE)) {
@@ -162,9 +158,10 @@ R6CacheMemoryFile$set("public", "has_key", function(group, key) {
 # get_data ----
 R6CacheMemoryFile$set("public", "get_data", function(group, key) {
     
-    stopifnot(fs::dir_exists(self$cache_dir))
-    
     require_keys(group, key)
+    stopifnot(fs::dir_exists(self$cache_dir))
+    # add group only if not already present
+    self$add_group(group)
     
     # error if group not present in memory
     kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
@@ -194,7 +191,6 @@ R6CacheMemoryFile$set("public", "get_data", function(group, key) {
 R6CacheMemoryFile$set("public", "add_data", function(group, key, value) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     
@@ -217,7 +213,6 @@ R6CacheMemoryFile$set("public", "add_data", function(group, key, value) {
 R6CacheMemoryFile$set("public", "delete_data", function(group, key) {
     
     require_keys(group, key)
-    
     # add group only if not already present
     self$add_group(group)
     
