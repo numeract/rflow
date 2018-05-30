@@ -82,9 +82,12 @@ flow_file_source <- function(file_path,
     eddy <- flow_options$eddy
     
     fn_name <- file_path[1L]
-    if (nchar(fn_name) > 30) {
-        fn_name <- substr(fn_name, nchar(fn_name) - 27 + 1, nchar(fn_name))
-        fn_name <- paste0("...", fn_name)
+    nchar_max <- 30L
+    if (nchar(fn_name) > nchar_max) {
+        nchar_side <- nchar_max %/% 2L - 2L
+        n1 <- substr(fn_name, 1L, nchar_side)
+        n2 <- substr(fn_name, nchar(fn_name) - nchar_side, nchar(fn_name))
+        fn_name <- paste0(n1, "...", n2)
     }
     
     fn_key <- eddy$digest(file_path)
