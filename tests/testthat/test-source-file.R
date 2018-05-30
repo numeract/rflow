@@ -71,10 +71,14 @@ test_that("flow_file_source() works with fs::path type", {
 })
 
 
-test_that("flow_file_source() stops with non existent file path", {
+test_that("flow_file_source() works with non existent file path", {
     
     file_path <- as.character(fs::path("test", "path"))
-    expect_error(test_rflow_source <- flow_file_source(file_path))
+    expect_silent(test_rflow_source <- flow_file_source(file_path))
+    # TODO: file present --> missing
+    # TODO: file missing -> present
+    # TODO: file changed
+    # TODO: remove tmp files in takedown
 })
 
 
@@ -83,7 +87,8 @@ test_that("flow_file_source() stops with non valid input", {
     expect_error(test_rflow_source <- flow_file_source(1))
     expect_error(test_rflow_source <- flow_file_source(TRUE))
     expect_error(test_rflow_source <- flow_file_source(character()))
-    expect_error(test_rflow_source <- flow_file_source(c("path1", "path2")))
+    expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
+    # TODO: tests with multiple paths, they become elements
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_error(test_rflow_source <- flow_file_source(list()))
     expect_error(test_rflow_source <- flow_file_source(NULL))
