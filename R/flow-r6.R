@@ -205,12 +205,6 @@ R6Flow$set("public", "initialize", function(
     stopifnot(is_not_flow_fn(fn))
     require_keys(fn_key, fn_name)
     
-    # register itself in eddy (error if fn_key already present)
-    self$eddy <- flow_options$eddy
-    if (!self$eddy$add_flow(fn_key, self)) {
-        rlang::abort(paste("Failed to register flow:", fn_key))
-    }
-    
     # init self$
     self$fn <- fn
     self$fn_key <- fn_key
@@ -221,10 +215,11 @@ R6Flow$set("public", "initialize", function(
     self$split_bare_list <- flow_options$split_bare_list
     self$split_dataframe <- flow_options$split_dataframe
     self$split_fn <- flow_options$split_fn
+    self$eddy <- flow_options$eddy
     
     # 'group' in cache; does it have state data?
-    if (self$eddy$has_key(fn_key, .STATE_KEY)) {
-        flow_data <- self$eddy$get_data(fn_key, .STATE_KEY)
+    if (self$eddy$cache$has_key(fn_key, .STATE_KEY)) {
+        flow_data <- self$eddy$cache$get_data(fn_key, .STATE_KEY)
         self$state <- flow_data$state
         self$state_output <- flow_data$state_output
     } else {
@@ -243,7 +238,6 @@ R6Flow$set("public", "initialize", function(
         )
     }
     self$state_index <- 0L
-    self$check_all()
     self$state_env <- new.env(hash = TRUE, parent = emptyenv())
     
     # calc_in_hash
@@ -256,6 +250,19 @@ R6Flow$set("public", "initialize", function(
     # rf_fn: its enclosing envir is not changed to preserve access to self$
     self$rf_fn <- self$rf_fn_default
     formals(self$rf_fn) <- formals(args(fn))
+    
+    # register itself in eddy (error if fn_key already present)
+    if (!self$eddy$add_flow(fn_key, self)) {
+        rlang::abort(paste("Failed to register flow:", fn_key))
+    }
+    
+    # after registering into eddy, remove itself if error
+    tryCatch({
+        self$check_all()
+    }, error = function(e) {
+        self$eddy$remove_flow(fn_key)
+        stop(e)
+    })
     
     invisible(NULL)
 }, overwrite = TRUE)
@@ -665,7 +672,8 @@ R6Flow$set("public", "check_all", function() {
         in_hash <- NA_character_
     }
     
-    keys <- self$eddy$list_keys(self$fn_key)
+    # file caching will also return state key(s) which we do not need
+    keys <- self$eddy$list_keys(self$fn_key) %if_not_in% c(.STATE_KEY)
     changed <- FALSE
     
     # state: forget states missing from cache
@@ -683,13 +691,17 @@ R6Flow$set("public", "check_all", function() {
     delete_keys <- keys %if_not_in% c(
         self$state$out_hash, self$state_output$elem_hash)
     changed <- changed || (length(delete_keys) > 0L)
-    deleted_keys <- 
-        delete_keys %>%
-        rlang::set_names() %>%
-        purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
-    if (any(!deleted_keys)) {
-        txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
-        rlang::warn(paste("flow", self$fn_key, "- cannot delete keys:", txt))
+    if (length(delete_keys) > 0L) {
+        deleted_keys <- 
+            delete_keys %>%
+            rlang::set_names() %>%
+            purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
+        if (any(!deleted_keys)) {
+            txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
+            rlang::warn(paste(
+                "flow", self$fn_key, "- cannot delete keys:", txt))
+        }
+        changed <- TRUE
     }
     
     if (changed) {

@@ -113,10 +113,16 @@ R6NsSink$set("public", "initialize", function(
 ) {
     super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
     
-    # calc_in_hash
-    self$calc_in_hash <- self$calc_in_hash_ns_sink
-    self$rf_fn <- self$rf_fn_ns_sink
-    formals(self$rf_fn) <- formals(args(fn))
+    # after registering into eddy, remove itself if error
+    tryCatch({
+        # calc_in_hash
+        self$calc_in_hash <- self$calc_in_hash_ns_sink
+        self$rf_fn <- self$rf_fn_ns_sink
+        formals(self$rf_fn) <- formals(args(fn))
+    }, error = function(e) {
+        self$eddy$remove_flow(fn_key)
+        stop(e)
+    })
     
     invisible(NULL)
 }, overwrite = TRUE)

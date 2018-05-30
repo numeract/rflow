@@ -33,8 +33,14 @@ R6FileSource$set("public", "initialize", function(
 ) {
     super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
     
-    # calc_in_hash
-    self$calc_in_hash <- self$calc_in_hash_file_source
+    # after registering into eddy, remove itself if error
+    tryCatch({
+        # calc_in_hash
+        self$calc_in_hash <- self$calc_in_hash_file_source
+    }, error = function(e) {
+        self$eddy$remove_flow(fn_key)
+        stop(e)
+    })
     
     invisible(NULL)
 }, overwrite = TRUE)
