@@ -140,4 +140,5 @@ teardown({
     base::rm(list = "test_fn2", envir = .GlobalEnv)
     base::rm(list = "test_fn3", envir = .GlobalEnv)
     base::rm(list = "test_fn4", envir = .GlobalEnv)
+    base::rm(list = "test_env", envir = .GlobalEnv)
 })
