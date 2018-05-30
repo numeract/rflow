@@ -120,7 +120,7 @@ R6Eddy$set("public", "add_flow", function(fn_key, flow) {
 
 
 # remove_flow ----
-R6Eddy$set("public", "delete_flow", function(fn_key) {
+R6Eddy$set("public", "remove_flow", function(fn_key) {
     
     self$require_flow(fn_key)
     
