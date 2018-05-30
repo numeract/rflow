@@ -94,7 +94,8 @@ R6CacheMemoryFile$set("public", "forget_group", function(group) {
     # this also adds the group on disk, if missing
     group_dir <- fs::path(self$cache_dir, group)
     if (fs::dir_exists(group_dir)) {
-        fs::dir_delete(group_dir)
+        unlink(group_dir, recursive = TRUE, force = DIR_DELETE_FORCE)
+        Sys.sleep(DIR_DELETE_WAIT)
     }
     fs::dir_create(group_dir)
     
@@ -117,7 +118,7 @@ R6CacheMemoryFile$set("public", "delete_group", function(group) {
     
     group_dir <- fs::path(self$cache_dir, group)
     if (fs::dir_exists(group_dir)) {
-        fs::dir_delete(group_dir)
+        unlink(group_dir, recursive = TRUE, force = DIR_DELETE_FORCE)
     }
     
     !self$has_group(group)
@@ -269,7 +270,10 @@ R6CacheMemoryFile$set("public", "reset", function() {
     # the instance is as if just initialized
     
     self$cache_env <- new.env(hash = TRUE, parent = emptyenv())
-    fs::dir_delete(self$cache_dir)
+    if (fs::dir_exists(self$cache_dir)) {
+        unlink(self$cache_dir, recursive = TRUE, force = DIR_DELETE_FORCE)
+        Sys.sleep(DIR_DELETE_WAIT)
+    }
     fs::dir_create(self$cache_dir)
     
     gc()
@@ -284,8 +288,9 @@ R6CacheMemoryFile$set("public", "terminate", function() {
     
     self$cache_env <- NULL
     
-    # fs::dir_delete(self$cache_dir)
-    unlink(self$cache_dir, recursive = TRUE, force = TRUE)
+    if (fs::dir_exists(self$cache_dir)) {
+        unlink(self$cache_dir, recursive = TRUE, force = DIR_DELETE_FORCE)
+    }
     self$cache_dir <- NULL
     
     gc()
