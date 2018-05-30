@@ -65,6 +65,7 @@ flow_file_source <- function(file_path,
     
     # validate file_path 
     stopifnot(is.character(file_path))
+    stopifnot(length(file_path) >= 1L)
     nms <- names(file_path)
     if (is.null(nms)) {
         names(file_path) <- file_path
@@ -86,7 +87,11 @@ flow_file_source <- function(file_path,
     flow_options$split_fn <- as.list
     eddy <- flow_options$eddy
     
-    fn_name <- file_path[1L]
+    fn_name <- if (length(file_path) > 1L) {
+        paste0(file_path[1L], " [+", length(file_path) - 1L, "]")
+    } else {
+        file_path
+    }
     nchar_max <- 30L
     if (nchar(fn_name) > nchar_max) {
         nchar_side <- nchar_max %/% 2L - 2L
