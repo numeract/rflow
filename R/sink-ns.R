@@ -201,7 +201,7 @@ flow_ns_sink <- function(x,
                          ns,
                          flow_options = get_flow_options()) {
     
-    stopifnot(rlang::is_string(var_name))
+    stopifnot(rlang::is_string(var_name) && !is.na(var_name))
     stopifnot(is.environment(ns) || identical(class(ns), "reactivevalues"))
     
     # excluded_arg: allow args to be excluded from identifying changes

@@ -110,28 +110,28 @@ test_that("flow_ns_sink() stops with non existent variable", {
 
 test_that("flow_ns_sink stops with non valid var_name", {
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", 1, test_env))
+        flow_sink <- flow_ns_sink("value1", 1, test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", TRUE, test_env))
+        flow_sink <- flow_ns_sink("value1", TRUE, test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", NULL, test_env))
+        flow_sink <- flow_ns_sink("value1", NULL, test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", NA, test_env))
+        flow_sink <- flow_ns_sink("value1", NA, test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", NA_character_, test_env))
+        flow_sink <- flow_ns_sink("value1", NA_character_, test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", character(), test_env))
+        flow_sink <- flow_ns_sink("value1", character(), test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", c("var1, var2"), test_env))
+        flow_sink <- flow_ns_sink("value1", c("var1", "var2"), test_env))
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", list(), test_env))
+        flow_sink <- flow_ns_sink("value1", list(), test_env))
 })
 
 
 test_that("flow_ns_sink() stops with non environment", {
     non_environment <- function(){}
     expect_error(
-        flow_sink <- flow_ns_sink("variable1", "test_sink_var", non_environment))
+        flow_sink <- flow_ns_sink("value1", "test_sink_var", non_environment))
 })
 
 
