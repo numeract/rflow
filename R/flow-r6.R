@@ -517,7 +517,8 @@ R6Flow$set("public", "get_element", function(name = NULL) {
         is_valid <- FALSE
     } else {
         is_current <- TRUE
-        is_valid <- TRUE
+        # main result or an element might be missing from cache
+        is_valid <- self$eddy$has_key(self$fn_key, elem_hash)
     }
     
     # class does not inherit R6Flow since it has a different structure
@@ -816,7 +817,18 @@ R6Flow$set("public", "require_good_index", function(index = NULL) {
 R6Flow$set("public", "is_valid_at_index", function(index = NULL) {
     
     if (is.null(index)) index <- self$state_index
-    self$is_good_index(index) && !is.na(self$state$out_hash[index])
+    if (!self$is_good_index(index)) return(FALSE)
+    
+    out_hash <- self$state$out_hash[index]
+    if (is.na(out_hash)) return(FALSE)
+    
+    if (!self$eddy$has_key(self$fn_key, out_hash)) {
+        # no value in cache ==> not valid
+        self$state$out_hash[index] <- NA_character_
+        FALSE
+    } else {
+        TRUE
+    }
 }, overwrite = TRUE)
 
 
@@ -845,6 +857,5 @@ R6Flow$set("active", "is_current", function() {
 # is_valid ----
 R6Flow$set("active", "is_valid", function() {
     
-    index <- self$state_index
-    self$is_good_index(index) && !is.na(self$state$out_hash[index])
+    self$is_valid_at_index(self$state_index)
 }, overwrite = TRUE)
