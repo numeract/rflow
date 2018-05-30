@@ -49,8 +49,8 @@ new_eddy <- function(eddy_name,
     stopifnot(inherits(cache, "R6Cache"))
     stopifnot(is.environment(eddy_env))
     if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        # we cannot return the eddy since the flow_options might be different
-        stop("Cannot create a new eddy, name already present: ", eddy_name)
+        rlang::abort(paste(
+            "Cannot create a new eddy, name already present: ", eddy_name))
     }
     
     eddy <- R6Eddy$new(
@@ -80,11 +80,68 @@ get_eddy <- function(eddy_name,
     stopifnot(eddy_name != ".CURRENT_NAME")
     stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        stop("Cannot find eddy with name: ", eddy_name)
+        rlang::abort(paste("Cannot find eddy with name: ", eddy_name))
     }
     
     eddy <- eddy_env[[eddy_name]]
     stopifnot(inherits(eddy, "R6Eddy"))
+    
+    eddy
+}
+
+
+#' Convenience function that creates a new eddy or re-uses it if present.
+#' 
+#' @param eddy_name Unique name for the eddy to allow retrieving later.
+#' @param cache An cache object returned by one of the \code{cache} functions.
+#' @param flow_options Options to store for future flow invocations. They
+#'   do not affect the \code{eddy}, they are only stored for ease of access.
+#' @param reuse_if_present Logical, whether to reuse an eddy with the same name,
+#'   if already present, even if the \code{flow_options} are different.
+#' @param set_current Logical, whether to make this eddy current.
+#' @param eddy_env An environment where to put (bind) the eddy.
+#' 
+#' @return An eddy object to be used for storing flows.
+#' 
+#' @family eddy functions
+#' 
+#' @export
+use_eddy <- function(eddy_name,
+                     cache = default_cache(),
+                     flow_options = default_flow_options(),
+                     reuse_if_present = TRUE,
+                     set_current = TRUE,
+                     eddy_env = default_eddy_env()) {
+    
+    stopifnot(rlang::is_string(eddy_name))
+    stopifnot(eddy_name != ".CURRENT_NAME")
+    stopifnot(inherits(cache, "R6Cache"))
+    stopifnot(
+        rlang::is_true(reuse_if_present) || rlang::is_false(reuse_if_present))
+    stopifnot(
+        rlang::is_true(set_current) || rlang::is_false(set_current))
+    stopifnot(is.environment(eddy_env))
+    
+    if (base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
+        if (reuse_if_present) {
+            rlang::inform(paste("Reusing eddy:", eddy_name))
+            eddy <- eddy_env[[eddy_name]]
+            stopifnot(inherits(eddy, "R6Eddy"))
+        } else {
+            rlang::abort(paste(
+                "Cannot create a new eddy, name already present: ", eddy_name))
+        }
+    } else {
+        eddy <- R6Eddy$new(
+            cache = cache,
+            flow_options = flow_options
+        )
+        assign(eddy_name, eddy, envir = eddy_env)
+    }
+    
+    if (set_current) {
+        eddy_env[[".CURRENT_NAME"]] <- eddy_name
+    }
     
     eddy
 }
@@ -107,7 +164,7 @@ delete_eddy <- function(eddy_name,
     stopifnot(eddy_name != ".CURRENT_NAME")
     stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        stop("Cannot find eddy with name: ", eddy_name)
+        rlang::abort(paste("Cannot find eddy with name: ", eddy_name))
     }
     
     eddy <- eddy_env[[eddy_name]]
@@ -140,7 +197,7 @@ set_current_eddy <- function(eddy_name,
     stopifnot(eddy_name != ".CURRENT_NAME")
     stopifnot(is.environment(eddy_env))
     if (!base::exists(eddy_name, where = eddy_env, inherits = FALSE)) {
-        stop("Cannot find eddy with name: ", eddy_name)
+        rlang::abort(paste("Cannot find eddy with name: ", eddy_name))
     }
     
     eddy_env[[".CURRENT_NAME"]] <- eddy_name
