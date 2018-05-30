@@ -216,6 +216,8 @@ test_that("flow_call() works with different body/options", {
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 6)
     forget(test_flow)
+    test_fn <- function(x, y) { x + y }
+    assign("test_fn", test_fn, envir = .GlobalEnv)
 })
 
 
@@ -224,7 +226,6 @@ test_that("flow_fn() works", {
     flow_fn_test <- flow_fn(2, 3, fn = test_fn)
     collected_result <- flow_fn_test %>% collect()
     
-    # TBD In console works, problems with environment
     expect_equal(collected_result, 5)
     forget(flow_fn_test)
 })
@@ -428,8 +429,7 @@ test_that("forget() stops with forgotten rflow", {
     forget(rflow_test)
     expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
     
-    # Shouldn't this throw an error?
-    expect_error(forget(rflow_test))
+    expect_silent(forget(rflow_test))
 })
 
 
