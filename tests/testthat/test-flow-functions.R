@@ -227,6 +227,7 @@ test_that("flow_fn() works", {
     collected_result <- flow_fn_test %>% collect()
     
     expect_equal(collected_result, 5)
+    expect_equal(flow_fn_test$fn_name, "test_fn")
     forget(flow_fn_test)
 })
 
