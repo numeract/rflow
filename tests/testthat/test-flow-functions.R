@@ -519,9 +519,36 @@ test_that("is_flow() works with non-Element and non-R6Flow input",{
 
 
 # is_flow_fn tests -------------------------------------------------------------
-# test_that("is_flow_fn() works", {
-#     
-# })
+test_that("is_flow_fn() works", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    expect_true(is_flow_fn(test_make_flow_fn))
+})
+
+
+test_that("is_flow_fn() works with non flow fn", {
+    expect_false(is_flow_fn("non_flow"))
+    expect_false(is_flow_fn(test_fn))
+    expect_false(is_flow_fn(NULL))
+    expect_false(is_flow_fn(NA))
+    expect_false(is_flow_fn(list()))
+})
+
+
+# is_not_flow_fn tests -------------------------------------------------------------
+test_that("is_not_flow_fn() works", {
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    expect_true(is_not_flow_fn(test_fn))
+    expect_false(is_not_flow_fn(test_make_flow_fn))
+})
+
+
+test_that("is_flow_fn() works with non function arguments", {
+    expect_false(is_not_flow_fn("non_function"))
+    expect_false(is_not_flow_fn(NULL))
+    expect_false(is_not_flow_fn(NA))
+    expect_false(is_not_flow_fn(list()))
+})
+
 
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
