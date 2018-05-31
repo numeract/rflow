@@ -106,6 +106,15 @@ make_flow_fn <- function(fn,
             rlang::inform(paste(
                 "A cache for a function with the same signature but a", 
                 "different name already exists, creating a new cache."))
+            while (eddy$has_flow(fn_key)) {
+                old_fn_id <- eddy$get_flow(fn_key)$fn_id
+                if (is.numeric(old_fn_id)) {
+                    fn_id <- as.integer(old_fn_id + 1)
+                } else {
+                    fn_id <- (fn_id %||% 1L) + 1L
+                }
+                fn_key <- make_fn_key(fn, fn_id, flow_options)
+            }
         }
         flow <- R6Flow$new(
             fn = fn,
@@ -234,6 +243,15 @@ flow_call <- function(fn_call,
             rlang::inform(paste(
                 "A cache for a function with the same signature but different",
                 "name already exists, creating a new cache."))
+            while (eddy$has_flow(fn_key)) {
+                old_fn_id <- eddy$get_flow(fn_key)$fn_id
+                if (is.numeric(old_fn_id)) {
+                    fn_id <- as.integer(old_fn_id + 1)
+                } else {
+                    fn_id <- (fn_id %||% 1L) + 1L
+                }
+                fn_key <- make_fn_key(fn, fn_id, flow_options)
+            }
         }
         flow <- R6Flow$new(
             fn = fn,
@@ -246,9 +264,7 @@ flow_call <- function(fn_call,
     
     # unlike make_rf, we have a fn call to eval (in the parent.frame!)
     fn_call[[1L]] <- flow$rf_fn
-    res <- eval(fn_call, envir = parent.frame())
-    
-    res
+    eval(fn_call, envir = parent.frame())
 }
 
 
