@@ -63,6 +63,12 @@ R6NsSink$set("public", "rf_fn_ns_sink", function(...) {
             .p = ~ inherits(., "R6Flow"),
             .f = ~ .$get_element(name = NULL)
         )
+    is_recursive_lgl <- elem_args %>%
+        purrr::keep(~ inherits(., "Element")) %>%
+        purrr::map_lgl(~ identical(.$self$fn_key, self$fn_key))
+    if (any(is_recursive_lgl)) {
+        rlang::abort("Recursive calls cannot be processed.")
+    }
     in_hash <- self$calc_in_hash()
     
     # state has changed?
