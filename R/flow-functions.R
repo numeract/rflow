@@ -382,6 +382,7 @@ forget <- function(flow, state = "current") {
     
     flow$require_good_index()
     flow$forget_state(flow$state_index)
+    flow$save()
     
     flow
 }
