@@ -216,9 +216,14 @@ R6Eddy$set("public", "print", function() {
         fn_id = purrr::map_chr(self$flow_lst, "fn_id"),
         fn_key = as.character(names(self$flow_lst)),
         class = purrr::map_chr(self$flow_lst, ~ class(.)[[1L]]),
-        n_states = purrr::map_int(self$flow_lst, ~ NROW(.$state))
+        CV = purrr::map_chr(self$flow_lst, ~ paste0(
+            ifelse(.$is_current, ".", "X"),
+            ifelse(.$is_valid, ".", "I")
+        )),
+        state = purrr::map_chr(self$flow_lst, ~ paste(
+            .$state_index, "/", NROW(.$state)))
     ) %>%
-        dplyr::arrange(fn_name, fn_id) %>%
+        dplyr::arrange(class, fn_name, fn_id) %>%
         dplyr::left_join(cache_df, by = "fn_key")
     
     rfo <- self$flow_options
@@ -229,13 +234,17 @@ R6Eddy$set("public", "print", function() {
     emph_obj1 <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
     emph_obj2 <- paste0("<", crayon::italic(class(self$cache)[[1L]]), ">")
     n_flows <- crayon::bold(length(self$flow_lst))
-    cat(emph_obj1, "with cache", emph_obj2, "and", n_flows, "flow(s)\n",
-        " - excluded_arg:", excluded_arg, "\n",
-        " - eval_arg_fn:", eval_arg_fn, "\n",
-        " - split_bare_list:", rfo$split_bare_list, "\n",
-        " - split_dataframe:", rfo$split_dataframe, "\n",
-        " - split_fn:", split_fn, "\n"
+    cat(emph_obj1, "with cache", emph_obj2, "and", n_flows, "flow(s)\n")
+    
+    rfo_txt <- paste0(
+        crayon::bold("excluded_arg"), "=", excluded_arg, "; ",
+        crayon::bold("eval_arg_fn"), "=", eval_arg_fn, "; ",
+        crayon::bold("split_bare_list"), "=", rfo$split_bare_list, "; ",
+        crayon::bold("split_dataframe"), "=", rfo$split_dataframe, "; ",
+        crayon::bold("split_fn"), "=", split_fn
     )
+    cat(rfo_txt, "\n")
+    
     print(df)
     
     invisible(self)

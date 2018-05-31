@@ -234,7 +234,7 @@ R6CacheMemoryFile$set("public", "summary", function() {
     
     groups <- self$list_groups()
     
-    in_memory <- 
+    in_mem <- 
         groups %>%
         purrr::map_int(~ length(base::get0(
             ., envir = self$cache_env, inherits = FALSE, ifnotfound = list())))
@@ -252,7 +252,7 @@ R6CacheMemoryFile$set("public", "summary", function() {
     
     df <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory,
+        in_mem = in_mem,
         on_disk = on_disk
     )
     

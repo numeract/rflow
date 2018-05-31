@@ -160,7 +160,7 @@ R6CacheMemory$set("public", "summary", function() {
         purrr::map_int(~ length(self$list_keys(.)))
     df <- tibble::tibble(
         fn_key = groups,
-        in_memory = n_keys
+        in_mem = n_keys
     )
     
     df

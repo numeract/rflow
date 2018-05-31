@@ -404,12 +404,12 @@ test_that("summary() works", {
     base::assign(fn_group, value = kv_lst, pos = cache_fmem_test$cache_env)
 
     groups <- c("a_group", fn_group)
-    in_memory <- c(1L, 1L)
+    in_mem <- c(1L, 1L)
     on_disk <- c(1L, 2L)
 
     expected_output <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory,
+        in_mem = in_mem,
         on_disk = on_disk)
 
     expect_equal(cache_fmem_test$summary(), expected_output)
@@ -427,12 +427,12 @@ test_that("summary() works with no file cache", {
     fs::dir_delete(cache_group_dir)
 
     groups <- c(fn_group)
-    in_memory <- c(1L)
+    in_mem <- c(1L)
     on_disk <- c(0L)
 
     expected_output <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory,
+        in_mem = in_mem,
         on_disk = on_disk)
 
     expect_equal(cache_fmem_test$summary(), expected_output)
@@ -446,12 +446,12 @@ test_that("summary() works with no data", {
     cache_fmem_test <- cache_memory_file(cache_dir)
 
     groups <- character()
-    in_memory <- integer()
+    in_mem <- integer()
     on_disk <- integer()
 
     expected_output <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory,
+        in_mem = in_mem,
         on_disk = on_disk)
 
     expect_equal(cache_fmem_test$summary(), expected_output)

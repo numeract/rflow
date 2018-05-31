@@ -215,11 +215,11 @@ test_that("summary() works", {
     cache_memory_test$add_data("a_group", "key3", "value3")
 
     groups <- c("a_group", fn_group)
-    in_memory <- c(1L, 2L)
+    in_mem <- c(1L, 2L)
 
     expected_output <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory)
+        in_mem = in_mem)
 
     expect_equal(cache_memory_test$summary(), expected_output)
 
@@ -232,11 +232,11 @@ test_that("summary() works with no data", {
     cache_memory_test <- cache_memory()
 
     groups <- character()
-    in_memory <- integer()
+    in_mem <- integer()
 
     expected_output <- tibble::tibble(
         fn_key = groups,
-        in_memory = in_memory)
+        in_mem = in_mem)
 
     expect_equal(cache_memory_test$summary(), expected_output)
 
