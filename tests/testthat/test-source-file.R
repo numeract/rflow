@@ -98,6 +98,7 @@ test_that("flow_file_source() stops with non valid input", {
 
 
 teardown({
+    unlink(c(file1, file2, file3))
     base::rm(list = "file1", envir = .GlobalEnv)
     base::rm(list = "file2", envir = .GlobalEnv)
     base::rm(list = "file3", envir = .GlobalEnv)
