@@ -75,12 +75,27 @@ test_that("flow_file_source() works with non existent file path", {
     
     file_path <- as.character(fs::path("test", "path"))
     expect_silent(test_rflow_source <- flow_file_source(file_path))
-    # TODO: file present --> missing
-    # TODO: file missing -> present
-    # TODO: file changed
-    # TODO: remove tmp files in takedown
+    test_rflow_source <- NULL
 })
 
+
+test_that("flow_file_source() works when file present and then missing", {
+    write.csv(df1, file1, row.names = FALSE)
+    
+    file_path <- as.character(fs::path(file1))
+    test_rflow_source <- flow_file_source(file_path)
+    
+    expect_equal(test_rflow_source$state_index, 1L)
+    unlink(file1)
+    
+    test_rflow_source <- flow_file_source(file_path)
+    
+    # Shouldn't this be 2?
+    expect_equal(test_rflow_source$state_index, 2L)
+    test_rflow_source <- NULL
+})
+
+# TODO: file missing, then present
 
 test_that("flow_file_source() stops with non valid input", {
     
