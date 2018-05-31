@@ -3,7 +3,7 @@ context("Test cache-file functions")
 cache_dir <- "cache_dir"
 fn_group <- "default_group"
 
-skip("cache-file functions")
+# skip("cache-file functions")
 
 
 # add_group tests ----------------------------------------------------
