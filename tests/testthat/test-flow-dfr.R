@@ -38,7 +38,7 @@ test_that("flow_dfr() works with different states", {
     
     expect_equal(dfr1$state_index, 1)
     
-    dfr1 <- flow_dfr(tail(df), fn = df_fn)
+    expect_message(dfr1 <- flow_dfr(tail(df), fn = df_fn))
     
     collected_dfr1 <- dfr1 %>% collect()
     expect_equal(dfr1$state_index, 2)
@@ -53,6 +53,46 @@ test_that("flow_dfr() works with different states", {
 
 test_that("flow_dfr() stops with primitive function", {
     expect_error(dfr1 <- flow_dfr(head(df), fn = sum))
+})
+
+
+test_that("flow_dfr() with same name, but different body exists", {
+    dfr_test <- flow_dfr(head(df), fn = df_fn)
+    expect_equal(dfr_test$state_index, 1)
+    
+    df_fn <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        
+        dfi$mr <- rowSums(dfi[1:10])
+        dfi
+    }
+    assign("df_fn", df_fn, envir = .GlobalEnv)
+    
+    expect_message(dfr_test <- flow_dfr(head(df), fn = df_fn))
+    collected_dfr <- dfr_test %>% 
+        collect()
+    
+    expected_df <- head(df)
+    expected_df$mr <- rowSums(expected_df[1:10])
+    
+    expect_equal(dfr_test$state_index, 1)
+    expect_equal(collected_dfr, expected_df)
+    
+    df_fn <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi$rm <- rowMeans(dfi[1:10])
+        dfi
+    }
+    
+    assign("df_fn", df_fn, envir = .GlobalEnv)
 })
 
 
