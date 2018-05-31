@@ -171,7 +171,7 @@ R6Flow$set("public", "rf_fn_default", function(...) {
         if (found_state_idx != self$state_index) {
             self$state_index <- found_state_idx
         }
-        if (is.na(self$state$out_hash[found_state_idx])) {
+        if (!self$is_valid_at_index(found_state_idx)) {
             # state exists but no output cached ==> prep for re-compute
             self$state_env[[in_hash]] <- elem_args
         }
@@ -673,11 +673,11 @@ R6Flow$set("public", "check_all", function() {
         in_hash <- NA_character_
     }
     
-    # file caching will also return state key(s) which we do not need
+    # file caching will also return state key(s), which we do not need
     keys <- self$eddy$list_keys(self$fn_key) %if_not_in% c(.STATE_KEY)
     changed <- FALSE
     
-    # state: forget states missing from cache
+    # state: forget states that are missing from cache
     changed_lgl <- !(self$state$out_hash %in% keys)
     changed <- changed || any(changed_lgl)
     self$state$out_hash[changed_lgl] <- NA_character_
