@@ -46,6 +46,18 @@ test_that("make_flow_fn() works with cache re-use", {
 })
 
 
+test_that("make_flow_fn() works with same body, different name", {
+    test_fn5 <- function(x, y) { x + y }
+    assign("test_fn5", test_fn5, envir = .GlobalEnv)
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    expect_message(
+        test_make_flow_fn2 <- make_flow_fn(test_fn5))
+    forget(rflow_test)
+    base::rm(list = "test_fn5", .GlobalEnv)
+})
+
+
 test_that("make_flow_fn() stops with primitives", {
     expect_error(test_make_flow_fn <- make_flow_fn(sum)) 
 })
@@ -239,6 +251,18 @@ test_that("flow_fn() works with id", {
     expect_equal(collected_result, 5)
     expect_equal(flow_fn_test$fn_id, "id1")
     forget(flow_fn_test)
+})
+
+
+test_that("flow_fn() works with same body, different name", {
+    test_fn6 <- function(x, y) { x + y }
+    assign("test_fn6", test_fn6, envir = .GlobalEnv)
+    
+    flow_fn_test <- flow_fn(2, 3, fn = test_fn)
+    expect_message(
+        flow_fn_test2 <- flow_fn(2, 3, fn = test_fn6))
+    forget(flow_fn_test)
+    base::rm(list = "test_fn6", .GlobalEnv)
 })
 
 
