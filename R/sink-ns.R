@@ -72,16 +72,16 @@ R6NsSink$set("public", "rf_fn_ns_sink", function(...) {
             self$state_index <- found_state_idx
             changed <- TRUE
         } else {
-            changed <- FALSE
+            # same state but no cache ==> trigger "changed"
+            changed <- !self$is_valid_at_index(found_state_idx)
         }
     } else {
         self$add_state(
             in_hash = in_hash, 
-            out_hash = "ns_sink",
-            elem_args = elem_args,
+            out_hash = NA_character_,
+            elem_args = NULL,
             make_current = TRUE
         )
-        self$save()
         changed <- TRUE
     }
     
@@ -95,8 +95,11 @@ R6NsSink$set("public", "rf_fn_ns_sink", function(...) {
                     x$self$collect(x$elem_name)
                 }
             )
-        # not interested in the output, no split
+        # not interested in the output itself, there is no split
         do.call(what = self$fn, args = data_args, envir = globalenv())
+        # update the current state
+        self$state$out_hash[self$state_index] <- "<dumped>"
+        self$save()
     }
     
     self
@@ -165,6 +168,20 @@ R6NsSink$set("public", "collect", function(name = NULL) {
     rlang::warn("`collect` is not available for R6NsSink objects")
     
     invisible(NULL)
+}, overwrite = TRUE)
+
+
+# is_valid_at_index ----
+R6NsSink$set("public", "is_valid_at_index", function(index = NULL) {
+    
+    if (is.null(index)) index <- self$state_index
+    if (!self$is_good_index(index)) return(FALSE)
+    
+    out_hash <- self$state$out_hash[index]
+    if (is.na(out_hash)) return(FALSE)
+    
+    # unlike R6Flow, there is no cache to check
+    TRUE
 }, overwrite = TRUE)
 
 
