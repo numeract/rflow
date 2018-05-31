@@ -15,9 +15,9 @@ but it should provide the cached (pre-computed) result.
 
 While caching of the function output resolves the first problem, a second
 issue occurs when large data sets are being processed. In this case, hashing
-of the input arguments might take too long. This issue can be solved
+of the input arguments each time might take too long. This issue can be solved
 by hashing the data only once (as output) and then by noticing changes 
-in the hash in the downstream function. In other words, it is not 
+in the hash received by the downstream function. In other words, it is not 
 the data that flows through the pipeline (as is the case with standard function),
 but hashes of the data.
 
@@ -48,20 +48,34 @@ devtools::install_github("numeract/rflow")
 ### Simple Example
 
 ```
-x0 <- 10
-x1 <- 0.5
-x2 <- 2
+x1 <- 10
+x2 <- 0.5
+x3 <- 2
 
-f <- function(a, b, c = 1) {a * b + c}
-rf <- make_rflow(f)
+f1 <- function(a, b, c = 1) {a * b + c}
+f2 <- function(d, e) {d / e}
 
-(f1 <- f(x0, x1))   # 6
-r1 <- rf(x0, x1)
+# passing the results downstream using functions
+(o1 <- f1(x1, x2))  # 6
+(o2 <- f2(o1, x3))  # 3
+
+
+# variant 1: declaring flows for each function using default options
+ff1 <- make_flow_fn(f1)
+ff2 <- make_flow_fn(f2)
+
+# passing to the downstream flow and collecting the results
+r1 <- ff1(x1, x2)   # does not trigger re-calc
+r2 <- ff2(r1, x3)   # does not trigger re-calc; first arg. is a flow arg.
 collect(r1)         # 6
+collect(r2)         # 3
 
-(f2 <- f(f1, x2))   # 13
-r2 <- rf(r1, x2) 
-collect(r2)         # 13
+
+# variant 2: arguments and functions withing one call
+library(dplyr)                          # makes life easier 
+flow_fn(x1, x2, fn = f1) %>%            # reuses cache created by ff1
+  flow_fn(x3, fn = f2) %>%              # reuses cache created by ff2
+  collect()                             # 3, no actual re-calc takes place
 ```
 
 
@@ -73,13 +87,15 @@ that depend only on their inputs (and not on variables outside the function
 frame) and do not produce any side effects (e.g. printing,  modifying variables 
 in the global environment).
 
-2. `rflow` the function: `rf <- make_rflow(f))`
+2. "flow" the function: `ff <- make_flow_fn(f))`
 
-3. When pipelining `rf` into another `rflow` function, simply supply `rf()`
-as an argument, for example: `rf(x) %>% rf2(y) %>% rf3(z)`
+3. When pipelining `ff` into another `rflow` function, simply supply `ff()`
+as an argument, for example: `ff(x) %>% ff2(y) %>% ff3(z)`
 
 4. At the end of the `rflow` pipeline you must use `collect()` to collect
-the actual data (and not just the cache structure).
+the actual data (and not just the cached structure). Alternatively,
+use `flow_ns_sink()` to dump the data into an environment or a 
+`Shiny::reactiveValues` name space.
 
 
 ### Shiny
@@ -161,5 +177,5 @@ Package `rflow` is somewhere between `memoise` and `drake`:
 
 - reactivity 
 - multi-layer cache (with file locking)
-- files as inputs and outputs
+- files sinks
 - parallel processing

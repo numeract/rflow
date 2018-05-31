@@ -1,9 +1,14 @@
-# rflow 0.4.0
+# rflow 0.4.1
 
 - **extensive rewrite, breaks compatibility with previous versions**
 - add: separate cache from eddy (new R6 class tree)
 - updated eddy functions
-- ...
+- R6 class tree for flow functions
+- `flow_` functions for file source and namespace sink
+- `flow_dfr` for caching row-wise data frame operations
+- alternative setup that does not require `make_flow_fn` functions
+- lazy computation (does not re-compute a pipeline if not needed)
+- extensive testing
 
 
 # rflow 0.3.5
