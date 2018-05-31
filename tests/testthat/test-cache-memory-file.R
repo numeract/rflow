@@ -3,7 +3,12 @@ context("Test cache-memory-file functions")
 cache_dir <- "cache_dir"
 fn_group <- "default_group"
 
-skip("cache-memory-file functions")
+
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    # "b61ec0997d50f9810bd123aa5220382b"
+)) {
+    skip("cache-memory-file functions")
+}
 
 
 # add_group tests ----------------------------------------------------
