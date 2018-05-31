@@ -85,13 +85,15 @@ test_that("flow_file_source() works when file present and then missing", {
     file_path <- as.character(fs::path(file1))
     test_rflow_source <- flow_file_source(file_path)
     
+    # here there are already two states
     expect_equal(test_rflow_source$state_index, 1L)
     unlink(file1)
     
     test_rflow_source <- flow_file_source(file_path)
     
-    # Shouldn't this be 2?
-    expect_equal(test_rflow_source$state_index, 2L)
+    # Shouldn't this be 2? No, same path has been used before, eddy is not reset
+    # TODO; start with new path or new eddy
+    expect_equal(test_rflow_source$state_index, 3L)
     test_rflow_source <- NULL
 })
 

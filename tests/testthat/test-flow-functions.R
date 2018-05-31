@@ -54,7 +54,7 @@ test_that("make_flow_fn() works with same body, different name", {
     expect_message(
         test_make_flow_fn2 <- make_flow_fn(test_fn5))
     forget(rflow_test)
-    base::rm(list = "test_fn5", .GlobalEnv)
+    base::rm(list = "test_fn5", envir = .GlobalEnv)
 })
 
 
@@ -262,7 +262,7 @@ test_that("flow_fn() works with same body, different name", {
     expect_message(
         flow_fn_test2 <- flow_fn(2, 3, fn = test_fn6))
     forget(flow_fn_test)
-    base::rm(list = "test_fn6", .GlobalEnv)
+    base::rm(list = "test_fn6", envir = .GlobalEnv)
 })
 
 
