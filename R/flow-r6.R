@@ -706,7 +706,7 @@ R6Flow$set("public", "check_all", function() {
         deleted_keys <- 
             delete_keys %>%
             rlang::set_names() %>%
-            purrr::map_lgl(~ self$eddy$delete_data(fn_key, .))
+            purrr::map_lgl(~ self$eddy$delete_data(self$fn_key, .))
         if (any(!deleted_keys)) {
             txt <- paste(names(deleted_keys[!deleted_keys]), collapse = ", ")
             rlang::warn(paste(
