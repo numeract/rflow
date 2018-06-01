@@ -208,7 +208,7 @@ R6Eddy$set("public", "delete_data", function(fn_key, key) {
 
 # print ----
 # nocov start
-R6Eddy$set("public", "print", function() {
+R6Eddy$set("public", "print", function(n = NULL) {
     
     cache_df <- self$cache$summary()
     df <- tibble::tibble(
@@ -245,7 +245,7 @@ R6Eddy$set("public", "print", function() {
     )
     cat(rfo_txt, "\n")
     
-    print(df)
+    print(df, n = n)
     
     invisible(self)
 }, overwrite = TRUE)

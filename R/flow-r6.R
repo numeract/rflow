@@ -760,7 +760,7 @@ R6Flow$set("public", "save", function() {
 
 # print ----
 # nocov start
-R6Flow$set("public", "print", function() {
+R6Flow$set("public", "print", function(n = NULL) {
     
     emph_obj <- paste0("<", crayon::italic(class(self)[[1L]]), ">")
     fn_name <- paste(crayon::bold(self$fn_name), "/", self$fn_id)
@@ -770,7 +770,7 @@ R6Flow$set("public", "print", function() {
         " - is_current:", self$is_current, "\n",
         " - is_valid:", self$is_valid, "\n"
     )
-    print(self$state)
+    print(self$state, n = n)
     
     invisible(self)
 }, overwrite = TRUE)
