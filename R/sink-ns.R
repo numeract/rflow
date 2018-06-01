@@ -105,6 +105,7 @@ R6NsSink$set("public", "rf_fn_ns_sink", function(...) {
         do.call(what = self$fn, args = data_args, envir = globalenv())
         # update the current state
         self$state$out_hash[self$state_index] <- "<dumped>"
+        self$state$time_stamp[self$state_index] <- now_utc()
         self$save()
     }
     
@@ -140,10 +141,13 @@ R6NsSink$set("public", "initialize", function(
 # forget_state ----
 R6NsSink$set("public", "forget_state", function(index) {
     
-    # overwrite to disable
-    rlang::warn("`forget_state` is not available for R6NsSink objects")
+    self$require_good_index(index)
     
-    invisible(NULL)
+    # overwrite to reflect no data storage
+    self$state$out_hash[index] <- NA_character_
+    self$state$time_stamp[index] <- now_utc()
+    
+    TRUE
 }, overwrite = TRUE)
 
 

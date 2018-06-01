@@ -392,7 +392,7 @@ R6Flow$set("public", "forget_state", function(index) {
     # delete data from state_output
     self$delete_state_output(old_state$out_hash)
     
-    # return TRUE if state can be found
+    # return TRUE if state can still be found
     self$which_state(old_state$in_hash) == index
 }, overwrite = TRUE)
 
@@ -643,7 +643,8 @@ R6Flow$set("public", "collect", function(name = NULL) {
     
     # if not yet computed ==> trigger compute
     if (!self$compute()) {
-        rlang::abort("Cannot compute the current state.")
+        rlang::abort(paste0(
+            "fn_key=", self$fn_key, ": cannot compute the current state."))
     }
     
     out_hash <- self$get_out_hash(name = name)
@@ -656,8 +657,9 @@ R6Flow$set("public", "collect", function(name = NULL) {
         )
     } else {
         if (!self$eddy$has_key(self$fn_key, out_hash)) {
-            rlang::abort(paste(
-                "Cached output is missing for out_hash", out_hash))
+            rlang::abort(paste0(
+                "fn_key=", self$fn_key, 
+                ": cached output is missing for out_hash ", out_hash))
         }
         vis_out_lst <- self$eddy$get_data(self$fn_key, out_hash)
     }
