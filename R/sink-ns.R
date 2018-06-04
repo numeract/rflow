@@ -240,7 +240,7 @@ flow_ns_sink <- function(x,
     
     fn <- to_ns
     fn_id <- var_name  # it would be nice to include a ref to ns
-    fn_key <- make_fn_key(fn, fn_id, flow_options)
+    fn_key <- make_fn_key(fn, fn_id, flow_options, "R6NsSink")
     
     if (eddy$has_flow(fn_key)) {
         flow <- eddy$get_flow(fn_key)

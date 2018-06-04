@@ -212,8 +212,11 @@ flow_dfr <- function(df,
         rlang::abort("Anonymous functions not supported.")
     }
     
-    fn_key <- make_fn_key(fn, fn_id, flow_options)
-    fn_names <- purrr::map_chr(eddy$flow_lst, "fn_name")
+    fn_key <- make_fn_key(fn, fn_id, flow_options, "R6FlowDfr")
+    fn_names <-
+        eddy$flow_lst %>%
+        purrr::keep(~ rlang::inherits_all(., "R6FlowDfr")) %>%
+        purrr::map_chr("fn_name")
     if (fn_name %in% fn_names) {
         if (eddy$has_flow(fn_key)) {
             # the R6FlowDfr obj exists ==> re-use it; message if no fn_id
@@ -236,7 +239,7 @@ flow_dfr <- function(df,
                 } else {
                     fn_id <- 1L
                 }
-                fn_key <- make_fn_key(fn, fn_id, flow_options)
+                fn_key <- make_fn_key(fn, fn_id, flow_options, "R6FlowDfr")
             }
             flow <- R6FlowDfr$new(
                 fn = fn,
@@ -258,7 +261,7 @@ flow_dfr <- function(df,
                 } else {
                     fn_id <- (fn_id %||% 1L) + 1L
                 }
-                fn_key <- make_fn_key(fn, fn_id, flow_options)
+                fn_key <- make_fn_key(fn, fn_id, flow_options, "R6FlowDfr")
             }
         }
         flow <- R6FlowDfr$new(
