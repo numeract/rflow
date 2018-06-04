@@ -25,13 +25,9 @@ test_that("is_key() stops with non character input", {
 
 test_that("is_key() stops with vectors", {
     
-    expect_false(is_key(c()))
     expect_false(is_key(c("a_key", "b_key")))
     expect_false(is_key(c(NA, "b_key")))
     expect_false(is_key(c("d", "b_key", NULL)))
-    expect_false(is_key(c("d", NULL, NULL, "a")))
-    # Shouldn't this be false?
-   # expect_false(is_key(c(NULL, "a")))
 })
 
 
@@ -68,11 +64,7 @@ test_that("require_keys() stops with non character input", {
 
 test_that("require_keys() stops with vectors", {
     
-    expect_error(require_keys(c()))
     expect_error(require_keys(c("a_key", "b_key"), "a_key"))
     expect_error(require_keys(c(NA, "b_key")))
     expect_error(require_keys(c("d", "b_key", NULL)))
-    expect_error(require_keys(c("d", NULL, NULL, "a")))
-    # Shouldn't this throw an error?
-  #  expect_error(require_keys(c(NULL, "a")))
 })

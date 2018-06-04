@@ -10,10 +10,10 @@ flow_dfr(df, ..., fn = NULL, fn_id = NULL,
 \arguments{
 \item{df}{A \code{data.frame} or \code{tibble}. Rownames are not supported.}
 
-\item{...}{Named arguments to pass to \code{fn}.}
+\item{...}{Other named arguments to pass to \code{fn}.}
 
 \item{fn}{The function to apply to the data frame. It must accept a data
-frame as the first argument and a numeric index as the second argument.}
+frame as the first argument.}
 
 \item{fn_id}{Optional id to uniquely identify the function. By default,
 rflow functions reuse the cache if the same function is given. The id 
@@ -29,11 +29,11 @@ The flow object.
 Row-wise caching of operations on data frame.
 }
 \details{
-Function \code{fn} must return only the rows changed.
+Function \code{fn} will receive only the rows changed; 
+  it may drop some of the rows, but will not add any new rows.
   The function \code{fn} may return fewer or more columns or modify 
   existing columns as long it always returns the same columns (data types 
-  and names). This is consistent with the concept of "pure functions".
-  The data frame \code{df} passed to \code{fn} will have one additional
-  column \code{.row_hash} which must be return as is in order to identify
-  changed rows.
+  and names). The data frame \code{df} passed to \code{fn} will have one 
+  additional column \code{..row_hash..} which must be returned as is in 
+  order to identify changes.
 }

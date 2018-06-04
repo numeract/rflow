@@ -173,19 +173,19 @@ test_that("flow_dfr() works with same body, different name", {
 
 test_that("flow_dfr() stops with empty dataframe", {
     df <- data.frame()
-    expect_error(dfr <- flow_dfr(df, fn = identity_df))
+    expect_error(dfr <- flow_dfr(df, fn = identity))
 })
 
 
-test_that("flow_dfr() stops with 0 rows dataframe", {
-    df <- data.frame(col1 = c(), col2 = c())
-    expect_error(dfr <- flow_dfr(df, fn = identity_df))
+test_that("flow_dfr() works with 0 rows dataframe", {
+    df <- data.frame(col1 = character(), col2 = character())
+    dfr <- flow_dfr(df, fn = identity)
+    expect_equal(collect(dfr), tibble::as_tibble(df))
 })
 
 
 test_that("flow_dfr() stops with non df input", {
     expect_error(dfr <- flow_dfr(NULL, fn = identity_df))
-    expect_error(dfr <- flow_dfr(c(), fn = identity_df))
     expect_error(dfr <- flow_dfr(list(), fn = identity_df))
     expect_error(dfr <- flow_dfr(NA, fn = identity_df))
     expect_error(dfr <- flow_dfr(character(), fn = identity_df))

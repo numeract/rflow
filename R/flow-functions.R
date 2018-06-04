@@ -73,7 +73,7 @@ make_flow_fn <- function(fn,
         if (eddy$has_flow(fn_key)) {
             # the R6Flow obj exists ==> re-use it; message if no fn_id
             if (is.null(fn_id)) {
-                rlang::inform(paste("Reusing cache for function", fn_name))
+                rlang::inform(paste("Reusing cache for function:", fn_name))
             }
             flow <- eddy$get_flow(fn_key)
         } else {
@@ -210,7 +210,7 @@ flow_call <- function(fn_call,
         if (eddy$has_flow(fn_key)) {
             # the R6Flow obj exists ==> re-use it; message if no fn_id
             if (is.null(fn_id)) {
-                rlang::inform(paste("Reusing cache for function", fn_name))
+                rlang::inform(paste("Reusing cache for function:", fn_name))
             }
             flow <- eddy$get_flow(fn_key)
         } else {
