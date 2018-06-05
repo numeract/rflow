@@ -88,7 +88,9 @@ make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
         fn_key_lst <-
             fn_id_lst %>%
             purrr::map(~ eddy$digest(c(flow_hash, .))) %>%
-            purrr::keep(~ . %in% fn_keys)
+            purrr::imap_lgl(~ .x == .y) %>% 
+            purrr::keep( ~ .) %>% 
+            names()
         
         if (length(fn_key_lst) > 1L) {
             rlang::abort(paste0(
