@@ -87,6 +87,7 @@ flow_file_source <- function(file_path,
     flow_options$split_fn <- as.list
     eddy <- flow_options$eddy
     
+    # fn_name based on file_path
     fn_name <- if (length(file_path) > 1L) {
         paste0(file_path[1L], " [+", length(file_path) - 1L, "]")
     } else {
@@ -100,17 +101,11 @@ flow_file_source <- function(file_path,
         fn_name <- paste0(n1, "...", n2)
     }
     
-    fn_key <- eddy$digest(file_path)
+    # fn_id is always the same for each path set, cannot be set by user
+    fn_id <- 1L
     
-    fn_ids <- eddy$flow_lst %>%
-        purrr::keep(~ .$fn_name == fn_name) %>%
-        purrr::keep(~ rlang::is_integerish(.$fn_id)) %>%
-        purrr::map_int("fn_id")
-    if (length(fn_ids) > 0L) {
-        fn_id <- as.integer(max(fn_ids) + 1)
-    } else {
-        fn_id <- 1L
-    }
+    # cannot use make_key(), fn_key depends only on path string
+    fn_key <- eddy$digest(file_path)
     
     if (eddy$has_flow(fn_key)) {
         flow <- eddy$get_flow(fn_key)

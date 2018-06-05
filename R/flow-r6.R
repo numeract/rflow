@@ -225,7 +225,7 @@ R6Flow$set("public", "initialize", function(
     self$split_fn <- flow_options$split_fn
     self$eddy <- flow_options$eddy
     
-    # 'group' in cache; does it have state data?
+    # 'group' in cache (do not use $rflow_ yet); does it have state data?
     if (self$eddy$cache$has_key(fn_key, .STATE_KEY)) {
         flow_data <- self$eddy$cache$get_data(fn_key, .STATE_KEY)
         self$state <- flow_data$state

@@ -228,7 +228,7 @@ flow_ns_sink <- function(x,
                          ns,
                          flow_options = get_flow_options()) {
     
-    stopifnot(rlang::is_string(var_name) && !is.na(var_name))
+    require_keys(var_name)
     stopifnot(is.environment(ns) || identical(class(ns), "reactivevalues"))
     
     # excluded_arg: allow args to be excluded from identifying changes
@@ -236,20 +236,21 @@ flow_ns_sink <- function(x,
     flow_options$split_bare_list <- FALSE
     flow_options$split_dataframe <- FALSE
     flow_options$split_fn <- NULL
-    eddy <- flow_options$eddy
     
+    fn_name <- "to_ns"
     fn <- to_ns
     fn_id <- var_name  # it would be nice to include a ref to ns
-    fn_key <- make_fn_key(fn, fn_id, flow_options, "R6NsSink")
+    use <- make_key(fn_name, fn, fn_id, flow_options, "R6NsSink")
+    eddy <- flow_options$eddy
     
-    if (eddy$has_flow(fn_key)) {
-        flow <- eddy$get_flow(fn_key)
+    if (use$action == "get") {
+        flow <- eddy$get_flow(use$fn_key)
     } else {
         flow <- R6NsSink$new(
             fn = fn,
-            fn_key = fn_key,
-            fn_name = "to_ns",
-            fn_id = fn_id,
+            fn_key = use$fn_key,
+            fn_name = use$fn_name,
+            fn_id = use$fn_id,
             flow_options = flow_options
         )
     }
