@@ -1,3 +1,11 @@
+# rflow 0.5.0
+
+- the function supplied to `flow_dfr` receives only changed rows and no index
+- new function: `flow_dfg` hadles grouped data frames
+- refactor fn_key formation
+- misc fixes
+
+
 # rflow 0.4.1
 
 - **extensive rewrite, breaks compatibility with previous versions**
