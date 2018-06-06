@@ -1,17 +1,7 @@
 # wrappers around R6Eddy following standard R functionality
 
 
-# !diagnostics suppress=.
-
-
-# create a separate binding environment to keep eddies
-.EDDY_ENV <- new.env(parent = emptyenv())
-
-
-# Each eddy_env has a string variable .CURRENT_NAME that stores the name
-# of the current eddy. This to avoid duplicate binding of the eddy_end
-# to help with gc()
-.EDDY_ENV[[".CURRENT_NAME"]] <- NA_character_
+# !diagnostics suppress=., .EDDY_ENV
 
 
 #' Get the default binding environment that keeps the eddies.

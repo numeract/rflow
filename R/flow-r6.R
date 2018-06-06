@@ -2,7 +2,6 @@
 
 
 # !diagnostics suppress=self, public
-.STATE_KEY = "_state"
 
 
 # R6Flow ----

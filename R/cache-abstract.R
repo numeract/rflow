@@ -3,11 +3,6 @@
 
 # !diagnostics suppress=., self, private
 
-# force dir delete?
-DIR_DELETE_FORCE = TRUE
-# how long to wait (in seconds) after deleting a dir and recreating it
-DIR_DELETE_WAIT = 0.1
-
 
 # nocov start
 R6Cache <- R6::R6Class(

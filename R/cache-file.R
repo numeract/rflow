@@ -4,7 +4,6 @@
 # !diagnostics suppress=., self, private
 
 
-
 R6CacheFile <- R6::R6Class(
     classname = "R6CacheFile",
     inherit = R6Cache,

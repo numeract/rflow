@@ -2,9 +2,6 @@
 
 
 # !diagnostics suppress=., self, private, super
-ROW_ID <- "..row_id.."
-ROW_HASH <- "..row_hash.."
-GROUP_HASH <- "..group_hash.."
 
 
 # R6FlowDfg ----
