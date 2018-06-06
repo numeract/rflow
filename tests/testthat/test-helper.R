@@ -4,7 +4,12 @@ context("Test helper functions")
 
 setup({
     test_fn <- function(x, y) { x + y }
+    make_key_wrap <- function(fn, fn_id, flow_options, class_name) {
+        match_call <- match.call()
+        make_key(match_call$fn, fn, fn_id, flow_options, class_name)
+    }
     assign("test_fn", test_fn, envir = .GlobalEnv)
+    assign("make_key_wrap", make_key_wrap, envir = .GlobalEnv)
 })
 
 
@@ -86,11 +91,8 @@ test_that("make_key() works", {
     class_name <- "R6Flow"
     
    
-    actual_result <- make_key(fn_name,
-                              fn,
-                              fn_id,
-                              flow_options,
-                              class_name)
+    actual_result <- make_key(
+        fn_name, fn, fn_id, flow_options, class_name)
     
     expect_equal(actual_result$action, "new")
     expect_equal(actual_result$fn_name, fn_name)
@@ -123,25 +125,8 @@ test_that("make_key() stops with anonymus function", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    expect_error(actual_result <- make_key(fn_name = NULL,
-                                           fn = test_fn,
-                                           fn_id = fn_id,
-                                           flow_options = flow_options,
-                                           class_name = class_name))
-})
-
-
-# Shouldn't this throw an error?
-test_that("make_key() stops with anonymus function", {
-    fn_id <- "id1"
-    flow_options <- get_flow_options()
-    class_name <- "R6Flow"
-    
-    expect_error(actual_result <- make_key(fn_name = "anonymus",
-                                           fn = function(x){x},
-                                           fn_id = fn_id,
-                                           flow_options = flow_options,
-                                           class_name = class_name))
+    expect_error(
+        make_key_wrap(function(x){x}, fn_id, flow_options, class_name))
 })
 
 
@@ -150,11 +135,8 @@ test_that("make_key() stops with primitive function", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    expect_error(actual_result <- make_key(fn_name = "sum",
-                                           fn = sum,
-                                           fn_id = fn_id,
-                                           flow_options = flow_options,
-                                           class_name = class_name))
+    expect_error(
+        make_key_wrap(sum, fn_id, flow_options, class_name))
 })
 
 
