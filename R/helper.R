@@ -30,8 +30,10 @@ make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
     if (!is.character(fn_name)) {
         if (is.symbol(fn_name)) {
             fn_name <- as.character(fn_name)
-        } else {
+        } else if (is.language(fn_name)) {
             rlang::abort("Anonymous functions not supported.")
+        } else {
+            rlang::abort("Unrecognized `fn_name` data type.")
         }
     }
     require_keys(fn_name, class_name)
