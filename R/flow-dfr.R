@@ -15,6 +15,45 @@ R6FlowDfr <- R6::R6Class(
 )
 
 
+# initialize ----
+R6FlowDfr$set("public", "initialize", function(
+    fn,
+    fn_key,
+    fn_name,
+    fn_id,
+    flow_options = get_flow_options()
+) {
+    super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
+    
+    # after registering into eddy, remove itself if error
+    tryCatch({
+        if (self$eddy$cache$has_key(fn_key, .ROW_CACHE)) {
+            flow_data <- self$eddy$cache$get_data(fn_key, .ROW_CACHE)
+            self$out_df <- flow_data$out_df
+            self$out_visible <- flow_data$out_visible
+        } else {
+            self$out_df <- NULL
+            self$out_visible <- NULL
+        }
+    }, error = function(e) {
+        self$eddy$remove_flow(fn_key)
+        stop(e)
+    })
+    
+    invisible(NULL)
+}, overwrite = TRUE)
+
+
+# forget_state ----
+R6FlowDfr$set("public", "forget_state", function(index) {
+    
+    # in out_df one row can belong to many states, cannot separate them
+    self$out_df <- NULL
+    
+    super$forget_state(index)
+}, overwrite = TRUE)
+
+
 # compute ----
 R6FlowDfr$set("public", "compute", function() {
     # follow R6Flow compute, with some changes
@@ -144,6 +183,35 @@ R6FlowDfr$set("public", "compute", function() {
     }
     
     self$save()
+}, overwrite = TRUE)
+
+
+# forget_all ----
+R6FlowDfr$set("public", "forget_all", function() {
+    
+    self$out_df <- NULL
+    self$out_visible <- NULL
+    
+    super$forget_all()
+}, overwrite = TRUE)
+
+
+# save ----
+R6FlowDfr$set("public", "save", function() {
+    
+    super$save()
+    
+    flow_data <- list(
+        out_df = self$out_df,
+        out_visible = self$out_visible
+    )
+    
+    # returns TRUE if cache for fn_key contains the key .ROW_CACHE
+    save_ok <- self$eddy$add_data(self$fn_key, .ROW_CACHE, flow_data)
+    if (!save_ok) {
+        rlang::warn("flow cannot save row cache state")
+    }
+    save_ok
 }, overwrite = TRUE)
 
 
