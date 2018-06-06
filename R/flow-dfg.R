@@ -245,7 +245,9 @@ flow_dfg <- function(df,
     }
     if (!is.null(by)) {
         stopifnot(!is.na(by) && is.character(by))
-        stopifnot(all(by %in% names(df)))
+        if (is.data.frame(df)) {
+            stopifnot(all(by %in% names(df)))
+        }
     }
     # add `by` to flow_options to make the hash unique
     flow_options$by <- by
