@@ -2,7 +2,6 @@
 context("Test cache-memory-file functions")
 cache_dir <- "cache_dir"
 fn_group <- "default_group"
-skip("faster tests")
 
 if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
