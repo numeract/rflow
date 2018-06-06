@@ -1,6 +1,12 @@
 # Tests for helper --------------------------------------------
 context("Test helper functions")
 
+setup({
+    test_fn <- function(x, y) { x + y }
+    assign("test_fn", test_fn, envir = .GlobalEnv)
+})
+
+
 test_that("is_key() works", {
     
     expect_true(is_key("a_key"))
@@ -67,4 +73,30 @@ test_that("require_keys() stops with vectors", {
     expect_error(require_keys(c("a_key", "b_key"), "a_key"))
     expect_error(require_keys(c(NA, "b_key")))
     expect_error(require_keys(c("d", "b_key", NULL)))
+})
+
+
+# make_key tests ---------------------------------------------------------------
+test_that("make_key works", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+   
+    actual_result <- make_key("test_fn",
+                              fn,
+                              fn_id,
+                              flow_options,
+                              class_name)
+    
+    expect_equal(actual_result$action, "new")
+    expect_equal(actual_result$fn_name, fn_name)
+    expect_equal(actual_result$fn_id, fn_id)
+})
+
+
+teardown({
+    base::rm(list = "test_fn", envir = .GlobalEnv)
 })

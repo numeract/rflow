@@ -1,7 +1,7 @@
 # Tests for flow functions -----------------------------------------------------
 context("Flow functions tests")
 
-skip("TODO: update tests")
+#skip("TODO: update tests")
 
 # test make_flow_fn ------------------------------------------------------------
 setup({
@@ -33,7 +33,7 @@ test_that("make_flow_fn() works with pipes", {
         test_make_flow_fn3()
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 6)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -292,7 +292,7 @@ test_that("flow_fn() works with options", {
 
 
 test_that("flow_fn() works with pipes", {
-    flow_fn_test <- flow_fn(1, 2, fn = test_fn)
+    flow_fn_test <- flow_fn(1, 2, fn = test_fn, fn_id = "id1")
     collected_result <- flow_fn_test %>%
         flow_fn(3, fn = test_fn2) %>%
         flow_fn(fn = test_fn3) %>%
@@ -304,7 +304,7 @@ test_that("flow_fn() works with pipes", {
         flow_fn(fn = test_fn3) %>%
         collect()
     expect_equal(collected_result, 9)
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
 })
 
 
@@ -379,7 +379,7 @@ test_that("collect.Element() works with pipes", {
         collect()
     
     expect(collected_result, 3)
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
