@@ -745,9 +745,7 @@ R6Flow$set("public", "save", function() {
     
     flow_data <- list(
         fn_key = self$fn_key,
-        fn_name = self$fn_name,
         state = self$state,
-        state_index = self$state_index,
         state_output = self$state_output
     )
     
