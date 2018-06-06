@@ -1,6 +1,6 @@
 # Tests for flow_dfr -----------------------------------------------------------
 context("flow-dfr tests")
-
+skip("faster tests")
 setup({
     df <- tibble::as.tibble(mtcars)
     df_fn <- function(df, i = NULL) {

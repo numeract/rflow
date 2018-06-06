@@ -2,7 +2,7 @@
 context("Test cache-memory functions")
 
 fn_group <- "default_group"
-
+skip("faster tests")
 
 # add_group tests ----------------------------------------------------
 test_that("add_group() works", {

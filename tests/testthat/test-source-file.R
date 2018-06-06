@@ -1,6 +1,7 @@
 # Tests for source file --------------------------------------------------------
 context("tests for source-file")
 
+skip("faster tests")
 setup({
     file1 <- tempfile(pattern = "test-rflow-")
     file2 <- tempfile(pattern = "test-rflow-")

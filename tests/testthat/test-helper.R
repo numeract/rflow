@@ -77,7 +77,7 @@ test_that("require_keys() stops with vectors", {
 
 
 # make_key tests ---------------------------------------------------------------
-test_that("make_key works", {
+test_that("make_key() works", {
     fn <- test_fn
     fn_name <- "test_fn"
     fn_id <- "id1"
@@ -85,7 +85,7 @@ test_that("make_key works", {
     class_name <- "R6Flow"
     
    
-    actual_result <- make_key("test_fn",
+    actual_result <- make_key(fn_name,
                               fn,
                               fn_id,
                               flow_options,
@@ -95,6 +95,115 @@ test_that("make_key works", {
     expect_equal(actual_result$fn_name, fn_name)
     expect_equal(actual_result$fn_id, fn_id)
 })
+
+
+test_that("make_key() works with symbols as fn_name", {
+    fn <- test_fn
+    fn_name <- as.symbol("test_fn")
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    
+    expect_silent(actual_result <- make_key(fn_name,
+                                            fn,
+                                            fn_id,
+                                            flow_options,
+                                            class_name))
+    
+    expect_equal(actual_result$action, "new")
+    expect_equal(actual_result$fn_name, "test_fn")
+    expect_equal(actual_result$fn_id, fn_id)
+})
+
+
+test_that("make_key() stops with anonymus function", {
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_error(actual_result <- make_key(fn_name = NULL,
+                                           fn = test_fn,
+                                           fn_id = fn_id,
+                                           flow_options = flow_options,
+                                           class_name = class_name))
+})
+
+
+# Shouldn't this throw an error?
+test_that("make_key() stops with anonymus function", {
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_error(actual_result <- make_key(fn_name = "anonymus",
+                                           fn = function(x){x},
+                                           fn_id = fn_id,
+                                           flow_options = flow_options,
+                                           class_name = class_name))
+})
+
+
+test_that("make_key() stops with primitive function", {
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_error(actual_result <- make_key(fn_name = "sum",
+                                           fn = sum,
+                                           fn_id = fn_id,
+                                           flow_options = flow_options,
+                                           class_name = class_name))
+})
+
+
+test_that("make_key() works with integerish id", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+
+    actual_result1 <- make_key(fn_name,
+                              fn,
+                              10.0,
+                              flow_options,
+                              class_name)
+    
+    expect_equal(actual_result1$fn_id, 10)
+})
+
+
+test_that("make_key() stops with non valid id", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_error(make_key(fn_name,
+                          fn,
+                          -Inf,
+                          flow_options,
+                          class_name))
+    
+    expect_error(make_key(fn_name,
+                          fn,
+                          Inf,
+                          flow_options,
+                          class_name))
+    
+    expect_error(make_key(fn_name,
+                          fn,
+                          0,
+                          flow_options,
+                          class_name))
+    
+    expect_error(make_key(fn_name,
+                          fn,
+                          -5,
+                          flow_options,
+                          class_name))
+})
+
 
 
 teardown({

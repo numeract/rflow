@@ -1,6 +1,6 @@
 # Eddy functions tests----------------------------------------------------------
 context("Eddy functions tests")
-
+skip("faster tests")
 test_that("parse_flow_options() works", {
     eval_arg_fn <- function(x) {list(x)}
     eddy <- new_eddy(eddy_name = "test_eddy")

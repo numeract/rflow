@@ -1,7 +1,7 @@
 # Tests for flow functions -----------------------------------------------------
 context("Flow functions tests")
 
-#skip("TODO: update tests")
+skip("faster tests")
 
 # test make_flow_fn ------------------------------------------------------------
 setup({
