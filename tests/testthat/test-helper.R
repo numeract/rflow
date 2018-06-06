@@ -1,6 +1,7 @@
 # Tests for helper --------------------------------------------
 context("Test helper functions")
 
+
 setup({
     test_fn <- function(x, y) { x + y }
     assign("test_fn", test_fn, envir = .GlobalEnv)

@@ -1,8 +1,13 @@
 # Tests for chache memory --------------------------------------------
 context("Test cache-memory functions")
 
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
+
 fn_group <- "default_group"
-skip("faster tests")
 
 # add_group tests ----------------------------------------------------
 test_that("add_group() works", {

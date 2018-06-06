@@ -1,6 +1,12 @@
 # Eddy functions tests----------------------------------------------------------
 context("Eddy functions tests")
-skip("faster tests")
+
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
+
 test_that("parse_flow_options() works", {
     eval_arg_fn <- function(x) {list(x)}
     eddy <- new_eddy(eddy_name = "test_eddy")

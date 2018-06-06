@@ -5,7 +5,7 @@ fn_group <- "default_group"
 skip("faster tests")
 
 if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-    # "b61ec0997d50f9810bd123aa5220382b"
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
 )) {
     skip("cache-memory-file functions")
 }

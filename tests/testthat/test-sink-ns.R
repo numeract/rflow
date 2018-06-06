@@ -1,6 +1,12 @@
 # Tests for sink-ns ------------------------------------------------------------
 context("tests for sink-ns")
 
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
+
 setup({
     test_fn <- function(x, y) { x + y }
     test_fn2 <- function(x, y) { x * y }

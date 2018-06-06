@@ -1,6 +1,12 @@
 # Tests for source file --------------------------------------------------------
 context("tests for source-file")
 
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
+
 setup({
     file1 <- tempfile(pattern = "test-rflow-")
     file2 <- tempfile(pattern = "test-rflow-")
