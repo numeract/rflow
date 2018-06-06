@@ -40,7 +40,6 @@ test_that("flow_file_source() works when file modified", {
     test_rflow_source <- flow_file_source(file_path)
     
     expect_equal(test_rflow_source$state_index, 2L)
-    forget(test_rflow_source)
     test_rflow_source$eddy$reset()
 })
 
@@ -79,7 +78,7 @@ test_that("flow_file_source() works with non existent file path", {
 })
 
 
-test_that("flow_file_source() works when file present and then missing", {
+test_that("flow_file_source() works when file present, missing, and changed", {
     write.csv(df1, file1, row.names = FALSE)
     
     file_path <- as.character(fs::path(file1))
@@ -90,12 +89,16 @@ test_that("flow_file_source() works when file present and then missing", {
     unlink(file1)
     
     test_rflow_source <- flow_file_source(file_path)
-    
     expect_equal(test_rflow_source$state_index, 2L)
+    
+    write.csv(df2, file1, row.names = FALSE)
+    test_rflow_source <- flow_file_source(file_path)
+    
+    expect_equal(test_rflow_source$state_index, 3L)
+    expect_equal(NROW(test_rflow_source$state), 3)
     test_rflow_source$eddy$reset()
 })
 
-# TODO: file missing, then present
 
 test_that("flow_file_source() stops with non valid input", {
     
@@ -104,7 +107,7 @@ test_that("flow_file_source() stops with non valid input", {
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
     # Shouldn't test_rflow_source have 2 states?
-    expect_equal(nrow(test_rflow_source$get_state()), 2)
+    expect_equal(nrow(test_rflow_source$state), 2)
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_error(test_rflow_source <- flow_file_source(list()))
     expect_error(test_rflow_source <- flow_file_source(NULL))
