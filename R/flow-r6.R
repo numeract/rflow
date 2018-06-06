@@ -1,7 +1,7 @@
 # R6Flow class and methods
 
 
-# !diagnostics suppress=self, public
+# !diagnostics suppress=self, public, .STATE_KEY
 
 
 # R6Flow ----
@@ -801,6 +801,7 @@ R6Flow$set("public", "is_good_index", function(index = NULL) {
     
     !is.na(index) && 
             rlang::is_scalar_integerish(index) &&
+            is.finite(index) &&
             index >= 1L && 
             index <= nrow(self$state)
 }, overwrite = TRUE)

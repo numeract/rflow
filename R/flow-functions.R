@@ -223,11 +223,40 @@ is_current <- function(flow) {
 }
 
 
+index_of_state <- function(flow, state) {
+    
+    stopifnot(inherits(flow, "R6Flow"))
+    stopifnot(is_key(state) || flow$is_good_index(state))
+    
+    if (rlang::is_scalar_integerish(state)) {
+        return(as.integer(state))
+    }
+    
+    if (state == "current") {
+        return(flow$state_index)
+    } 
+    
+    index <- which(state %in% flow$state$in_hash)
+    if (length(index) > 0L) {
+        return(index)
+    }
+    
+    index <- which(state %in% flow$state$out_hash)
+    if (length(index) > 0L) {
+        return(index)
+    }
+    
+    # no valid index
+    0L
+}
+
+
 #' Is the current state valid (stored in the cache)?
 #' 
 #' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
-#' @param state An flow state. Only the \code{current} state is 
-#'   accepted for now.
+#' @param state An flow state. It can be either a valid state 
+#'   \code{index} (integer) or a valid state: \code{"current"}, \code{"all"}, 
+#'   \code{in_hash} or \code{out_hash} (string).
 #' 
 #' @return A logical value, whether the value can be obtained without
 #'   triggering computation.
@@ -235,30 +264,37 @@ is_current <- function(flow) {
 #' @export
 is_valid <- function(flow, state = "current") {
     
-    stopifnot(inherits(flow, "R6Flow"))
-    stopifnot(identical(state, "current"))
-    
-    flow$is_valid
+    index <- index_of_state(flow, state)
+    flow$require_good_index(index)
+    flow$is_valid_at_index(index)
 }
 
 
 #' Forgets the computation for the current state.
 #' 
 #' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
-#' @param state An flow state. Only the \code{current} state is 
-#'   accepted for now.
+#' @param state An flow state. It can be either a valid state 
+#'   \code{index} (integer) or a valid state: \code{"current"}, \code{"all"}, 
+#'   \code{in_hash} or \code{out_hash} (string).
 #' 
 #' @return A logical value, whether the deletion was successful.
 #' 
 #' @export
 forget <- function(flow, state = "current") {
     
-    stopifnot(inherits(flow, "R6Flow"))
-    stopifnot(identical(state, "current"))
-    
-    flow$require_good_index()
-    flow$forget_state(flow$state_index)
-    flow$save()
+    index <- index_of_state(flow, state)
+    if (index == 0L) {
+        # one reason state was not found
+        if (state == "all") {
+            flow$forget_all()
+            # it saves itself
+        } else {
+            rlang::abort(paste("Cannot forget; cannot find state:", state))
+        }
+    } else {
+        flow$forget_state(index)
+        flow$save()
+    }
     
     flow
 }

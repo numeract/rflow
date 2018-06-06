@@ -9,8 +9,9 @@ is_valid(flow, state = "current")
 \arguments{
 \item{flow}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
 
-\item{state}{An flow state. Only the \code{current} state is 
-accepted for now.}
+\item{state}{An flow state. It can be either a valid state 
+\code{index} (integer) or a valid state: \code{"current"}, \code{"all"}, 
+\code{in_hash} or \code{out_hash} (string).}
 }
 \value{
 A logical value, whether the value can be obtained without
