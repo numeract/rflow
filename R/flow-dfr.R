@@ -66,6 +66,7 @@ R6FlowDfr$set("public", "compute", function() {
         out_df <- out_data$value
         stopifnot(is.data.frame(out_df))
         stopifnot(all(ROW_HASH %in% names(out_df)))
+        # both groups and rows might be missing, but nothing new is allowed
         stopifnot(all(out_df[[ROW_HASH]] %in% cdf[[ROW_HASH]]))
         if (first_time) {
             self$out_visible <- out_data$visible

@@ -117,7 +117,8 @@ R6FlowDfg$set("public", "compute", function() {
         out_df <- out_data$value
         stopifnot(is.data.frame(out_df))
         stopifnot(all(c(ROW_HASH, GROUP_HASH) %in% names(out_df)))
-        stopifnot(setequal(cdf[[GROUP_HASH]], out_df[[GROUP_HASH]]))
+        # both groups and rows might be missing, but nothing new is allowed
+        stopifnot(all(out_df[[GROUP_HASH]] %in% cdf[[GROUP_HASH]]))
         stopifnot(all(out_df[[ROW_HASH]] %in% cdf[[ROW_HASH]]))
         if (first_time) {
             self$out_visible <- out_data$visible
@@ -131,7 +132,6 @@ R6FlowDfg$set("public", "compute", function() {
     # reconstruct out_data from cache
     # first we match by group hash then by row hash (neither are unique)
     group_idx <- which(self$out_df[[GROUP_HASH]] %in% group_hash)
-    stopifnot(all(group_hash %in% self$out_df[[GROUP_HASH]]))
     match_df <- self$out_df[group_idx, , drop = FALSE]
     # there might be deleted rows returned by $fn
     row_idx <- na.omit(match(row_hash, match_df[[ROW_HASH]]))
