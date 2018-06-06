@@ -103,13 +103,16 @@ test_that("flow_file_source() stops with non valid input", {
     expect_error(test_rflow_source <- flow_file_source(TRUE))
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
-    # TODO: tests with multiple paths, they become elements
+    # Shouldn't test_rflow_source have 2 states?
+    expect_equal(nrow(test_rflow_source$get_state()), 2)
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_error(test_rflow_source <- flow_file_source(list()))
     expect_error(test_rflow_source <- flow_file_source(NULL))
     expect_error(test_rflow_source <- flow_file_source(NA))
     expect_error(test_rflow_source <- flow_file_source(NA_character_))
+    test_rflow_source$eddy$reset()
 })
+
 
 
 teardown({
