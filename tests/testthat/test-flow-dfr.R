@@ -103,73 +103,71 @@ test_that("flow_dfr() with same name, but different body", {
 })
 
 
-# test_that("flow_dfr() with same name, but different body with id", {
-#     dfr_test <- flow_dfr(head(df), fn = df_fn)
-#     expect_equal(dfr_test$state_index, 1)
-#     
-#     df_fn <- function(df, i = NULL) {
-#         if (is.null(i)) {
-#             dfi <- df
-#         } else {
-#             dfi <- df[i, , drop = FALSE]
-#         }
-#         
-#         dfi$mr <- rowSums(dfi[1:10])
-#         dfi
-#     }
-#     assign("df_fn", df_fn, envir = .GlobalEnv)
-#     
-#     expect_silent(
-#         dfr_test <- flow_dfr(head(df), fn = df_fn, fn_id = "id1"))
-#     collected_dfr <- dfr_test %>% 
-#         collect()
-#     
-#     expected_df <- head(df)
-#     expected_df$mr <- rowSums(expected_df[1:10])
-#     
-#     expect_equal(dfr_test$state_index, 1)
-#     expect_equal(collected_dfr, expected_df)
-#     
-#     df_fn <- function(df, i = NULL) {
-#         if (is.null(i)) {
-#             dfi <- df
-#         } else {
-#             dfi <- df[i, , drop = FALSE]
-#         }
-#         dfi$rm <- rowMeans(dfi[1:10])
-#         dfi
-#     }
-#     
-#     assign("df_fn", df_fn, envir = .GlobalEnv)
-# })
+test_that("flow_dfr() with same name, but different body with id", {
+    dfr_test <- flow_dfr(head(df), fn = df_fn)
+    expect_equal(dfr_test$state_index, 1)
+
+    df_fn <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+
+        dfi$mr <- rowSums(dfi[1:10])
+        dfi
+    }
+    assign("df_fn", df_fn, envir = .GlobalEnv)
+
+    expect_silent(
+        dfr_test <- flow_dfr(head(df), fn = df_fn, fn_id = "id1"))
+    collected_dfr <- dfr_test %>%
+        collect()
+
+    expected_df <- head(df)
+    expected_df$mr <- rowSums(expected_df[1:10])
+
+    expect_equal(dfr_test$state_index, 1)
+    expect_equal(collected_dfr, expected_df)
+
+    df_fn <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi$rm <- rowMeans(dfi[1:10])
+        dfi
+    }
+
+    assign("df_fn", df_fn, envir = .GlobalEnv)
+})
 
 
-# test_that("flow_dfr() works with same body, different name", {
-#     df_fn2 <- function(df, i = NULL) {
-#         if (is.null(i)) {
-#             dfi <- df
-#         } else {
-#             dfi <- df[i, , drop = FALSE]
-#         }
-#         dfi$rm <- rowMeans(dfi[1:10])
-#         dfi
-#     }
-#     assign("df_fn2", df_fn, envir = .GlobalEnv)
-#     
-#     dfr1 <- flow_dfr(head(df), fn = df_fn)
-#     
-#     expect_equal(dfr1$state_index, 1)
-#     
-#     # Instead of showing a message and creating new cache, returns an error
-#     expect_message(dfr2 <- flow_dfr(head(df), fn = df_fn2))
-#     
-#     collected_dfr <- dfr2 %>% collect()
-#     expected_df <- head(df)
-#     expected_df$rm <- rowMeans(expected_df[1:10])
-#     
-#     expect_equal(collected_dfr, expected_df)
-#     expect_equal(dfr2$state_index, 1)
-# })
+test_that("flow_dfr() works with same body, different name", {
+    df_fn2 <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi$rm <- rowMeans(dfi[1:10])
+        dfi
+    }
+    assign("df_fn2", df_fn, envir = .GlobalEnv)
+
+    dfr1 <- flow_dfr(head(df), fn = df_fn)
+
+    expect_equal(dfr1$state_index, 1)
+    expect_message(dfr2 <- flow_dfr(head(df), fn = df_fn2))
+
+    collected_dfr <- dfr2 %>% collect()
+    expected_df <- head(df)
+    expected_df$rm <- rowMeans(expected_df[1:10])
+
+    expect_equal(collected_dfr, expected_df)
+    expect_equal(dfr2$state_index, 1)
+})
 
 
 test_that("flow_dfr() stops with empty dataframe", {
