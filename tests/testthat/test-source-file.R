@@ -1,7 +1,6 @@
 # Tests for source file --------------------------------------------------------
 context("tests for source-file")
 
-skip("faster tests")
 setup({
     file1 <- tempfile(pattern = "test-rflow-")
     file2 <- tempfile(pattern = "test-rflow-")
@@ -25,7 +24,7 @@ test_that("flow_file_source() works", {
     test_rflow_source <- flow_file_source(file_path)
     
     expect_equal(test_rflow_source$state_index, 1L)
-    test_rflow_source <- NULL
+    test_rflow_source$eddy$reset()
 })
 
 
@@ -42,7 +41,7 @@ test_that("flow_file_source() works when file modified", {
     
     expect_equal(test_rflow_source$state_index, 2L)
     forget(test_rflow_source)
-    test_rflow_source <- NULL
+    test_rflow_source$eddy$reset()
 })
 
 
@@ -57,7 +56,7 @@ test_that("flow_file_source() works when adding same file", {
     test_rflow_source <- flow_file_source(file_path)
 
     expect_equal(test_rflow_source$state_index, 1L)
-    test_rflow_source <- NULL
+    test_rflow_source$eddy$reset()
 })
 
 
@@ -68,7 +67,7 @@ test_that("flow_file_source() works with fs::path type", {
     expect_silent(test_rflow_source <- flow_file_source(file_path))
     
     expect_equal(test_rflow_source$state_index, 1L)
-    test_rflow_source <- NULL
+    test_rflow_source$eddy$reset()
 })
 
 
@@ -76,7 +75,7 @@ test_that("flow_file_source() works with non existent file path", {
     
     file_path <- as.character(fs::path("test", "path"))
     expect_silent(test_rflow_source <- flow_file_source(file_path))
-    test_rflow_source <- NULL
+    test_rflow_source$eddy$reset()
 })
 
 
@@ -92,10 +91,8 @@ test_that("flow_file_source() works when file present and then missing", {
     
     test_rflow_source <- flow_file_source(file_path)
     
-    # Shouldn't this be 2? No, same path has been used before, eddy is not reset
-    # TODO; start with new path or new eddy
-    expect_equal(test_rflow_source$state_index, 3L)
-    test_rflow_source <- NULL
+    expect_equal(test_rflow_source$state_index, 2L)
+    test_rflow_source$eddy$reset()
 })
 
 # TODO: file missing, then present

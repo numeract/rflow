@@ -1,7 +1,6 @@
 # Tests for flow functions -----------------------------------------------------
 context("Flow functions tests")
 
-skip("faster tests")
 
 # test make_flow_fn ------------------------------------------------------------
 setup({
@@ -430,7 +429,7 @@ test_that("`[.R6Flow` works with non existent element", {
 test_that("is_current() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     expect_true(is_current(test_flow))
-    test_rflow$eddy$reset()
+    test_flow$eddy$reset()
 })
 
 
@@ -454,14 +453,14 @@ test_that("is_valid() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     collected_flow <- collect(test_flow)
     expect_true(is_valid(test_flow))
-    test_rflow$eddy$reset()
+    test_flow$eddy$reset()
 })
 
 
 test_that("is_valid() works with not current state", {
     test_flow <- flow_call(test_fn(2, 3)) 
     expect_false(is_valid(test_flow))
-    test_rflow$eddy$reset()
+    test_flow$eddy$reset()
 })
 
 
@@ -469,7 +468,7 @@ test_that("is_valid() stops with not current state argument", {
     test_flow <- flow_call(test_fn(2, 3))
     collected_flow <- collect(test_flow)
     expect_error(is_valid(test_flow, state = "next"))
-    test_rflow$eddy$reset()
+    test_flow$eddy$reset()
 })
 
 
@@ -570,7 +569,7 @@ test_that("is_flow() works with non-Element and non-R6Flow input",{
 test_that("is_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_flow_fn(test_make_flow_fn))
-    test_make_flow_fn$eddy$reset()
+   
 })
 
 
@@ -588,7 +587,6 @@ test_that("is_not_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_not_flow_fn(test_fn))
     expect_false(is_not_flow_fn(test_make_flow_fn))
-    test_make_flow_fn$eddy$reset()
 })
 
 
