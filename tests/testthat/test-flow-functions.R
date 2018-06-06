@@ -21,7 +21,7 @@ test_that("make_flow_fn() works", {
     rflow_test <- test_make_flow_fn(2, 3)
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 5)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 test_that("make_flow_fn() works with pipes", {
@@ -43,7 +43,7 @@ test_that("make_flow_fn() works with cache re-use", {
     rflow_test <- test_make_flow_fn(2, 3)
     expect_message(
         test_make_flow_fn2 <- make_flow_fn(test_fn))
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -54,7 +54,7 @@ test_that("make_flow_fn() works with same body, different name", {
     rflow_test <- test_make_flow_fn(2, 3)
     expect_message(
         test_make_flow_fn2 <- make_flow_fn(test_fn5))
-    forget(rflow_test)
+    rflow_test$eddy$reset()
     base::rm(list = "test_fn5", envir = .GlobalEnv)
 })
 
@@ -86,7 +86,7 @@ test_that("make_flow_fn() works with character fn_id", {
     rflow_test <- test_make_flow_fn(2, 3)
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 5)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -96,7 +96,7 @@ test_that("make_flow_fn() works with integer fn_id", {
     rflow_test <- test_make_flow_fn(2, 3)
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 5)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -123,7 +123,7 @@ test_that("make_flow_fn() works with options", {
     rflow_test <- test_make_flow_fn(2, 3)
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 5)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -139,7 +139,7 @@ test_that("make_flow_fn() works with different body/options", {
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 6)
     expect_equal(rflow_test$fn_id, 1L)
-    forget(rflow_test)
+    rflow_test$eddy$reset()
     get_current_eddy()$reset()
 })
 
@@ -179,7 +179,7 @@ test_that("flow_call() works with character fn_id", {
 
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 3)
-    forget(test_flow)
+    test_flow$eddy$reset()
 })
 
 
@@ -188,7 +188,7 @@ test_that("flow_call() works with integer fn_id", {
         flow_call(test_fn(2, 3), fn_id = 1)
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 5)
-    forget(test_flow)
+    test_flow$eddy$reset()
 })
 
 
@@ -214,7 +214,7 @@ test_that("flow_call() works with options", {
     
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 5)
-    forget(test_flow)
+    test_flow$eddy$reset()
 })
 
 
@@ -229,7 +229,7 @@ test_that("flow_call() works with different body/options", {
     
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 6)
-    forget(test_flow)
+    test_flow$eddy$reset()
     test_fn <- function(x, y) { x + y }
     assign("test_fn", test_fn, envir = .GlobalEnv)
     get_current_eddy()$reset()
@@ -243,7 +243,7 @@ test_that("flow_fn() works", {
     
     expect_equal(collected_result, 5)
     expect_equal(flow_fn_test$fn_name, "test_fn")
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
 })
 
 
@@ -253,7 +253,7 @@ test_that("flow_fn() works with id", {
     
     expect_equal(collected_result, 5)
     expect_equal(flow_fn_test$fn_id, "id1")
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
     get_current_eddy()$reset()
 })
 
@@ -265,7 +265,7 @@ test_that("flow_fn() works with same body, different name", {
     flow_fn_test <- flow_fn(2, 3, fn = test_fn)
     expect_message(
         flow_fn_test2 <- flow_fn(2, 3, fn = test_fn6))
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
     base::rm(list = "test_fn6", envir = .GlobalEnv)
 })
 
@@ -273,7 +273,7 @@ test_that("flow_fn() works with same body, different name", {
 test_that("flow_fn() works with no arguments for function", {
     expect_silent(flow_fn_test <- flow_fn(fn = test_fn, fn_id = "id1"))
     expect_error(collect(flow_fn_test))
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
 })
 
 test_that("flow_fn() stops with more arguments for function", {
@@ -287,7 +287,7 @@ test_that("flow_fn() works with options", {
         1, 2, fn = test_fn, fn_id = "id1", 
         flow_options = flow_options)
     expect_equal(collect(flow_fn_test), 3)
-    forget(flow_fn_test)
+    flow_fn_test$eddy$reset()
 })
 
 
@@ -315,7 +315,7 @@ test_that("element() works", {
     flow_element <- element(test_rflow)
     expect_true(flow_element$is_current)
     expect_false(flow_element$is_valid)
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -326,7 +326,7 @@ test_that("element() works with valid element", {
     element <- element(test_rflow, "x")
     expect_true(element$is_current)
     expect_true(element$is_valid)
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -348,7 +348,7 @@ test_that("element() works with non existent element", {
     expect_false(element$is_valid)
     expect_message(value <- collect(element))
     expect_null(value)
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -365,7 +365,7 @@ test_that("collect.Element() works", {
     element <- element(test_rflow, "x")
     element_value <- collect(element)
     expect_equal(element_value, 2)
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -390,7 +390,7 @@ test_that("collect.Element() warns when multiple arguments", {
     
     expect_warning(element_value <- collect(element, "x"))
     
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -401,7 +401,7 @@ test_that("`[.R6Flow` works", {
     
     expect_equal(test_rflow["x"]$elem_name, "x")
     
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -411,7 +411,7 @@ test_that("`[.R6Flow` works without element name", {
     
     expect_equal(test_rflow[]$elem_name, NULL)
     
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -422,7 +422,7 @@ test_that("`[.R6Flow` works with non existent element", {
     expect_message(value <- collect(test_rflow["z"]))
     expect_null(value)
     
-    forget(test_rflow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -430,7 +430,7 @@ test_that("`[.R6Flow` works with non existent element", {
 test_that("is_current() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     expect_true(is_current(test_flow))
-    forget(test_flow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -454,14 +454,14 @@ test_that("is_valid() works", {
     test_flow <- flow_call(test_fn(2, 3)) 
     collected_flow <- collect(test_flow)
     expect_true(is_valid(test_flow))
-    forget(test_flow)
+    test_rflow$eddy$reset()
 })
 
 
 test_that("is_valid() works with not current state", {
     test_flow <- flow_call(test_fn(2, 3)) 
     expect_false(is_valid(test_flow))
-    forget(test_flow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -469,7 +469,7 @@ test_that("is_valid() stops with not current state argument", {
     test_flow <- flow_call(test_fn(2, 3))
     collected_flow <- collect(test_flow)
     expect_error(is_valid(test_flow, state = "next"))
-    forget(test_flow)
+    test_rflow$eddy$reset()
 })
 
 
@@ -493,7 +493,8 @@ test_that("forget() works", {
     
     expect_equal(forget(rflow_test), rflow_copy)
     expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
-    forget(rflow_copy)
+    rflow_copy$eddy$reset()
+    rflow_test$eddy$reset()
 })
 
 
@@ -507,6 +508,7 @@ test_that("forget() stops with forgotten rflow", {
     expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
     
     expect_silent(forget(rflow_test))
+    rflow_test$eddy$reset()
 })
 
 
@@ -516,6 +518,7 @@ test_that("forget() stops with state_index 0", {
     
     rflow_test$state_index <- 0
     expect_error(forget(rflow_test))
+    rflow_test$eddy$reset()
 })
 
 
@@ -532,7 +535,7 @@ test_that("forget() stops with non current state", {
     rflow_test <- test_make_flow_fn(2, 3)
     
     expect_error(forget(rflow_test, state = "non-current"))
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -542,7 +545,7 @@ test_that("is_flow() works R6Flow", {
     rflow_test <- test_make_flow_fn(2, 3)
     expect_true(is_flow(rflow_test))
     expect_false(is_flow(test_make_flow_fn))
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -551,7 +554,7 @@ test_that("is_flow() works with Element",{
     rflow_test <- test_make_flow_fn(2, 3)
     rflow_element <- element(rflow_test, "x")
     expect_true(is_flow(rflow_element))
-    forget(rflow_test)
+    rflow_test$eddy$reset()
 })
 
 
@@ -567,6 +570,7 @@ test_that("is_flow() works with non-Element and non-R6Flow input",{
 test_that("is_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_flow_fn(test_make_flow_fn))
+    test_make_flow_fn$eddy$reset()
 })
 
 
@@ -584,6 +588,7 @@ test_that("is_not_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_not_flow_fn(test_fn))
     expect_false(is_not_flow_fn(test_make_flow_fn))
+    test_make_flow_fn$eddy$reset()
 })
 
 
