@@ -240,6 +240,40 @@ test_that("make_key() works with one flow already existent", {
 })
 
 
+
+test_that("make_key() with flow with same body, different name", {
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(test_fn) 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    test_fn2 <- function(x, y) { x + y } 
+    expect_message(test_key <- make_key_wrap(
+        test_fn2, fn_id = NULL, flow_options, class_name))
+    expect_equal(test_key$action, "get")
+    
+    rflow_test$eddy$reset()
+})
+
+
+test_that("make_key() works with different body, same name", {
+    fn <- test_fn
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(fn)
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    fn <- function(x) {x}
+    test_key <- make_key_wrap(
+        fn, fn_id = NULL, flow_options, class_name)
+    expect_equal(test_key$action, "new")
+    
+    rflow_test$eddy$reset()
+})
+
+
 test_that("make_key() works with flow id already existent", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
@@ -255,6 +289,20 @@ test_that("make_key() works with flow id already existent", {
 })
 
 
+test_that("make_key() with flow with same body, same id, different name", {
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(test_fn, fn_id = "id1") 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    test_fn2 <- function(x, y) { x + y } 
+    test_key <- make_key_wrap(
+        test_fn2, fn_id = "id1", flow_options, class_name)
+    expect_equal(test_key$action, "get")
+    
+    rflow_test$eddy$reset()
+})
 
 
 teardown({
