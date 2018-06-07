@@ -64,16 +64,6 @@ test_that("make_flow_fn() works with same body, different name", {
 })
 
 
-test_that("make_flow_fn() stops with primitives", {
-    expect_error(test_make_flow_fn <- make_flow_fn(sum)) 
-})
-
-
-test_that("make_flow_fn() stops with anonymus functions", {
-    expect_error(test_make_flow_fn <- make_flow_fn(function(x) {x})) 
-})
-
-
 test_that("make_flow_fn() stops with non function argument", {
     expect_error(make_flow_fn(1))
     expect_error(make_flow_fn("a_character"))
@@ -88,43 +78,6 @@ test_that("make_flow_fn() stops with non function argument", {
 test_that("make_flow_fn() works with character fn_id", {
     test_make_flow_fn <-
         make_flow_fn(test_fn, fn_id = "id1")
-    rflow_test <- test_make_flow_fn(2, 3)
-    collected_result <- rflow_test %>% collect()
-    expect_equal(collected_result, 5)
-    rflow_test$eddy$reset()
-})
-
-
-test_that("make_flow_fn() works with integer fn_id", {
-    test_make_flow_fn <-
-        make_flow_fn(test_fn, fn_id = 1)
-    rflow_test <- test_make_flow_fn(2, 3)
-    collected_result <- rflow_test %>% collect()
-    expect_equal(collected_result, 5)
-    rflow_test$eddy$reset()
-})
-
-
-test_that("make_flow_fn() works with non valid id", {
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = NA))
-
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = NA_character_))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = NA_integer_))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = character()))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = c("a", "b")))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = c(1, 2)))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = list()))
-    
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = Inf))
-    expect_error(test_make_flow_fn <- make_flow_fn(test_fn, fn_id = -Inf))
-})
-
-
-test_that("make_flow_fn() works with options", {
-    flow_options <- get_flow_options(split_dataframe = TRUE)
-    test_make_flow_fn <-
-        make_flow_fn(test_fn, fn_id = 1, flow_options = flow_options)
-
     rflow_test <- test_make_flow_fn(2, 3)
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 5)
@@ -157,16 +110,6 @@ test_that("flow_call() works", {
 })
 
 
-test_that("flow_call() stops with primitives", {
-    expect_error(test_flow <- flow_call(sum(2, 3)))
-})
-
-
-test_that("flow_call() stops with anonymus functions", {
-    expect_error(test_flow <- flow_call(function(x) {x}))
-})
-
-
 test_that("flow_call() stops with non function argument", {
     expect_error(flow_call(1))
     expect_error(flow_call("a_character"))
@@ -175,51 +118,6 @@ test_that("flow_call() stops with non function argument", {
     expect_error(flow_call(NA))
     expect_error(flow_call(NULL))
     expect_error(flow_call(list()))
-})
-
-
-test_that("flow_call() works with character fn_id", {
-    test_flow <-
-        flow_call(test_fn(1, 2), fn_id = "id1")
-
-    collected_result <- test_flow %>% collect()
-    expect_equal(collected_result, 3)
-    test_flow$eddy$reset()
-})
-
-
-test_that("flow_call() works with integer fn_id", {
-    test_flow <-
-        flow_call(test_fn(2, 3), fn_id = 1)
-    collected_result <- test_flow %>% collect()
-    expect_equal(collected_result, 5)
-    test_flow$eddy$reset()
-})
-
-
-test_that("flow_call() works with non valid id", {
-    expect_error(test_flow <- flow_call(test_fn, fn_id = NA))
-    
-    expect_error(test_flow <- flow_call(test_fn, fn_id = NA_character_))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = NA_integer_))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = character()))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = c("a", "b")))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = c(1, 2)))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = list()))
-    
-    expect_error(test_flow <- flow_call(test_fn, fn_id = Inf))
-    expect_error(test_flow <- flow_call(test_fn, fn_id = -Inf))
-})
-
-
-test_that("flow_call() works with options", {
-    flow_options <- get_flow_options(split_dataframe = TRUE)
-    test_flow <-
-        flow_call(test_fn(2, 3), fn_id = 1, flow_options = flow_options)
-    
-    collected_result <- test_flow %>% collect()
-    expect_equal(collected_result, 5)
-    test_flow$eddy$reset()
 })
 
 
@@ -283,16 +181,6 @@ test_that("flow_fn() works with no arguments for function", {
 
 test_that("flow_fn() stops with more arguments for function", {
     expect_error(flow_fn_test <- flow_fn(1, 2, 3, fn = test_fn, fn_id = "id1"))
-})
-
-
-test_that("flow_fn() works with options", {
-    flow_options <- get_flow_options(split_dataframe = TRUE)
-    flow_fn_test <- flow_fn(
-        1, 2, fn = test_fn, fn_id = "id1", 
-        flow_options = flow_options)
-    expect_equal(collect(flow_fn_test), 3)
-    flow_fn_test$eddy$reset()
 })
 
 

@@ -67,7 +67,7 @@ test_that("require_keys() stops with NA and NULL inputs", {
 
 test_that("require_keys() stops with non character input", {
     
-    expect_error(require_keys(1, 2, "ana"))
+    expect_error(require_keys(1, 2, "test"))
     expect_error(require_keys(TRUE))
     expect_error(require_keys(list()))
     expect_error(require_keys(data.frame()))
