@@ -125,6 +125,17 @@ test_that("make_key() stops with anonymus function", {
 })
 
 
+test_that("make_key() stops with unrecognized fn_name data type", {
+    fn_name <- TRUE
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_error(
+        make_key(fn_name, test_fn, fn_id, flow_options, class_name))
+})
+
+
 test_that("make_key() stops with primitive function", {
     fn_id <- "id1"
     flow_options <- get_flow_options()
@@ -145,6 +156,20 @@ test_that("make_key() works with integerish id", {
     
     expect_equal(actual_result$fn_id, 10)
 })
+
+
+test_that("make_key() works with default id", {
+    fn <- test_fn
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    expect_message(actual_result <- make_key_wrap(
+        fn, fn_id = NULL, flow_options,  class_name))
+    expect_equal(actual_result$fn_id, 1)
+    expect_equal(actual_result$action, "new")
+})
+
+
 
 
 test_that("make_key() stops with non valid id", {
