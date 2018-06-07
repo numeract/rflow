@@ -9,7 +9,7 @@ R6FlowDfg <- R6::R6Class(
     classname = "R6FlowDfg",
     inherit = R6FlowDfr,
     public = list(
-        by = NULL
+        group_by = NULL
     )
 )
 
@@ -20,14 +20,14 @@ R6FlowDfg$set("public", "initialize", function(
     fn_key,
     fn_name,
     fn_id,
-    by,
+    group_by,
     flow_options = get_flow_options()
 ) {
     super$initialize(fn, fn_key, fn_name, fn_id, flow_options)
     
     # after registering into eddy, remove itself if error
     tryCatch({
-        self$by <- by
+        self$group_by <- group_by
     }, error = function(e) {
         self$eddy$remove_flow(fn_key)
         stop(e)
@@ -64,13 +64,13 @@ R6FlowDfg$set("public", "compute", function() {
     df <- data_args[[1L]]
     stopifnot(is.data.frame(df))
     stopifnot(ncol(df) > 0L)
-    if (is.null(self$by)) {
+    if (is.null(self$group_by)) {
         if (!dplyr::is_grouped_df(df)) {
-            rlang::abort("Ungrouped data frame and no `by` groups provided")
+            rlang::abort("Ungrouped data frame and NULL `group_by`.")
         }
         gdf <- df
     } else {
-        gdf <- dplyr::group_by_at(df, .vars = self$by)
+        gdf <- dplyr::group_by_at(df, .vars = self$group_by)
     }
     
     # df gets a new column, a hash for each row
@@ -219,7 +219,7 @@ R6FlowDfg$set("public", "compute", function() {
 #'   rflow functions reuse the cache if the same function is given. The id 
 #'   allows the user to suppress console messages and to explicitly
 #'   indicate whether to reuse the old cache or create a new one.
-#' @param by A character vector of column names. If provided, groups
+#' @param group_by A character vector of column names. If provided, groups
 #'   already present will be ignored.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
@@ -230,7 +230,7 @@ flow_dfg <- function(df,
                      ..., 
                      fn = NULL,
                      fn_id = NULL,
-                     by = NULL,
+                     group_by = NULL,
                      flow_options = get_flow_options()
 ) {
     if (is.data.frame(df)) {
@@ -238,14 +238,14 @@ flow_dfg <- function(df,
     } else {
         stopifnot(inherits(df, "R6Flow") || inherits(df, "Element"))
     }
-    if (!is.null(by)) {
-        stopifnot(!is.na(by) && is.character(by))
+    if (!is.null(group_by)) {
+        stopifnot(!is.na(group_by) && is.character(group_by))
         if (is.data.frame(df)) {
-            stopifnot(all(by %in% names(df)))
+            stopifnot(all(group_by %in% names(df)))
         }
     }
-    # add `by` to flow_options to make the hash unique
-    flow_options$by <- by
+    # add `group_by` to flow_options to make the hash unique
+    flow_options$group_by <- group_by
     
     match_call <- match.call()
     use <- make_key(match_call$fn, fn, fn_id, flow_options, "R6FlowDfg")
@@ -259,7 +259,7 @@ flow_dfg <- function(df,
             fn_key = use$fn_key,
             fn_name = use$fn_name,
             fn_id = use$fn_id,
-            by = by,
+            group_by = group_by,
             flow_options = flow_options
         )
     }

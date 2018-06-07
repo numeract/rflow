@@ -4,7 +4,7 @@
 \alias{flow_dfg}
 \title{Group-wise caching of operations on data frame.}
 \usage{
-flow_dfg(df, ..., fn = NULL, fn_id = NULL, by = NULL,
+flow_dfg(df, ..., fn = NULL, fn_id = NULL, group_by = NULL,
   flow_options = get_flow_options())
 }
 \arguments{
@@ -21,7 +21,7 @@ rflow functions reuse the cache if the same function is given. The id
 allows the user to suppress console messages and to explicitly
 indicate whether to reuse the old cache or create a new one.}
 
-\item{by}{A character vector of column names. If provided, groups
+\item{group_by}{A character vector of column names. If provided, groups
 already present will be ignored.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.}
