@@ -97,7 +97,7 @@ test_that("make_flow_fn() works with different body/options", {
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 6)
     expect_equal(rflow_test$fn_id, 1L)
-    get_current_eddy()$reset()
+    rflow_test$eddy$reset()
 })
 
 
@@ -106,6 +106,7 @@ test_that("flow_call() works", {
     test_flow <- flow_call(test_fn(x = 1, y = 2))
     collected_result <- test_flow %>% collect()
     expect_equal(collected_result, 3)
+    test_flow$eddy$reset()
 })
 
 
@@ -134,7 +135,6 @@ test_that("flow_call() works with different body/options", {
     test_flow$eddy$reset()
     test_fn <- function(x, y) { x + y }
     assign("test_fn", test_fn, envir = .GlobalEnv)
-    get_current_eddy()$reset()
 })
 
 
@@ -156,7 +156,6 @@ test_that("flow_fn() works with id", {
     expect_equal(collected_result, 5)
     expect_equal(flow_fn_test$fn_id, "id1")
     flow_fn_test$eddy$reset()
-    get_current_eddy()$reset()
 })
 
 
@@ -458,6 +457,7 @@ test_that("is_flow() works with non-Element and non-R6Flow input",{
 test_that("is_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_flow_fn(test_make_flow_fn))
+    get_current_eddy()$reset()
    
 })
 
@@ -476,6 +476,7 @@ test_that("is_not_flow_fn() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     expect_true(is_not_flow_fn(test_fn))
     expect_false(is_not_flow_fn(test_make_flow_fn))
+    get_current_eddy()$reset()
 })
 
 
