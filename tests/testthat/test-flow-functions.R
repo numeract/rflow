@@ -381,6 +381,9 @@ test_that("forget() works", {
     
     forget(rflow_test)
     expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
+    expect_equal(length(rflow_test$eddy$flow_lst), 1)
+    expect_equal(length(rflow_test$eddy$cache$list_keys(rflow_group)), 0)
+    expect_true(rflow_test$eddy$cache$has_group(rflow_group))
     rflow_test$eddy$reset()
 })
 
