@@ -376,14 +376,14 @@ test_that("is_valid() stops with non rflow argument", {
 test_that("forget() works", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     rflow_test <- test_make_flow_fn(2, 3)
+    collect(rflow_test)
     rflow_key <- rflow_test$fn_key
-    rflow_group <- rflow_test$fn_name
+    out_hash <- rflow_test$get_state()$out_hash
     
     forget(rflow_test)
-    expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
-    expect_equal(length(rflow_test$eddy$flow_lst), 1)
-    expect_equal(length(rflow_test$eddy$cache$list_keys(rflow_group)), 0)
-    expect_true(rflow_test$eddy$cache$has_group(rflow_group))
+    expect_false(rflow_test$eddy$cache$has_key(rflow_key, out_hash))
+    expect_equal(length(rflow_test$eddy$cache$list_keys(rflow_key)), 1)
+    expect_true(rflow_test$eddy$cache$has_group(rflow_key))
     rflow_test$eddy$reset()
 })
 
@@ -391,11 +391,12 @@ test_that("forget() works", {
 test_that("forget() stops with forgotten rflow", {
     test_make_flow_fn <- make_flow_fn(test_fn) 
     rflow_test <- test_make_flow_fn(2, 3)
+    collect(rflow_test)
     rflow_key <- rflow_test$fn_key
-    rflow_group <- rflow_test$fn_name
-
-    forget(rflow_test)
-    expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
+    out_hash <- rflow_test$get_state()$out_hash
+    
+    expect_silent(forget(rflow_test))
+    expect_false(rflow_test$eddy$cache$has_key(rflow_key, out_hash))
     
     expect_silent(forget(rflow_test))
     rflow_test$eddy$reset()
