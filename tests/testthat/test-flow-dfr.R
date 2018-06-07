@@ -60,15 +60,6 @@ test_that("flow_dfr() works with different states", {
 })
 
 
-test_that("flow_dfr() stops with anonymus function", {
-    expect_error(dfr1 <- flow_dfr(head(df), function(x){x}))
-})
-
-test_that("flow_dfr() stops with primitive function", {
-    expect_error(dfr1 <- flow_dfr(head(df), sum))
-})
-
-
 test_that("flow_dfr() with same name, but different body", {
     dfr_test <- flow_dfr(head(df), fn = df_fn)
     expect_equal(dfr_test$state_index, 1)

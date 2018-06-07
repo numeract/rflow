@@ -8,7 +8,9 @@ setup({
         match_call <- match.call()
         make_key(match_call$fn, fn, fn_id, flow_options, class_name)
     }
+    test_fn3 <- function(x) {x}
     assign("test_fn", test_fn, envir = .GlobalEnv)
+    assign("test_fn3", test_fn3, envir = .GlobalEnv)
     assign("make_key_wrap", make_key_wrap, envir = .GlobalEnv)
 })
 
@@ -179,6 +181,16 @@ test_that("make_key() works with custom options", {
         fn, fn_id = "id1", flow_options,  class_name)
     expect_equal(test_key$fn_id, "id1")
     expect_equal(test_key$action, "new")
+})
+
+
+test_that("make_key() works with options, eval_arg_fn different arguments", {
+    fn <- test_fn
+    flow_options <- get_flow_options(eval_arg_fn = test_fn3)
+    class_name <- "R6Flow"
+    
+    expect_error(test_key <- make_key_wrap(
+        fn, fn_id = "id1", flow_options,  class_name))
 })
 
 

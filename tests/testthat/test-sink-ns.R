@@ -22,6 +22,7 @@ setup({
     assign("test_fn4", test_fn4, envir = .GlobalEnv)
 })
 
+
 test_that("flow_ns_sink() works", {
     flow_sink <- flow_ns_sink("value2", "test_sink_var", test_env)
     

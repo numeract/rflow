@@ -97,7 +97,6 @@ test_that("make_flow_fn() works with different body/options", {
     collected_result <- rflow_test %>% collect()
     expect_equal(collected_result, 6)
     expect_equal(rflow_test$fn_id, 1L)
-    rflow_test$eddy$reset()
     get_current_eddy()$reset()
 })
 
@@ -380,13 +379,9 @@ test_that("forget() works", {
     rflow_test <- test_make_flow_fn(2, 3)
     rflow_key <- rflow_test$fn_key
     rflow_group <- rflow_test$fn_name
-
-    rflow_copy <- rflow_test
-    rflow_copy$forget_state(rflow_copy$state_index)
     
-    expect_equal(forget(rflow_test), rflow_copy)
+    forget(rflow_test)
     expect_false(rflow_test$eddy$cache$has_key(rflow_group, rflow_key))
-    rflow_copy$eddy$reset()
     rflow_test$eddy$reset()
 })
 
