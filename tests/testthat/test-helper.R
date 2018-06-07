@@ -89,7 +89,6 @@ test_that("make_key() works", {
     fn_id <- "id1"
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
-    
    
     actual_result <- make_key(
         fn_name, fn, fn_id, flow_options, class_name)
@@ -107,12 +106,8 @@ test_that("make_key() works with symbols as fn_name", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    
-    expect_silent(actual_result <- make_key(fn_name,
-                                            fn,
-                                            fn_id,
-                                            flow_options,
-                                            class_name))
+    expect_silent(actual_result <- make_key(
+        fn_name, fn, fn_id, flow_options, class_name))
     
     expect_equal(actual_result$action, "new")
     expect_equal(actual_result$fn_name, "test_fn")
@@ -142,49 +137,33 @@ test_that("make_key() stops with primitive function", {
 
 test_that("make_key() works with integerish id", {
     fn <- test_fn
-    fn_name <- "test_fn"
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
 
-    actual_result1 <- make_key(fn_name,
-                              fn,
-                              10.0,
-                              flow_options,
-                              class_name)
+    expect_silent(actual_result <- make_key_wrap(
+        fn, 10.0, flow_options,  class_name))
     
-    expect_equal(actual_result1$fn_id, 10)
+    expect_equal(actual_result$fn_id, 10)
 })
 
 
 test_that("make_key() stops with non valid id", {
     fn <- test_fn
-    fn_name <- "test_fn"
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    expect_error(make_key(fn_name,
-                          fn,
-                          -Inf,
-                          flow_options,
-                          class_name))
+    expect_error(make_key_wrap(
+        fn, -Inf, flow_options,  class_name))
     
-    expect_error(make_key(fn_name,
-                          fn,
-                          Inf,
-                          flow_options,
-                          class_name))
+    expect_error(make_key_wrap(
+        fn, Inf, flow_options,  class_name))
     
-    expect_error(make_key(fn_name,
-                          fn,
-                          0,
-                          flow_options,
-                          class_name))
+    expect_error(make_key_wrap(
+        fn, 0, flow_options,  class_name))
     
-    expect_error(make_key(fn_name,
-                          fn,
-                          -5,
-                          flow_options,
-                          class_name))
+    expect_error(make_key_wrap(
+        fn, -5, flow_options,  class_name))
+    
 })
 
 
