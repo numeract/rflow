@@ -170,6 +170,16 @@ test_that("make_key() works with default id", {
 })
 
 
+test_that("make_key() works with custom options", {
+    fn <- test_fn
+    flow_options <- get_flow_options(split_dataframe = TRUE)
+    class_name <- "R6Flow"
+    
+    actual_result <- make_key_wrap(
+        fn, fn_id = "id1", flow_options,  class_name)
+    expect_equal(actual_result$fn_id, "id1")
+    expect_equal(actual_result$action, "new")
+})
 
 
 test_that("make_key() stops with non valid id", {
@@ -188,9 +198,64 @@ test_that("make_key() stops with non valid id", {
     
     expect_error(make_key_wrap(
         fn, -5, flow_options,  class_name))
-    
 })
 
+
+test_that("make_key() works with multiple flows", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(fn, fn_id = "id1") 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    
+    test_make_flow_fn2 <- make_flow_fn(fn, fn_id = "id2") 
+    rflow_test2 <- test_make_flow_fn(3, 3)
+    
+    
+    expect_error(actual_result <- make_key_wrap(
+        fn, fn_id = NULL, flow_options, class_name))
+    rflow_test$eddy$reset()
+})
+
+
+test_that("make_key() works with one flow already existent", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(fn, fn_id = "id1") 
+    rflow_test <- test_make_flow_fn(2, 3)
+    
+    expect_message(actual_result <- make_key_wrap(
+        fn, fn_id = NULL, flow_options, class_name))
+    expect_equal(actual_result$action, "get")
+    
+    rflow_test$eddy$reset()
+})
+
+
+test_that("make_key() works with one flow already existent", {
+    fn <- test_fn
+    fn_name <- "test_fn"
+    fn_id <- "id1"
+    flow_options <- get_flow_options()
+    class_name <- "R6Flow"
+    
+    test_make_flow_fn <- make_flow_fn(fn) 
+   # rflow_test <- test_make_flow_fn(2, 3)
+    
+    expect_message(actual_result <- make_key_wrap(
+        fn, fn_id = NULL, flow_options, class_name))
+    expect_equal(actual_result$action, "get")
+    
+   # rflow_test$eddy$reset()
+})
 
 
 teardown({
