@@ -80,15 +80,15 @@ R6FlowDfg$set("public", "compute", function() {
     # df gets a new column, a hash for each group
     group_hash <- 
         gdf %>%
-        tibble::rowid_to_column(., var = ROW_ID) %>%
+        tibble::rowid_to_column(., var = .ROW_ID) %>%
         dplyr::do(data.frame(
-            row_id = .[[ROW_ID]],
+            row_id = .[[.ROW_ID]],
             # sort the row hashes to guarantee the same group hash
             group_hash = self$eddy$digest(sort(.[[ROW_HASH]])), 
             stringsAsFactors = FALSE
         )) %>%
         dplyr::ungroup() %>%
-        dplyr::arrange_at(.vars = "row_id") %>%
+        dplyr::arrange_at(.vars = .ROW_ID) %>%
         dplyr::pull(group_hash)
     gdf[[GROUP_HASH]] <- group_hash
     

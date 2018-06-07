@@ -25,5 +25,5 @@ ROW_HASH <- "..row_hash.."
 
 
 # flow_dfg
-ROW_ID <- "..row_id.."
+.ROW_ID <- "..row_id.."
 GROUP_HASH <- "..group_hash.."
