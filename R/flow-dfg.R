@@ -9,9 +9,7 @@ R6FlowDfg <- R6::R6Class(
     classname = "R6FlowDfg",
     inherit = R6FlowDfr,
     public = list(
-        by = NULL,
-        out_df = NULL,
-        out_visible = NULL
+        by = NULL
     )
 )
 
