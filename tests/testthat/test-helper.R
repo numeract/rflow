@@ -240,22 +240,21 @@ test_that("make_key() works with one flow already existent", {
 })
 
 
-test_that("make_key() works with one flow already existent", {
-    fn <- test_fn
-    fn_name <- "test_fn"
-    fn_id <- "id1"
+test_that("make_key() works with flow id already existent", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    test_make_flow_fn <- make_flow_fn(fn) 
-   # rflow_test <- test_make_flow_fn(2, 3)
+    test_make_flow_fn <- make_flow_fn(test_fn, fn_id = "id1") 
+    rflow_test <- test_make_flow_fn(2, 3)
     
-    expect_message(actual_result <- make_key_wrap(
-        fn, fn_id = NULL, flow_options, class_name))
+    actual_result <- make_key_wrap(
+        test_fn, fn_id = "id1", flow_options, class_name)
     expect_equal(actual_result$action, "get")
     
-   # rflow_test$eddy$reset()
+    rflow_test$eddy$reset()
 })
+
+
 
 
 teardown({
