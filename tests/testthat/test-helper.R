@@ -219,6 +219,7 @@ test_that("make_key() works with multiple flows", {
     expect_error(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name))
     rflow_test$eddy$reset()
+    rflow_test2$eddy$reset()
 })
 
 
