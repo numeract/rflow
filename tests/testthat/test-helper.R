@@ -9,8 +9,10 @@ setup({
         make_key(match_call$fn, fn, fn_id, flow_options, class_name)
     }
     test_fn3 <- function(x) {x}
+    identity_fn <- function(x) {x}
     assign("test_fn", test_fn, envir = .GlobalEnv)
     assign("test_fn3", test_fn3, envir = .GlobalEnv)
+    assign("identity_fn", identity_fn, envir = .GlobalEnv)
     assign("make_key_wrap", make_key_wrap, envir = .GlobalEnv)
 })
 
@@ -318,6 +320,31 @@ test_that("make_key() with flow with same body, same id, different name", {
 })
 
 
+test_that("make_key() with flow with same function, different classes", {
+    flow_options <- get_flow_options()
+    
+    test_make_flow_fn <- make_flow_fn(identity_fn) 
+    rflow_test <- test_make_flow_fn(2)
+    
+    test_make_flow_dfr <- flow_dfr(
+        df = data.frame(col = c(1, 2)), fn = identity_fn)
+    
+    test_key <- make_key_wrap(
+        identity_fn, fn_id = NULL, flow_options, "R6Flow")
+    expect_equal(test_key$action, "get")
+    
+    test_key2 <- make_key_wrap(
+        identity_fn, fn_id = NULL, flow_options, "R6FlowDfr")
+    expect_equal(test_key2$action, "get")
+    
+    rflow_test$eddy$reset()
+    test_make_flow_dfr$eddy$reset()
+})
+
+
 teardown({
     base::rm(list = "test_fn", envir = .GlobalEnv)
+    base::rm(list = "test_fn3", envir = .GlobalEnv)
+    base::rm(list = "identity_fn", envir = .GlobalEnv)
+    base::rm(list = "make_key_wrap", envir = .GlobalEnv)
 })
