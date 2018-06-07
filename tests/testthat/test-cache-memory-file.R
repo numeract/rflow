@@ -9,7 +9,6 @@ if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
     skip("cache-memory-file functions")
 }
 
-
 # add_group tests ----------------------------------------------------
 test_that("add_group() works", {
 

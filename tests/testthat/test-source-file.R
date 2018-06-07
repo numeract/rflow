@@ -111,17 +111,21 @@ test_that("flow_file_source() stops with non valid input", {
     expect_error(test_rflow_source <- flow_file_source(1))
     expect_error(test_rflow_source <- flow_file_source(TRUE))
     expect_error(test_rflow_source <- flow_file_source(character()))
-    expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
-    expect_equal(nrow(test_rflow_source$state), 1)
     expect_error(test_rflow_source <- flow_file_source(character()))
     expect_error(test_rflow_source <- flow_file_source(list()))
     expect_error(test_rflow_source <- flow_file_source(NULL))
     expect_error(test_rflow_source <- flow_file_source(NA))
     expect_error(test_rflow_source <- flow_file_source(NA_character_))
-    test_rflow_source$eddy$reset()
+   
 })
 
-
+test_that("flow_file_source() works with 2 paths", {
+    
+    expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
+    expect_true(test_rflow_source$get_element("path1")$is_current)
+    expect_true(test_rflow_source$get_element("path2")$is_current)
+    test_rflow_source$eddy$reset()
+})
 
 teardown({
     unlink(c(file1, file2, file3))
