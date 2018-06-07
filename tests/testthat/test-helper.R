@@ -90,12 +90,12 @@ test_that("make_key() works", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
    
-    actual_result <- make_key(
+    test_key <- make_key(
         fn_name, fn, fn_id, flow_options, class_name)
     
-    expect_equal(actual_result$action, "new")
-    expect_equal(actual_result$fn_name, fn_name)
-    expect_equal(actual_result$fn_id, fn_id)
+    expect_equal(test_key$action, "new")
+    expect_equal(test_key$fn_name, fn_name)
+    expect_equal(test_key$fn_id, fn_id)
 })
 
 
@@ -106,12 +106,12 @@ test_that("make_key() works with symbols as fn_name", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    expect_silent(actual_result <- make_key(
+    expect_silent(test_key <- make_key(
         fn_name, fn, fn_id, flow_options, class_name))
     
-    expect_equal(actual_result$action, "new")
-    expect_equal(actual_result$fn_name, "test_fn")
-    expect_equal(actual_result$fn_id, fn_id)
+    expect_equal(test_key$action, "new")
+    expect_equal(test_key$fn_name, "test_fn")
+    expect_equal(test_key$fn_id, fn_id)
 })
 
 
@@ -151,10 +151,10 @@ test_that("make_key() works with integerish id", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
 
-    expect_silent(actual_result <- make_key_wrap(
+    expect_silent(test_key <- make_key_wrap(
         fn, 10.0, flow_options,  class_name))
     
-    expect_equal(actual_result$fn_id, 10)
+    expect_equal(test_key$fn_id, 10)
 })
 
 
@@ -163,10 +163,10 @@ test_that("make_key() works with default id", {
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
-    expect_message(actual_result <- make_key_wrap(
+    expect_message(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options,  class_name))
-    expect_equal(actual_result$fn_id, 1)
-    expect_equal(actual_result$action, "new")
+    expect_equal(test_key$fn_id, 1)
+    expect_equal(test_key$action, "new")
 })
 
 
@@ -175,10 +175,10 @@ test_that("make_key() works with custom options", {
     flow_options <- get_flow_options(split_dataframe = TRUE)
     class_name <- "R6Flow"
     
-    actual_result <- make_key_wrap(
+    test_key <- make_key_wrap(
         fn, fn_id = "id1", flow_options,  class_name)
-    expect_equal(actual_result$fn_id, "id1")
-    expect_equal(actual_result$action, "new")
+    expect_equal(test_key$fn_id, "id1")
+    expect_equal(test_key$action, "new")
 })
 
 
@@ -216,7 +216,7 @@ test_that("make_key() works with multiple flows", {
     rflow_test2 <- test_make_flow_fn(3, 3)
     
     
-    expect_error(actual_result <- make_key_wrap(
+    expect_error(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name))
     rflow_test$eddy$reset()
 })
@@ -232,9 +232,9 @@ test_that("make_key() works with one flow already existent", {
     test_make_flow_fn <- make_flow_fn(fn, fn_id = "id1") 
     rflow_test <- test_make_flow_fn(2, 3)
     
-    expect_message(actual_result <- make_key_wrap(
+    expect_message(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name))
-    expect_equal(actual_result$action, "get")
+    expect_equal(test_key$action, "get")
     
     rflow_test$eddy$reset()
 })
@@ -247,9 +247,9 @@ test_that("make_key() works with flow id already existent", {
     test_make_flow_fn <- make_flow_fn(test_fn, fn_id = "id1") 
     rflow_test <- test_make_flow_fn(2, 3)
     
-    actual_result <- make_key_wrap(
+    test_key <- make_key_wrap(
         test_fn, fn_id = "id1", flow_options, class_name)
-    expect_equal(actual_result$action, "get")
+    expect_equal(test_key$action, "get")
     
     rflow_test$eddy$reset()
 })
