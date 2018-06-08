@@ -60,7 +60,7 @@ R6FlowDfg$set("public", "compute", function() {
             }
         )
     
-    # re-group
+    # re-group (needed to create group hash)
     df <- data_args[[1L]]
     stopifnot(is.data.frame(df))
     stopifnot(ncol(df) > 0L)
@@ -74,8 +74,8 @@ R6FlowDfg$set("public", "compute", function() {
     }
     
     # df gets a new column, a hash for each row
-    row_hash <- purrr::pmap_chr(gdf, ~ self$eddy$digest(list(...)))
-    gdf[[ROW_HASH]] <- row_hash
+    row_hash <- purrr::pmap_chr(df, ~ self$eddy$digest(list(...)))
+    df[[ROW_HASH]] <- row_hash
     
     # df gets a new column, a hash for each group
     group_hash <- 
@@ -90,19 +90,19 @@ R6FlowDfg$set("public", "compute", function() {
         dplyr::ungroup() %>%
         dplyr::arrange_at(.vars = "row_id") %>%
         dplyr::pull(group_hash)
-    gdf[[GROUP_HASH]] <- group_hash
+    df[[GROUP_HASH]] <- group_hash
     
     # rows that are not in cache
     first_time <- is.null(self$out_df)
     if (first_time) {
-        changed_idx <- seq_nrow(gdf)
+        changed_idx <- seq_nrow(df)
     } else {
         changed_idx <- which(!(group_hash %in% self$out_df[[GROUP_HASH]]))
     }
     
     if (first_time || length(changed_idx) > 0L) {
         # first time might be an empty df, we still need to eval
-        cdf <- gdf[changed_idx, , drop = FALSE]
+        cdf <- df[changed_idx, , drop = FALSE]
         data_args[[1L]] <- cdf
         out_data <- withVisible(do.call(
             what = self$fn,
