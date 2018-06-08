@@ -33,7 +33,32 @@ test_that("flow_dfg works", {
     
     expect_true(dfg1$is_valid)
     expect_equal(collected_dfg, expected_df)
+    
+    dfg1$eddy$reset()
 })
+
+
+test_that("flow_dfg works without group_by argument but already grouped df", {
+    
+    dfg_test <- head(df, n = 35) %>%
+        dplyr::group_by(Species)
+    
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn)
+    
+    expect_equal(dfg1$state_index, 1)
+    expect_false(dfg1$is_valid)
+    
+    collected_dfg <- dfg1 %>% collect()
+    expected_df <- head(df, n = 35)
+    expected_df <- expected_df %>%
+        dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
+    
+    expect_true(dfg1$is_valid)
+    expect_equal(collected_dfg, expected_df)
+    
+    dfg1$eddy$reset()
+})
+
 
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)

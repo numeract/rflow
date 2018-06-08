@@ -38,6 +38,8 @@ test_that("flow_dfr() works", {
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr, expected_df)
+    
+    dfr1$eddy$reset()
 })
 
 
@@ -57,6 +59,8 @@ test_that("flow_dfr() works with different states", {
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr1, expected_df)
+    
+    dfr1$eddy$reset()
 })
 
 
@@ -97,6 +101,8 @@ test_that("flow_dfr() with same name, but different body", {
     }
     
     assign("df_fn", df_fn, envir = .GlobalEnv)
+    
+    dfr1$eddy$reset()
 })
 
 
@@ -138,6 +144,8 @@ test_that("flow_dfr() with same name, but different body with id", {
     }
 
     assign("df_fn", df_fn, envir = .GlobalEnv)
+    
+    dfr1$eddy$reset()
 })
 
 
@@ -164,6 +172,8 @@ test_that("flow_dfr() works with same body, different name", {
 
     expect_equal(collected_dfr, expected_df)
     expect_equal(dfr2$state_index, 1)
+    
+    dfr1$eddy$reset()
 })
 
 
@@ -177,6 +187,8 @@ test_that("flow_dfr() works with 0 rows dataframe", {
     df <- data.frame(col1 = character(), col2 = character())
     dfr <- flow_dfr(df, fn = identity)
     expect_equal(collect(dfr), tibble::as_tibble(df))
+    
+    dfr$eddy$reset()
 })
 
 
