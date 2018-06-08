@@ -18,4 +18,3 @@ Other cache functions: \code{\link{cache_file}},
   \code{\link{cache_memory_file}},
   \code{\link{cache_memory}}
 }
-\concept{cache functions}

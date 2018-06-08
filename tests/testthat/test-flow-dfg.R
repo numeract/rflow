@@ -2,11 +2,11 @@
 
 context("flow-dfg tests")
 
-# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
-# )) {
-#     skip("cache-memory-file functions")
-# }
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
 
 
 setup({
@@ -50,10 +50,10 @@ setup({
             Sepal.Width = 2,
             Petal.Length = 3,
             Petal.Width = 4,
-            Species = "setosa"
-        )
+            Species = "setosa",
+            stringsAsFactors = FALSE)
         
-        df <- df %>% dplyr::bind_rows(df2)
+        df <- df %>% dplyr::bind_rows(df2, stringsAsFactors = FALSE)
         df
     }
     assign("df", df, envir = .GlobalEnv)
@@ -194,45 +194,18 @@ test_that("flow_dfg works with function that adds a column", {
 })
 
 
-# Shouldn't this throw an error?
-test_that("flow_dfg stops with function that modifies column type", {
-    get_current_eddy()$reset()
-    
-    dfg_test <- head(df, n = 35) %>%
+test_that("flow_dfg stops with function that adds new row", {
+    dfg_test <- df %>%
         dplyr::group_by(Species)
 
-    dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn5)
 
     expect_error(dfg1 %>% collect())
+
+    dfg1$eddy$reset()
 })
 
-# 
-# # Shouldn't this throw an error?
-# test_that("flow_dfg stops with function that changes column name", {
-#     dfg_test <- head(df, n = 35) %>%
-#         dplyr::group_by(Species)
-#     
-#     dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
-#     
-#     expect_error(dfg1 %>% collect())
-#     
-#     dfg1$eddy$reset()
-# })
-# 
-# 
-# test_that("flow_dfg stops with function that adds new row", {
-#     dfg_test <- head(df, n = 35) %>%
-#         dplyr::group_by(Species)
-#     
-#     dfg1 <- flow_dfg(dfg_test, fn = df_fn5)
-#     
-#     expect_error(dfg1 %>% collect())
-#     
-#     dfg1$eddy$reset()
-# })
-# 
-# 
-# 
+
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
