@@ -2,6 +2,13 @@
 
 context("flow-dfg tests")
 
+# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+# )) {
+#     skip("cache-memory-file functions")
+# }
+
+
 setup({
     df <- tibble::as.tibble(iris)
     set.seed(1)
@@ -58,6 +65,51 @@ test_that("flow_dfg works without group_by argument but already grouped df", {
     
     dfg1$eddy$reset()
 })
+
+
+test_that("flow_dfg stops with NULL group_by  and non-grouped df", {
+    
+    dfg_test <- head(df, n = 35) 
+    
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn)
+    
+    expect_equal(dfg1$state_index, 1)
+    expect_false(dfg1$is_valid)
+    
+    expect_error(collected_dfg <- dfg1 %>% collect())
+    
+    dfg1$eddy$reset()
+})
+
+
+test_that("flow_dfg stops with non valid df argument", {
+    
+    dfg_test <- list(col1 = c(1, 2, 3)) 
+    expect_error(dfg1 <- flow_dfg(dfg_test, fn = df_fn))
+    
+    dfg_test <- data.frame()
+    expect_error(dfg1 <- flow_dfg(dfg_test, fn = df_fn))
+})
+
+
+test_that("flow_dfg stops with non valid group_by", {
+    dfg_test <- head(df, n = 35) 
+    
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = NA))
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = NA_character_))
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = character()))
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = 2))
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = TRUE))
+    expect_error(
+        dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = "inexistent_col"))
+    
+})
+
 
 
 teardown({
