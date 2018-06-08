@@ -11,12 +11,12 @@ context("flow-dfg tests")
 
 setup({
     df <- tibble::as.tibble(iris)
-    set.seed(1)
-    rand <- sample(nrow(df))
-    df <- df[rand, ]
+    df <- df[c(1:7, 71:73, 101:110), ]
+    
     df_fn <- function(df) {
-        df$Sepal.Length  <- df$Sepal.Length * 2
-        df
+        df <- df %>%
+            dplyr::group_by(Species) %>%
+            dplyr::mutate(Sepal.Length = Sepal.Length * 2)
     }
     
     df_fn2 <- function(df, i = NULL) {
@@ -25,8 +25,9 @@ setup({
         } else {
             dfi <- df[i, , drop = FALSE]
         }
-        dfi$rm <- rowMeans(dfi[1:10])
-        dfi
+        dfi <- dfi %>% 
+            dplyr::group_by(Species) %>%
+            dplyr::mutate(rm = mean(Sepal.Length))
     }
     
     df_fn3 <- function(df) {
@@ -65,74 +66,101 @@ setup({
 
 
 test_that("flow_dfg works", {
+    get_current_eddy()$reset()
     
-    dfg1 <- flow_dfg(head(df, n = 35), fn = df_fn, group_by = "Species")
+    dfg1 <- flow_dfg(df, fn = df_fn, group_by = "Species")
     
     expect_equal(dfg1$state_index, 1)
     expect_false(dfg1$is_valid)
     
     collected_dfg <- dfg1 %>% collect()
-    expected_df <- head(df, n = 35)
-    expected_df <- expected_df %>%
+    expected_df <- df %>%
+        dplyr::group_by(Species) %>%
         dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
     
     expect_true(dfg1$is_valid)
     expect_equal(collected_dfg, expected_df)
-    
-    dfg1$eddy$reset()
 })
 
 
 test_that("flow_dfg works without group_by argument but already grouped df", {
+    get_current_eddy()$reset()
     
-    dfg_test <- head(df, n = 35) %>%
+    dfg_test <- df %>%
         dplyr::group_by(Species)
-    
+
     dfg1 <- flow_dfg(dfg_test, fn = df_fn)
-    
+
     expect_equal(dfg1$state_index, 1)
     expect_false(dfg1$is_valid)
-    
+
     collected_dfg <- dfg1 %>% collect()
-    expected_df <- head(df, n = 35)
-    expected_df <- expected_df %>%
+    expected_df <- df %>%
+        dplyr::group_by(Species) %>%
         dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
-    
+
     expect_true(dfg1$is_valid)
     expect_equal(collected_dfg, expected_df)
+})
+
+
+test_that("flow_dfg works with pipes", {
+    get_current_eddy()$reset()
     
-    dfg1$eddy$reset()
+    dfg_test <- df %>%
+        dplyr::group_by(Species)
+    
+    dfg <- flow_dfg(dfg_test, fn = df_fn)
+    
+    collected_dfg <- dfg %>%
+        flow_dfg(fn = identity) %>%
+        collect()
+    
+    expected_df <- df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
+    
+    expect_true(dfg$is_valid)
+    expect_equal(collected_dfg, expected_df)
 })
 
 
 test_that("flow_dfg stops with NULL group_by  and non-grouped df", {
+    get_current_eddy()$reset()
     
-    dfg_test <- head(df, n = 35) 
-    
+    dfg_test <- df
+
     dfg1 <- flow_dfg(dfg_test, fn = df_fn)
-    
+
     expect_equal(dfg1$state_index, 1)
     expect_false(dfg1$is_valid)
-    
+
     expect_error(collected_dfg <- dfg1 %>% collect())
-    
-    dfg1$eddy$reset()
 })
 
 
 test_that("flow_dfg stops with non valid df argument", {
+    get_current_eddy()$reset()
     
-    dfg_test <- list(col1 = c(1, 2, 3)) 
-    expect_error(dfg1 <- flow_dfg(dfg_test, fn = df_fn))
-    
+    dfg_test <- list(col1 = c(1, 2, 3))
+    expect_error(dfg <- flow_dfg(dfg_test, fn = df_fn))
+
     dfg_test <- data.frame()
-    expect_error(dfg1 <- flow_dfg(dfg_test, fn = df_fn))
+    expect_error(dfg <- flow_dfg(dfg_test, fn = df_fn))
+
+    expect_error(dfg <- flow_dfg(NULL, fn = identity_df))
+    expect_error(dfg <- flow_dfg(list(), fn = identity_df))
+    expect_error(dfg <- flow_dfg(NA, fn = identity_df))
+    expect_error(dfg <- flow_dfg(character(), fn = identity_df))
+    expect_error(dfg <- flow_dfg(1, fn = identity_df))
+    expect_error(dfg <- flow_dfg(TRUE, fn = identity_df))
 })
 
 
 test_that("flow_dfg stops with non valid group_by", {
-    dfg_test <- head(df, n = 35) 
-    
+    get_current_eddy()$reset()
+    dfg_test <-  df
+
     expect_error(
         dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = NA))
     expect_error(
@@ -145,60 +173,60 @@ test_that("flow_dfg stops with non valid group_by", {
         dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = TRUE))
     expect_error(
         dfg1 <- flow_dfg(dfg_test, fn = df_fn, group_by = "inexistent_col"))
-    
+
 })
 
 
-test_that("flow_dfg stops with function that adds a column", {
-    dfg_test <- head(df, n = 35) %>%
+test_that("flow_dfg works with function that adds a column", {
+    get_current_eddy()$reset()
+    dfg_test <- df %>%
         dplyr::group_by(Species)
     
     dfg1 <- flow_dfg(dfg_test, fn = df_fn2)
     
-    expect_error(dfg1 %>% collect())
-    
-    dfg1$eddy$reset()
+    dfg_collected <- dfg1 %>% collect()
 })
 
 
-# Shouldn't this throw an error?
-test_that("flow_dfg stops with function that modifies column type", {
-    dfg_test <- head(df, n = 35) %>%
-        dplyr::group_by(Species)
-    
-    dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
-    
-    expect_error(dfg1 %>% collect())
-    
-    dfg1$eddy$reset()
-})
-
-
-# Shouldn't this throw an error?
-test_that("flow_dfg stops with function that changes column name", {
-    dfg_test <- head(df, n = 35) %>%
-        dplyr::group_by(Species)
-    
-    dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
-    
-    expect_error(dfg1 %>% collect())
-    
-    dfg1$eddy$reset()
-})
-
-
-test_that("flow_dfg stops with function that adds new row", {
-    dfg_test <- head(df, n = 35) %>%
-        dplyr::group_by(Species)
-    
-    dfg1 <- flow_dfg(dfg_test, fn = df_fn5)
-    
-    expect_error(dfg1 %>% collect())
-    
-    dfg1$eddy$reset()
-})
-
-
+# # Shouldn't this throw an error?
+# test_that("flow_dfg stops with function that modifies column type", {
+#     dfg_test <- head(df, n = 35) %>%
+#         dplyr::group_by(Species)
+#     
+#     dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
+#     
+#     expect_error(dfg1 %>% collect())
+#     
+#     dfg1$eddy$reset()
+# })
+# 
+# 
+# # Shouldn't this throw an error?
+# test_that("flow_dfg stops with function that changes column name", {
+#     dfg_test <- head(df, n = 35) %>%
+#         dplyr::group_by(Species)
+#     
+#     dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
+#     
+#     expect_error(dfg1 %>% collect())
+#     
+#     dfg1$eddy$reset()
+# })
+# 
+# 
+# test_that("flow_dfg stops with function that adds new row", {
+#     dfg_test <- head(df, n = 35) %>%
+#         dplyr::group_by(Species)
+#     
+#     dfg1 <- flow_dfg(dfg_test, fn = df_fn5)
+#     
+#     expect_error(dfg1 %>% collect())
+#     
+#     dfg1$eddy$reset()
+# })
+# 
+# 
+# 
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
