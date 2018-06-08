@@ -20,3 +20,4 @@ The cache data will be stored both in memory (for quick access) and on
 Other cache functions: \code{\link{cache_file}},
   \code{\link{cache_memory}}, \code{\link{default_cache}}
 }
+\concept{cache functions}

@@ -76,6 +76,7 @@ R6FlowDfg$set("public", "compute", function() {
     # df gets a new column, a hash for each row
     row_hash <- purrr::pmap_chr(df, ~ self$eddy$digest(list(...)))
     df[[ROW_HASH]] <- row_hash
+    gdf[[ROW_HASH]] <- row_hash
     
     # df gets a new column, a hash for each group
     group_hash <- 

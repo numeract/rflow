@@ -22,3 +22,4 @@ Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_current_eddy}}, \code{\link{new_eddy}},
   \code{\link{set_current_eddy}}, \code{\link{use_eddy}}
 }
+\concept{eddy functions}

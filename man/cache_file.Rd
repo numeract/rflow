@@ -19,3 +19,4 @@ All cache data will be stored only on the local disk.
 Other cache functions: \code{\link{cache_memory_file}},
   \code{\link{cache_memory}}, \code{\link{default_cache}}
 }
+\concept{cache functions}
