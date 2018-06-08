@@ -74,7 +74,12 @@ R6FlowDfg$set("public", "compute", function() {
     }
     
     # df gets a new column, a hash for each row
-    row_hash <- purrr::pmap_chr(df, ~ self$eddy$digest(list(...)))
+    hdf <- df
+    if (length(data_args) > 1L) {
+        # extra column to capture change in dots
+        hdf$dots_hash <- self$eddy$digest(data_args[-1L])
+    }
+    row_hash <- purrr::pmap_chr(hdf, ~ self$eddy$digest(list(...)))
     df[[ROW_HASH]] <- row_hash
     gdf[[ROW_HASH]] <- row_hash
     
@@ -112,6 +117,7 @@ R6FlowDfg$set("public", "compute", function() {
         ))
         out_df <- out_data$value
         stopifnot(is.data.frame(out_df))
+        out_df <- dplyr::ungroup(tibble::as_tibble(out_df))
         stopifnot(all(c(ROW_HASH, GROUP_HASH) %in% names(out_df)))
         # both groups and rows might be missing, but nothing new is allowed
         stopifnot(all(out_df[[GROUP_HASH]] %in% cdf[[GROUP_HASH]]))
@@ -119,10 +125,13 @@ R6FlowDfg$set("public", "compute", function() {
         if (first_time) {
             self$out_visible <- out_data$visible
         } else {
-            stopifnot(identical(names(out_df), names(self$out_df)))
+            # check both name and col types (e.g. int vs num)
+            old_header <- purrr::map_chr(self$out_df, ~ class(.)[1])
+            new_header <- purrr::map_chr(out_df, ~ class(.)[1])
+            stopifnot(identical(old_header, new_header))
         }
         # save to row cache & add rows from cache
-        self$out_df <- dplyr::bind_rows(self$out_df, tibble::as_tibble(out_df))
+        self$out_df <- dplyr::bind_rows(self$out_df, out_df)
     }
     
     # reconstruct out_data from cache
