@@ -23,6 +23,7 @@ make_flow_fn <- function(fn,
     # best place to capture the name of the function
     # fn_name (the binding) is irrelevant (it's the args and body that matter)
     # but it is useful for fn_id hints
+    stopifnot(!is.null(fn))
     match_call <- match.call()
     use <- make_key(match_call$fn, fn, fn_id, flow_options, "R6Flow")
     eddy <- flow_options$eddy
@@ -45,6 +46,10 @@ make_flow_fn <- function(fn,
 
 #' Implicit cache of a function and of the given call.
 #' 
+#' @details 
+#'   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+#'   must be named. Argument \code{fn} must be always provided.
+#' 
 #' @param ... Named arguments to pass to \code{fn}.
 #' @param fn The function to apply to the data frame. It must accept a data
 #'   frame as the first argument and a numeric index as the second argument.
@@ -62,6 +67,7 @@ flow_fn <- function(...,
                     fn_id = NULL,
                     flow_options = get_flow_options()
 ) {
+    stopifnot(!is.null(fn))
     match_call <- match.call()
     use <- make_key(match_call$fn, fn, fn_id, flow_options, "R6Flow")
     eddy <- flow_options$eddy
@@ -107,6 +113,7 @@ flow_call <- function(fn_call,
     fn_call <- parse_call()
     fn_name <- fn_call[[1L]]
     fn <- eval(fn_name)
+    stopifnot(!is.null(fn))
     use <- make_key(fn_name, fn, fn_id, flow_options, "R6Flow")
     eddy <- flow_options$eddy
     

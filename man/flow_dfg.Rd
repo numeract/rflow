@@ -36,8 +36,12 @@ Group-wise caching of operations on data frame.
 Function \code{fn} will receive only the rows and groups changed; 
   it may drop some of the rows, but will not add any new rows.
   The function \code{fn} may return fewer or more columns or modify 
-  existing columns as long it always returns the same columns (data types 
-  and names). The data frame \code{df} passed to \code{fn} will have two
-  additional columns: \code{..row_hash..} and \code{..group_hash..} which 
+  existing columns as long it always returns a consistent schema
+  (i.e., the same column data types and names) for all calls. 
+  The data frame \code{df} passed to \code{fn} will include two
+  additional columns: \code{..row_hash..} and \code{..group_hash..} that
   must be returned as is in order to identify changes.
+  
+  Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+  must be named. Argument \code{fn} must be always provided.
 }

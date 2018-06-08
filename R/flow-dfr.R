@@ -221,10 +221,14 @@ R6FlowDfr$set("public", "save", function() {
 #'   Function \code{fn} will receive only the rows changed; 
 #'   it may drop some of the rows, but will not add any new rows.
 #'   The function \code{fn} may return fewer or more columns or modify 
-#'   existing columns as long it always returns the same columns (data types 
-#'   and names). The data frame \code{df} passed to \code{fn} will have one 
-#'   additional column \code{..row_hash..} which must be returned as is in 
+#'   existing columns as long it always returns a consistent schema
+#'   (i.e., the same column data types and names) for all calls. 
+#'   The data frame \code{df} passed to \code{fn} will include one 
+#'   additional column \code{..row_hash..} that must be returned as is in 
 #'   order to identify changes.
+#'   
+#'   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+#'   must be named. Argument \code{fn} must be always provided.
 #' 
 #' @param df A \code{data.frame} or \code{tibble}. Rownames are not supported.
 #' @param ... Other named arguments to pass to \code{fn}.
@@ -251,6 +255,7 @@ flow_dfr <- function(df,
         stopifnot(inherits(df, "R6Flow") || inherits(df, "Element"))
     }
     
+    stopifnot(!is.null(fn))
     match_call <- match.call()
     use <- make_key(match_call$fn, fn, fn_id, flow_options, "R6FlowDfr")
     eddy <- flow_options$eddy

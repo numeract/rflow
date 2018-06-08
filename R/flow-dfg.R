@@ -205,10 +205,14 @@ R6FlowDfg$set("public", "compute", function() {
 #'   Function \code{fn} will receive only the rows and groups changed; 
 #'   it may drop some of the rows, but will not add any new rows.
 #'   The function \code{fn} may return fewer or more columns or modify 
-#'   existing columns as long it always returns the same columns (data types 
-#'   and names). The data frame \code{df} passed to \code{fn} will have two
-#'   additional columns: \code{..row_hash..} and \code{..group_hash..} which 
+#'   existing columns as long it always returns a consistent schema
+#'   (i.e., the same column data types and names) for all calls. 
+#'   The data frame \code{df} passed to \code{fn} will include two
+#'   additional columns: \code{..row_hash..} and \code{..group_hash..} that
 #'   must be returned as is in order to identify changes.
+#'   
+#'   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+#'   must be named. Argument \code{fn} must be always provided.
 #' 
 #' @param df A \code{data.frame} or \code{tibble}. Row names are not supported.
 #'   If no \code{group_by} values are provided, the data frame must be grouped.
@@ -247,6 +251,7 @@ flow_dfg <- function(df,
     # add `group_by` to flow_options to make the hash unique
     flow_options$group_by <- group_by
     
+    stopifnot(!is.null(fn))
     match_call <- match.call()
     use <- make_key(match_call$fn, fn, fn_id, flow_options, "R6FlowDfg")
     eddy <- flow_options$eddy

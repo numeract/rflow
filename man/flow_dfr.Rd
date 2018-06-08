@@ -32,8 +32,12 @@ Row-wise caching of operations on data frame.
 Function \code{fn} will receive only the rows changed; 
   it may drop some of the rows, but will not add any new rows.
   The function \code{fn} may return fewer or more columns or modify 
-  existing columns as long it always returns the same columns (data types 
-  and names). The data frame \code{df} passed to \code{fn} will have one 
-  additional column \code{..row_hash..} which must be returned as is in 
+  existing columns as long it always returns a consistent schema
+  (i.e., the same column data types and names) for all calls. 
+  The data frame \code{df} passed to \code{fn} will include one 
+  additional column \code{..row_hash..} that must be returned as is in 
   order to identify changes.
+  
+  Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+  must be named. Argument \code{fn} must be always provided.
 }

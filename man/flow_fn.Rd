@@ -25,3 +25,7 @@ The flow object.
 \description{
 Implicit cache of a function and of the given call.
 }
+\details{
+Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
+  must be named. Argument \code{fn} must be always provided.
+}

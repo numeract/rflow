@@ -27,6 +27,7 @@ require_keys <- function(...) {
 make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
     
     # fn_name
+    stopifnot(!is.null(fn_name))
     if (!is.character(fn_name)) {
         if (is.symbol(fn_name)) {
             fn_name <- as.character(fn_name)
