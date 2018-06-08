@@ -31,12 +31,16 @@ setup({
     }
     
     df_fn3 <- function(df) {
-        df$Sepal.Length <- "Large"
-        df
+        df <- df %>%
+            dplyr::filter(Sepal.Length < 5) %>%
+            dplyr::group_by(Species) %>%
+            dplyr::mutate(Sepal.Length = "small")
     }
     
     df_fn4 <- function(df) {
-        colnames(df)[2] <- "new_name"
+        if (nrow(df) > 15) {
+            colnames(df)[2] <- "new_name"
+        }
         df
     }
     
@@ -52,16 +56,12 @@ setup({
         df <- df %>% dplyr::bind_rows(df2)
         df
     }
-    
-    
-    identity_df <- function(df) {df}
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
     assign("df_fn2", df_fn2, envir = .GlobalEnv)
     assign("df_fn3", df_fn3, envir = .GlobalEnv)
     assign("df_fn4", df_fn4, envir = .GlobalEnv)
     assign("df_fn5", df_fn5, envir = .GlobalEnv)
-    assign("identity_df", identity_df, envir = .GlobalEnv)
 })
 
 
@@ -184,22 +184,28 @@ test_that("flow_dfg works with function that adds a column", {
     
     dfg1 <- flow_dfg(dfg_test, fn = df_fn2)
     
-    dfg_collected <- dfg1 %>% collect()
+    collected_dfg <- dfg1 %>% collect()
+    expected_df <- df %>% 
+        dplyr::group_by(Species) %>%
+        dplyr::mutate(rm = mean(Sepal.Length))
+    
+    expect_true(dfg1$is_valid)
+    expect_equal(collected_dfg, expected_df)
 })
 
 
-# # Shouldn't this throw an error?
-# test_that("flow_dfg stops with function that modifies column type", {
-#     dfg_test <- head(df, n = 35) %>%
-#         dplyr::group_by(Species)
-#     
-#     dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
-#     
-#     expect_error(dfg1 %>% collect())
-#     
-#     dfg1$eddy$reset()
-# })
-# 
+# Shouldn't this throw an error?
+test_that("flow_dfg stops with function that modifies column type", {
+    get_current_eddy()$reset()
+    
+    dfg_test <- head(df, n = 35) %>%
+        dplyr::group_by(Species)
+
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
+
+    expect_error(dfg1 %>% collect())
+})
+
 # 
 # # Shouldn't this throw an error?
 # test_that("flow_dfg stops with function that changes column name", {
@@ -234,5 +240,4 @@ teardown({
     base::rm(list = "df_fn3", envir = .GlobalEnv)
     base::rm(list = "df_fn4", envir = .GlobalEnv)
     base::rm(list = "df_fn5", envir = .GlobalEnv)
-    base::rm(list = "identity_df", envir = .GlobalEnv)
 })
