@@ -88,7 +88,7 @@ R6FlowDfg$set("public", "compute", function() {
             stringsAsFactors = FALSE
         )) %>%
         dplyr::ungroup() %>%
-        dplyr::arrange_at(.vars = .ROW_ID) %>%
+        dplyr::arrange_at(.vars = "row_id") %>%
         dplyr::pull(group_hash)
     gdf[[GROUP_HASH]] <- group_hash
     
