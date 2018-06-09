@@ -154,6 +154,7 @@ test_that("flow_dfg works when adding new row", {
     expect_equal(nrow(group_hash), 1)
     expect_equal(nrow(group_hash2), 2)
     expect_equal(nrow(dfg1$out_df), 28)
+    expect_equal(dfg1$state_index, 2)
 })
 
 
@@ -177,6 +178,7 @@ test_that("flow_dfg works when deleting row", {
     expect_equal(nrow(group_hash), 1)
     expect_equal(nrow(group_hash2), 2)
     expect_equal(nrow(dfg1$out_df), 26)
+    expect_equal(dfg1$state_index, 2)
 })
 
 
@@ -207,6 +209,7 @@ test_that("flow_dfg works when changing existing row", {
     expect_equal(nrow(row_hash), 7)
     expect_equal(nrow(row_hash2), 8)
     expect_equal(nrow(dfg1$out_df), 27)
+    expect_equal(dfg1$state_index, 2)
 })
 
 
@@ -243,6 +246,7 @@ test_that("flow_dfg works when moving row from one group to another", {
     expect_equal(nrow(row_hash1), 3)
     expect_equal(nrow(row_hash2), 4)
     expect_equal(nrow(dfg1$out_df), 30)
+    expect_equal(dfg1$state_index, 2)
 })
 
 
