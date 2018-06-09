@@ -41,8 +41,8 @@ setup({
     
     df_fn3 <- function(df) {
         df <- df %>%
-            dplyr::filter(Sepal.Length < 5) %>%
             dplyr::group_by(Species) %>%
+            dplyr::filter(Sepal.Length < 5) %>%
             dplyr::mutate(Sepal.Length = "small")
     }
     
@@ -300,6 +300,7 @@ test_that("flow_dfg stops with non valid group_by", {
 
 test_that("flow_dfg works with function that adds a column", {
     get_current_eddy()$reset()
+    
     dfg_test <- df %>%
         dplyr::group_by(Species)
     
@@ -316,14 +317,14 @@ test_that("flow_dfg works with function that adds a column", {
 
 
 test_that("flow_dfg stops with function that adds new row", {
+    get_current_eddy()$reset()
+    
     dfg_test <- df %>%
         dplyr::group_by(Species)
 
     dfg1 <- flow_dfg(dfg_test, fn = df_fn5)
 
     expect_error(dfg1 %>% collect())
-
-    dfg1$eddy$reset()
 })
 
 
