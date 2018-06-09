@@ -54,16 +54,10 @@ setup({
     }
     
     df_fn5 <- function(df) {
-        df2 <- dplyr::data_frame(
-            Sepal.Length = 1,
-            Sepal.Width = 2,
-            Petal.Length = 3,
-            Petal.Width = 4,
-            Species = "setosa",
-            stringsAsFactors = FALSE)
-        
-        df <- df %>% dplyr::bind_rows(df2, stringsAsFactors = FALSE)
-        df
+        df <- df %>%
+            dplyr::add_row(
+                Sepal.Length = 5, Sepal.Width = 6, Petal.Length = 7, 
+                Petal.Width = 4, Species = "setosa")
     }
     
     assign("df", df, envir = .GlobalEnv)
