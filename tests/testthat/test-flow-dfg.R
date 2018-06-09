@@ -104,6 +104,59 @@ test_that("flow_dfg works without group_by argument but already grouped df", {
 })
 
 
+test_that("flow_dfg works when adding new row", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash <- dfg1$out_df %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::select(..group_hash..)
+    
+    test_df <- test_df %>%
+        dplyr::add_row(
+            Sepal.Length = 5, Sepal.Width = 6, Petal.Length = 7, 
+            Petal.Width = 4, Species = "setosa")
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash2 <- dfg1$out_df %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::select(..group_hash..)
+        
+    
+    expect_false(group_hash == group_hash2)
+    expect_equal(nrow(dfg1$out_df), 28)
+})
+
+
+test_that("flow_dfg works when changing existing row", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash <- dfg1$out_df[2, "..group_hash.."] 
+    row_hash <- dfg1$out_df[2, "..row_hash.."] 
+    
+    test_df[2, "Sepal.Length"] <- 3
+    
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash2 <- dfg1$out_df[2, "..group_hash.."] 
+    row_hash2 <- dfg1$out_df[2, "..row_hash.."] 
+    
+    
+    expect_false(group_hash == group_hash2)
+    expect_false(row_hash == row_hash2)    
+    expect_equal(nrow(dfg1$out_df), 21)
+})
+
+
 test_that("flow_dfg works with pipes", {
     get_current_eddy()$reset()
     
