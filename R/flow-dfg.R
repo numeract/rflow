@@ -224,9 +224,9 @@ R6FlowDfg$set("public", "compute", function() {
 #'   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
 #'   must be named. Argument \code{fn} must be always provided.
 #' 
-#' @param df A \code{data.frame} or \code{tibble}. Row names are not supported.
+#' @param ... Named arguments to pass to \code{fn}. The first argument must be 
+#'   a \code{data.frame} or \code{tibble}. Row names are not supported.
 #'   If no \code{group_by} values are provided, the data frame must be grouped.
-#' @param ... Other named arguments to pass to \code{fn}.
 #' @param fn The function to apply to the data frame. It must accept a data
 #'   frame as the first argument.
 #' @param fn_id Optional id to uniquely identify the function. By default,
@@ -240,13 +240,15 @@ R6FlowDfg$set("public", "compute", function() {
 #' @return The flow object.
 #' 
 #' @export
-flow_dfg <- function(df, 
-                     ..., 
+flow_dfg <- function(..., 
                      fn = NULL,
                      fn_id = NULL,
                      group_by = NULL,
                      flow_options = get_flow_options()
 ) {
+    dots <- list(...)
+    stopifnot(length(dots) > 0L) 
+    df <- dots[[1L]]
     if (is.data.frame(df)) {
         stopifnot(ncol(df) > 0L)
     } else {
@@ -281,7 +283,7 @@ flow_dfg <- function(df,
     
     do.call(
         what = flow$rf_fn, 
-        args = c(list(df), list(...)),
+        args = dots,
         envir = parent.frame(n = 2)
     )
 }

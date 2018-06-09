@@ -4,14 +4,13 @@
 \alias{flow_dfg}
 \title{Group-wise caching of operations on data frame.}
 \usage{
-flow_dfg(df, ..., fn = NULL, fn_id = NULL, group_by = NULL,
+flow_dfg(..., fn = NULL, fn_id = NULL, group_by = NULL,
   flow_options = get_flow_options())
 }
 \arguments{
-\item{df}{A \code{data.frame} or \code{tibble}. Row names are not supported.
+\item{...}{Named arguments to pass to \code{fn}. The first argument must be 
+a \code{data.frame} or \code{tibble}. Row names are not supported.
 If no \code{group_by} values are provided, the data frame must be grouped.}
-
-\item{...}{Other named arguments to pass to \code{fn}.}
 
 \item{fn}{The function to apply to the data frame. It must accept a data
 frame as the first argument.}
