@@ -367,6 +367,40 @@ test_that("flow_dfg works with function that returns 0 row df", {
 
     expect_true(dfg1$is_valid)
     expect_equal(nrow(dfg1$out_df), 0)
+
+})
+
+
+test_that("flow_dfg() works with same body, different name", {
+    
+    get_current_eddy()$reset()
+    df_fn_new <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi <- dfi %>% 
+            dplyr::group_by(Species) %>%
+            dplyr::mutate(rm = mean(Sepal.Length))
+    }
+    assign("df_fn_new", df_fn_new, envir = .GlobalEnv)
+    
+    test_dfg <- df %>%
+        dplyr::group_by(Species)
+    
+    dfg1 <- flow_dfg(test_dfg, fn = df_fn2)
+    
+    expect_equal(dfg1$state_index, 1)
+    expect_message(dfg2 <- flow_dfg(test_dfg, fn = df_fn_new))
+    
+    collected_dfr <- dfg2 %>% collect()
+    expected_df <- df %>% 
+        dplyr::group_by(Species) %>%
+        dplyr::mutate(rm = mean(Sepal.Length))
+    
+    expect_equal(collected_dfr, expected_df)
+    expect_equal(dfg2$state_index, 1)
 })
 
 
