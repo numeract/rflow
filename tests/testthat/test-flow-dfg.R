@@ -2,11 +2,11 @@
 
 context("flow-dfg tests")
 
-if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
-)) {
-    skip("cache-memory-file functions")
-}
+# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+# )) {
+#     skip("cache-memory-file functions")
+# }
 
 
 setup({
@@ -112,8 +112,9 @@ test_that("flow_dfg works when adding new row", {
     collected_dfg <- dfg1 %>% collect()
     
     group_hash <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
         dplyr::filter(Species == "setosa") %>%
-        dplyr::select(..group_hash..)
+        dplyr::distinct(..group_hash..)
     
     test_df <- test_df %>%
         dplyr::add_row(
@@ -123,11 +124,13 @@ test_that("flow_dfg works when adding new row", {
     collected_dfg <- dfg1 %>% collect()
     
     group_hash2 <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
         dplyr::filter(Species == "setosa") %>%
-        dplyr::select(..group_hash..)
+        dplyr::distinct(..group_hash..)
         
     
-    expect_false(group_hash == group_hash2)
+    expect_equal(nrow(group_hash), 1)
+    expect_equal(nrow(group_hash2), 2)
     expect_equal(nrow(dfg1$out_df), 28)
 })
 
@@ -139,37 +142,99 @@ test_that("flow_dfg works when changing existing row", {
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    group_hash <- dfg1$out_df[2, "..group_hash.."] 
-    row_hash <- dfg1$out_df[2, "..row_hash.."] 
+    group_hash <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..group_hash..)
+
+    row_hash <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..row_hash..)
     
-    test_df[2, "Sepal.Length"] <- 3
+    test_df[1, "Sepal.Length"] <- 3
     
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    group_hash2 <- dfg1$out_df[2, "..group_hash.."] 
+    
+    group_hash2 <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..group_hash..)
+    
+    row_hash2 <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..row_hash..)
+    
+    expect_equal(nrow(group_hash), 1)
+    expect_equal(nrow(group_hash2), 2)
+    expect_equal(nrow(row_hash), 7)
+    expect_equal(nrow(row_hash2), 8)
+    expect_equal(nrow(dfg1$out_df), 27)
+})
+
+
+test_that("flow_dfg works when moving row from one group to another", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    setosa_group_hash <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..group_hash..)
+    
+    versicolor_group_hash <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "versicolor") %>%
+        dplyr::distinct(..group_hash..)
+    
+    row_hash <- dfg1$out_df[2, "..row_hash.."] 
+    
+    test_df[2, "Species"] <- "versicolor"
+    
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    setosa_group_hash2 <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "setosa") %>%
+        dplyr::distinct(..group_hash..)
+    
+    versicolor_group_hash2 <- dfg1$out_df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == "versicolor") %>%
+        dplyr::distinct(..group_hash..)
+    
     row_hash2 <- dfg1$out_df[2, "..row_hash.."] 
     
     
-    expect_false(group_hash == group_hash2)
-    expect_false(row_hash == row_hash2)    
-    expect_equal(nrow(dfg1$out_df), 21)
+    expect_equal(nrow(setosa_group_hash), 1)
+    expect_equal(nrow(versicolor_group_hash), 1)
+    expect_equal(nrow(setosa_group_hash2), 2)
+    expect_equal(nrow(versicolor_group_hash2), 2)
+    expect_equal(nrow(dfg1$out_df), 30)
 })
 
 
 test_that("flow_dfg works with pipes", {
     get_current_eddy()$reset()
     
-    dfg_test <- df %>%
+    test_df <- df
+    test_dfg <- test_df %>%
         dplyr::group_by(Species)
     
-    dfg <- flow_dfg(dfg_test, fn = df_fn)
+    dfg <- flow_dfg(test_dfg, fn = df_fn)
     
     collected_dfg <- dfg %>%
-        flow_dfg(fn = identity) %>%
+        flow_dfg(fn = identity, group_by = "Species") %>%
         collect()
     
-    expected_df <- df %>%
+    expected_df <- test_df %>%
         dplyr::group_by(Species) %>%
         dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
     
