@@ -108,6 +108,24 @@ test_that("flow_dfg works without group_by argument but already grouped df", {
 })
 
 
+test_that("flow_dfg works with function with second argument", {
+    get_current_eddy()$reset()
+    
+    dfg1 <- flow_dfg(df, i = 1, fn = df_fn2, group_by = "Species")
+    
+    expect_equal(dfg1$state_index, 1)
+    expect_false(dfg1$is_valid)
+    
+    collected_dfg <- dfg1 %>% collect()
+    expected_df <- df[1, , drop = FALSE] %>%
+        dplyr::mutate(rm = mean(Sepal.Length))
+    
+    expect_true(dfg1$is_valid)
+    expect_equal(collected_dfg, expected_df)
+    expect_equal(nrow(dfg1$out_df), 1)
+})
+
+
 test_that("flow_dfg works when adding new row", {
     get_current_eddy()$reset()
     
