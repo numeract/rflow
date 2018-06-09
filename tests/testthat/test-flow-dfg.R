@@ -8,6 +8,15 @@ context("flow-dfg tests")
 #     skip("cache-memory-file functions")
 # }
 
+get_hash <- function(df, filter_by, hash_of) {
+    hash_of <- rlang::sym(hash_of)
+    
+    hash <- df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::filter(Species == filter_by) %>%
+        dplyr::distinct((!!hash_of))
+    hash
+}
 
 setup({
     df <- tibble::as.tibble(iris)
@@ -56,6 +65,7 @@ setup({
         df <- df %>% dplyr::bind_rows(df2, stringsAsFactors = FALSE)
         df
     }
+    
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
     assign("df_fn2", df_fn2, envir = .GlobalEnv)
@@ -111,10 +121,8 @@ test_that("flow_dfg works when adding new row", {
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    group_hash <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
+    group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
     
     test_df <- test_df %>%
         dplyr::add_row(
@@ -123,12 +131,9 @@ test_that("flow_dfg works when adding new row", {
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    group_hash2 <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
+    group_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
         
-    
     expect_equal(nrow(group_hash), 1)
     expect_equal(nrow(group_hash2), 2)
     expect_equal(nrow(dfg1$out_df), 28)
@@ -142,31 +147,19 @@ test_that("flow_dfg works when changing existing row", {
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    group_hash <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
-
-    row_hash <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..row_hash..)
+    group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    row_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..row_hash..")
     
     test_df[1, "Sepal.Length"] <- 3
-    
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    
-    group_hash2 <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
-    
-    row_hash2 <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..row_hash..)
+    group_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    row_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..row_hash..")
     
     expect_equal(nrow(group_hash), 1)
     expect_equal(nrow(group_hash2), 2)
@@ -176,6 +169,7 @@ test_that("flow_dfg works when changing existing row", {
 })
 
 
+
 test_that("flow_dfg works when moving row from one group to another", {
     get_current_eddy()$reset()
     
@@ -183,42 +177,33 @@ test_that("flow_dfg works when moving row from one group to another", {
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    setosa_group_hash <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
-    
-    versicolor_group_hash <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "versicolor") %>%
-        dplyr::distinct(..group_hash..)
-    
-    row_hash <- dfg1$out_df[2, "..row_hash.."] 
+    setosa_group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    versicolor_group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..group_hash..")
+    row_hash1 <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..row_hash..")
     
     test_df[2, "Species"] <- "versicolor"
-    
     dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
     collected_dfg <- dfg1 %>% collect()
     
-    setosa_group_hash2 <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "setosa") %>%
-        dplyr::distinct(..group_hash..)
-    
-    versicolor_group_hash2 <- dfg1$out_df %>%
-        dplyr::group_by(Species) %>%
-        dplyr::filter(Species == "versicolor") %>%
-        dplyr::distinct(..group_hash..)
-    
-    row_hash2 <- dfg1$out_df[2, "..row_hash.."] 
-    
+    setosa_group_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    versicolor_group_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..group_hash..")
+    row_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..row_hash..")
     
     expect_equal(nrow(setosa_group_hash), 1)
     expect_equal(nrow(versicolor_group_hash), 1)
     expect_equal(nrow(setosa_group_hash2), 2)
     expect_equal(nrow(versicolor_group_hash2), 2)
+    expect_equal(nrow(row_hash1), 3)
+    expect_equal(nrow(row_hash2), 4)
     expect_equal(nrow(dfg1$out_df), 30)
 })
+
 
 
 test_that("flow_dfg works with pipes", {
