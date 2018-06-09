@@ -41,9 +41,9 @@ setup({
     
     df_fn3 <- function(df) {
         df <- df %>%
-            dplyr::group_by(Species) %>%
-            dplyr::filter(Sepal.Length < 5) %>%
-            dplyr::mutate(Sepal.Length = "small")
+            dplyr::group_by(Species) 
+        df[1, "Petal.Length"] <- "large"
+        df
     }
     
     df_fn4 <- function(df) {
@@ -443,6 +443,27 @@ test_that("flow_dfg() works with same name, different body", {
     }
     assign("df_fn2", df_fn2, envir = .GlobalEnv)
 })
+
+# test_that("flow_dfg stops with function that modifies column type", {
+#     get_current_eddy()$reset()
+#     
+#     dfg_test <- df %>%
+#         dplyr::group_by(Species)
+#     
+#     dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
+#     expect_error(dfg1 %>% collect())
+# })
+
+
+# test_that("flow_dfg stops with function that changes column name", {
+#     get_current_eddy()$reset()
+#     dfg_test <- head(df, n = 35) %>%
+#         dplyr::group_by(Species)
+#     
+#     dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
+#     
+#     expect_error(dfg1 %>% collect())
+# })
 
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
