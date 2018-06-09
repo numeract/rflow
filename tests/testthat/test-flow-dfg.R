@@ -404,6 +404,46 @@ test_that("flow_dfg() works with same body, different name", {
 })
 
 
+test_that("flow_dfg() works with same name, different body", {
+    get_current_eddy()$reset()
+    
+    test_dfg <- df %>%
+        dplyr::group_by(Species)
+    
+    dfg1 <- flow_dfg(test_dfg, fn = df_fn2)
+    expect_equal(dfg1$state_index, 1)
+    
+    df_fn2 <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi
+    }
+    
+    assign("df_fn2", df_fn2, envir = .GlobalEnv)
+    
+    expect_message(dfg1 <- flow_dfg(test_dfg, fn = df_fn2))
+    collected_dfg <- dfg1 %>% collect()
+    
+    expected_df <- test_dfg
+    expect_equal(dfg1$state_index, 1)
+    expect_equal(collected_dfg, expected_df)
+    
+    df_fn2 <- function(df, i = NULL) {
+        if (is.null(i)) {
+            dfi <- df
+        } else {
+            dfi <- df[i, , drop = FALSE]
+        }
+        dfi <- dfi %>% 
+            dplyr::group_by(Species) %>%
+            dplyr::mutate(rm = mean(Sepal.Length))
+    }
+    assign("df_fn2", df_fn2, envir = .GlobalEnv)
+})
+
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
