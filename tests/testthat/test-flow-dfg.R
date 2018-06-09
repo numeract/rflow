@@ -140,6 +140,30 @@ test_that("flow_dfg works when adding new row", {
 })
 
 
+test_that("flow_dfg works when deleting row", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    
+    test_df <- test_df[-1, ]
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    
+    expect_equal(nrow(group_hash), 1)
+    expect_equal(nrow(group_hash2), 2)
+    expect_equal(nrow(dfg1$out_df), 26)
+})
+
+
+
 test_that("flow_dfg works when changing existing row", {
     get_current_eddy()$reset()
     
