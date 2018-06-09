@@ -60,12 +60,17 @@ setup({
                 Petal.Width = 4, Species = "setosa")
     }
     
+    df_fn6 <- function(df) {
+        df <- df[0, , drop = FALSE]
+    }
+    
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
     assign("df_fn2", df_fn2, envir = .GlobalEnv)
     assign("df_fn3", df_fn3, envir = .GlobalEnv)
     assign("df_fn4", df_fn4, envir = .GlobalEnv)
     assign("df_fn5", df_fn5, envir = .GlobalEnv)
+    assign("df_fn6", df_fn6, envir = .GlobalEnv)
 })
 
 
@@ -346,6 +351,21 @@ test_that("flow_dfg stops with function that adds new row", {
 })
 
 
+test_that("flow_dfg works with function that returns 0 row df", {
+    get_current_eddy()$reset()
+    
+    dfg_test <- df %>%
+        dplyr::group_by(Species)
+    
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn6)
+    
+    collected_result <- dfg1 %>% collect()
+
+    expect_true(dfg1$is_valid)
+    expect_equal(nrow(dfg1$out_df), 0)
+})
+
+
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
@@ -353,4 +373,5 @@ teardown({
     base::rm(list = "df_fn3", envir = .GlobalEnv)
     base::rm(list = "df_fn4", envir = .GlobalEnv)
     base::rm(list = "df_fn5", envir = .GlobalEnv)
+    base::rm(list = "df_fn6", envir = .GlobalEnv)
 })
