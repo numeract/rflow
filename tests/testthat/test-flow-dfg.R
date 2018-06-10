@@ -296,12 +296,12 @@ test_that("flow_dfg stops with non valid df argument", {
     dfg_test <- data.frame()
     expect_error(dfg <- flow_dfg(dfg_test, fn = df_fn))
 
-    expect_error(dfg <- flow_dfg(NULL, fn = identity_df))
-    expect_error(dfg <- flow_dfg(list(), fn = identity_df))
-    expect_error(dfg <- flow_dfg(NA, fn = identity_df))
-    expect_error(dfg <- flow_dfg(character(), fn = identity_df))
-    expect_error(dfg <- flow_dfg(1, fn = identity_df))
-    expect_error(dfg <- flow_dfg(TRUE, fn = identity_df))
+    expect_error(dfg <- flow_dfg(NULL, fn = identity))
+    expect_error(dfg <- flow_dfg(list(), fn = identity))
+    expect_error(dfg <- flow_dfg(NA, fn = identity))
+    expect_error(dfg <- flow_dfg(character(), fn = identity))
+    expect_error(dfg <- flow_dfg(1, fn = identity))
+    expect_error(dfg <- flow_dfg(TRUE, fn = identity))
 })
 
 
