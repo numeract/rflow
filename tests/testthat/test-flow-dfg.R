@@ -537,7 +537,8 @@ test_that("flow_dfg stops with function that changes column name", {
 })
 
 teardown({
-    get_current_eddy$terminate()
+    # get_current_eddy$terminate()
+    
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
     base::rm(list = "df_fn2", envir = .GlobalEnv)
