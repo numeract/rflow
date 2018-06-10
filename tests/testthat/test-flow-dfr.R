@@ -36,12 +36,12 @@ test_that("flow_dfr() works", {
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr, expected_df)
-    
-    dfr1$eddy$reset()
 })
 
 
 test_that("flow_dfr() works with different states", {
+    get_current_eddy()$reset()
+    
     dfr1 <- flow_dfr(head(df), fn = df_fn)
     
     collected_dfr1 <- dfr1 %>% collect()
@@ -58,12 +58,12 @@ test_that("flow_dfr() works with different states", {
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr1, expected_df)
-    
-    dfr1$eddy$reset()
 })
 
 
 test_that("flow_dfr() with same name, but different body", {
+    get_current_eddy()$reset()
+    
     dfr_test <- flow_dfr(head(df), fn = df_fn)
     expect_equal(dfr_test$state_index, 1)
     
@@ -100,12 +100,12 @@ test_that("flow_dfr() with same name, but different body", {
     }
     
     assign("df_fn", df_fn, envir = .GlobalEnv)
-    
-    dfr_test$eddy$reset()
 })
 
 
 test_that("flow_dfr() with same name, but different body with id", {
+    get_current_eddy()$reset()
+    
     dfr_test <- flow_dfr(head(df), fn = df_fn)
     expect_equal(dfr_test$state_index, 1)
 
@@ -143,12 +143,12 @@ test_that("flow_dfr() with same name, but different body with id", {
     }
 
     assign("df_fn", df_fn, envir = .GlobalEnv)
-    
-    dfr_test$eddy$reset()
 })
 
 
 test_that("flow_dfr() works with same body, different name", {
+    get_current_eddy()$reset()
+    
     df_fn2 <- function(df, i = NULL) {
         if (is.null(i)) {
             dfi <- df
@@ -171,27 +171,29 @@ test_that("flow_dfr() works with same body, different name", {
 
     expect_equal(collected_dfr, expected_df)
     expect_equal(dfr2$state_index, 1)
-    
-    dfr1$eddy$reset()
 })
 
 
 test_that("flow_dfr() stops with empty dataframe", {
+    get_current_eddy()$reset()
+    
     df <- data.frame()
     expect_error(dfr <- flow_dfr(df, fn = identity))
 })
 
 
 test_that("flow_dfr() works with 0 rows dataframe", {
+    get_current_eddy()$reset()
+    
     df <- data.frame(col1 = character(), col2 = character())
     dfr <- flow_dfr(df, fn = identity)
     expect_equal(collect(dfr), tibble::as_tibble(df))
-    
-    dfr$eddy$reset()
 })
 
 
 test_that("flow_dfr() stops with non df input", {
+    get_current_eddy()$reset()
+    
     expect_error(dfr <- flow_dfr(NULL, fn = identity))
     expect_error(dfr <- flow_dfr(list(), fn = identity))
     expect_error(dfr <- flow_dfr(NA, fn = identity))
@@ -202,6 +204,8 @@ test_that("flow_dfr() stops with non df input", {
 
 
 teardown({
+    get_current_eddy()$terminate()
+    
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
 })
