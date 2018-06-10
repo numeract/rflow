@@ -2,11 +2,11 @@
 
 context("flow-dfg tests")
 
-if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
-)) {
-    skip("cache-memory-file functions")
-}
+# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+# )) {
+#     skip("cache-memory-file functions")
+# }
 
 get_hash <- function(df, filter_by, hash_of) {
     hash_of <- rlang::sym(hash_of)
@@ -64,6 +64,10 @@ setup({
         df <- df[0, , drop = FALSE]
     }
     
+    df_fn7 <- function(df) {
+        df <- df[-c(1, 10, 20), ]
+    }
+    
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
     assign("df_fn2", df_fn2, envir = .GlobalEnv)
@@ -71,6 +75,7 @@ setup({
     assign("df_fn4", df_fn4, envir = .GlobalEnv)
     assign("df_fn5", df_fn5, envir = .GlobalEnv)
     assign("df_fn6", df_fn6, envir = .GlobalEnv)
+    assign("df_fn7", df_fn7, envir = .GlobalEnv)
 })
 
 
@@ -181,6 +186,62 @@ test_that("flow_dfg works when deleting row", {
     expect_equal(dfg1$state_index, 2)
 })
 
+
+test_that("flow_dfg works when deleting rows from each group", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash_setosa <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    group_hash_virginica <- get_hash(
+        df = dfg1$out_df, filter_by = "virginica", hash_of = "..group_hash..")
+    group_hash_versicolor <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..group_hash..")
+    
+    test_df <- test_df[-c(1, 10, 20), ]
+    dfg1 <- flow_dfg(test_df, fn = df_fn, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash_setosa2 <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    group_hash_virginica2 <- get_hash(
+        df = dfg1$out_df, filter_by = "virginica", hash_of = "..group_hash..")
+    group_hash_versicolor2 <- get_hash(
+        df = dfg1$out_df, filter_by = "versicolor", hash_of = "..group_hash..")
+    
+    expect_equal(nrow(group_hash_setosa), 1)
+    expect_equal(nrow(group_hash_virginica), 1)
+    expect_equal(nrow(group_hash_versicolor), 1)
+    
+    expect_equal(nrow(group_hash_setosa2), 2)
+    expect_equal(nrow(group_hash_virginica2), 2)
+    expect_equal(nrow(group_hash_versicolor2), 2)
+    
+    expect_equal(nrow(dfg1$out_df), 37)
+    expect_equal(dfg1$state_index, 2)
+})
+
+
+
+test_that("flow_dfg works with function that deletes rows from each group", {
+    get_current_eddy()$reset()
+    
+    test_df <- df
+    dfg1 <- flow_dfg(test_df, fn = df_fn7, group_by = "Species")
+    collected_dfg <- dfg1 %>% collect()
+    
+    group_hash <- get_hash(
+        df = dfg1$out_df, filter_by = "setosa", hash_of = "..group_hash..")
+    
+    expected_df <- df[-c(1, 10, 20), ]
+    
+    expect_equal(expected_df, collected_dfg)
+    expect_equal(nrow(group_hash), 1)
+    expect_equal(nrow(dfg1$out_df), 17)
+})
 
 
 test_that("flow_dfg works when changing existing row", {
@@ -474,4 +535,5 @@ teardown({
     base::rm(list = "df_fn4", envir = .GlobalEnv)
     base::rm(list = "df_fn5", envir = .GlobalEnv)
     base::rm(list = "df_fn6", envir = .GlobalEnv)
+    base::rm(list = "df_fn7", envir = .GlobalEnv)
 })
