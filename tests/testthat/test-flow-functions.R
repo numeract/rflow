@@ -259,7 +259,7 @@ test_that("element() works with non existent element", {
     element <- element(test_rflow, "z")
     expect_true(element$is_current)
     expect_false(element$is_valid)
-    expect_message(value <- collect(element))
+    expect_silent(value <- collect(element))
     expect_null(value)
 })
 
@@ -337,7 +337,7 @@ test_that("`[.R6Flow` works with non existent element", {
     test_fn_flow <- make_flow_fn(test_fn4)
     test_rflow <- test_fn_flow(2,3)
     
-    expect_message(value <- collect(test_rflow["z"]))
+    expect_silent(value <- collect(test_rflow["z"]))
     expect_null(value)
 })
 

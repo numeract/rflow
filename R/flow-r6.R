@@ -499,7 +499,6 @@ R6Flow$set("public", "get_out_hash", function(name = NULL) {
         if (length(found_state_idx) == 1L) {
             out_hash <- self$state_output$elem_hash[found_state_idx]
         } else {
-            rlang::inform(paste("Cannot find output element named", name))
             # invalid element
             out_hash <- NA_character_ 
         }
