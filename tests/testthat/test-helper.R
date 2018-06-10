@@ -333,7 +333,7 @@ test_that("make_key() with flow with same function, different classes", {
     rflow_test <- test_make_flow_fn(2)
     
     test_make_flow_dfr <- flow_dfr(
-        df = data.frame(col = c(1, 2)), fn = identity_fn)
+        x = data.frame(col = c(1, 2)), fn = identity_fn)
     
     test_key <- make_key_wrap(
         identity_fn, fn_id = NULL, flow_options, "R6Flow")
