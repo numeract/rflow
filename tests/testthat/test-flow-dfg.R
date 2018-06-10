@@ -60,8 +60,12 @@ setup({
                 Petal.Width = 4, Species = "setosa")
     }
     
-    df_fn6 <- function(df) {
-        df <- df[0, , drop = FALSE]
+    df_fn6 <- function(df, group) {
+        if (group == "setosa") {
+            df <- df[0, , drop = FALSE]
+        } else {
+           df 
+        }
     }
     
     df_fn7 <- function(df) {
@@ -422,13 +426,19 @@ test_that("flow_dfg works with function that returns 0 row df", {
     dfg_test <- df %>%
         dplyr::group_by(Species)
     
-    dfg1 <- flow_dfg(dfg_test, fn = df_fn6)
-    
+    dfg1 <- flow_dfg(dfg_test, "setosa", fn = df_fn6)
     collected_result <- dfg1 %>% collect()
 
     expect_true(dfg1$is_valid)
     expect_equal(nrow(dfg1$out_df), 0)
-
+    expect_equal(collected_result, df[0, , drop  = FALSE])
+    
+    dfg1 <- flow_dfg(dfg_test, "versioclor", fn = df_fn6)
+    collected_result <- dfg1 %>% collect()
+    
+    expect_true(dfg1$is_valid)
+    expect_equal(nrow(dfg1$out_df), 20)
+    expect_equal(collected_result, df)
 })
 
 
