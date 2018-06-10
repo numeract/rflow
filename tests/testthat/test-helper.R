@@ -1,6 +1,12 @@
 # Tests for helper --------------------------------------------
 context("Test helper functions")
 
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
+
 
 setup({
     test_fn <- function(x, y) { x + y }
@@ -232,12 +238,12 @@ test_that("make_key() works with multiple flows", {
     
     expect_error(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name))
-    rflow_test$eddy$reset()
-    rflow_test2$eddy$reset()
 })
 
 
 test_that("make_key() works with one flow already existent", {
+    get_current_eddy()$reset()
+    
     fn <- test_fn
     fn_name <- "test_fn"
     fn_id <- "id1"
@@ -250,13 +256,13 @@ test_that("make_key() works with one flow already existent", {
     expect_message(test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name))
     expect_equal(test_key$action, "get")
-    
-    rflow_test$eddy$reset()
 })
 
 
 
 test_that("make_key() with flow with same body, different name", {
+    get_current_eddy()$reset()
+    
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
@@ -267,12 +273,12 @@ test_that("make_key() with flow with same body, different name", {
     expect_message(test_key <- make_key_wrap(
         test_fn2, fn_id = NULL, flow_options, class_name))
     expect_equal(test_key$action, "get")
-    
-    rflow_test$eddy$reset()
 })
 
 
 test_that("make_key() works with different body, same name", {
+    get_current_eddy()$reset()
+    
     fn <- test_fn
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
@@ -284,12 +290,12 @@ test_that("make_key() works with different body, same name", {
     test_key <- make_key_wrap(
         fn, fn_id = NULL, flow_options, class_name)
     expect_equal(test_key$action, "new")
-    
-    rflow_test$eddy$reset()
 })
 
 
 test_that("make_key() works with flow id already existent", {
+    get_current_eddy()$reset()
+    
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
@@ -299,12 +305,12 @@ test_that("make_key() works with flow id already existent", {
     test_key <- make_key_wrap(
         test_fn, fn_id = "id1", flow_options, class_name)
     expect_equal(test_key$action, "get")
-    
-    rflow_test$eddy$reset()
 })
 
 
 test_that("make_key() with flow with same body, same id, different name", {
+    get_current_eddy()$reset()
+    
     flow_options <- get_flow_options()
     class_name <- "R6Flow"
     
@@ -315,12 +321,12 @@ test_that("make_key() with flow with same body, same id, different name", {
     test_key <- make_key_wrap(
         test_fn2, fn_id = "id1", flow_options, class_name)
     expect_equal(test_key$action, "get")
-    
-    rflow_test$eddy$reset()
 })
 
 
 test_that("make_key() with flow with same function, different classes", {
+    get_current_eddy()$reset()
+    
     flow_options <- get_flow_options()
     
     test_make_flow_fn <- make_flow_fn(identity_fn) 
@@ -336,13 +342,11 @@ test_that("make_key() with flow with same function, different classes", {
     test_key2 <- make_key_wrap(
         identity_fn, fn_id = NULL, flow_options, "R6FlowDfr")
     expect_equal(test_key2$action, "get")
-    
-    rflow_test$eddy$reset()
-    test_make_flow_dfr$eddy$reset()
 })
 
 
 teardown({
+    get_current_eddy()$terminate()
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn3", envir = .GlobalEnv)
     base::rm(list = "identity_fn", envir = .GlobalEnv)
