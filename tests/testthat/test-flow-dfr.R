@@ -18,11 +18,9 @@ setup({
         dfi$rm <- rowMeans(dfi[1:10])
         dfi
     }
-    
-    identity_df <- function(df) {df}
+
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
-    assign("identity_df", identity_df, envir = .GlobalEnv)
 })
 
 
@@ -194,17 +192,16 @@ test_that("flow_dfr() works with 0 rows dataframe", {
 
 
 test_that("flow_dfr() stops with non df input", {
-    expect_error(dfr <- flow_dfr(NULL, fn = identity_df))
-    expect_error(dfr <- flow_dfr(list(), fn = identity_df))
-    expect_error(dfr <- flow_dfr(NA, fn = identity_df))
-    expect_error(dfr <- flow_dfr(character(), fn = identity_df))
-    expect_error(dfr <- flow_dfr(1, fn = identity_df))
-    expect_error(dfr <- flow_dfr(TRUE, fn = identity_df))
+    expect_error(dfr <- flow_dfr(NULL, fn = identity))
+    expect_error(dfr <- flow_dfr(list(), fn = identity))
+    expect_error(dfr <- flow_dfr(NA, fn = identity))
+    expect_error(dfr <- flow_dfr(character(), fn = identity))
+    expect_error(dfr <- flow_dfr(1, fn = identity))
+    expect_error(dfr <- flow_dfr(TRUE, fn = identity))
 })
 
 
 teardown({
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
-    base::rm(list = "identity_df", envir = .GlobalEnv)
 })
