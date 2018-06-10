@@ -417,10 +417,14 @@ test_that("forget() works", {
     rflow_key <- rflow_test$fn_key
     out_hash <- rflow_test$get_state()$out_hash
     
+    expect_equal(length(get_current_eddy()$flow_lst), 1)
     forget(rflow_test)
-    expect_false(rflow_test$eddy$cache$has_key(rflow_key, out_hash))
-    expect_equal(length(rflow_test$eddy$cache$list_keys(rflow_key)), 1)
-    expect_true(rflow_test$eddy$cache$has_group(rflow_key))
+    expect_equal(length(get_current_eddy()$flow_lst), 1)
+    expect_true(get_current_eddy()$has_cache(rflow_key))
+    expect_true(get_current_eddy()$has_flow(rflow_key))
+    expect_false(get_current_eddy()$cache$has_key(rflow_key, out_hash))
+    expect_equal(length(get_current_eddy()$cache$list_keys(rflow_key)), 1)
+    expect_true(get_current_eddy()$cache$has_group(rflow_key))
 })
 
 
@@ -434,7 +438,10 @@ test_that("forget() stops with forgotten rflow", {
     out_hash <- rflow_test$get_state()$out_hash
     
     expect_silent(forget(rflow_test))
-    expect_false(rflow_test$eddy$cache$has_key(rflow_key, out_hash))
+    expect_false(get_current_eddy()$cache$has_key(rflow_key, out_hash))
+    expect_equal(length(get_current_eddy()$flow_lst), 1)
+    expect_true(get_current_eddy()$has_cache(rflow_key))
+    expect_true(get_current_eddy()$has_flow(rflow_key))
     
     expect_silent(forget(rflow_test))
 })
@@ -445,9 +452,15 @@ test_that("forget() stops with state_index 0", {
     
     test_make_flow_fn <- make_flow_fn(test_fn) 
     rflow_test <- test_make_flow_fn(2, 3)
+    rflow_key <- rflow_test$fn_key
+    out_hash <- rflow_test$get_state()$out_hash
     
     rflow_test$state_index <- 0
     expect_error(forget(rflow_test))
+    
+    expect_equal(length(get_current_eddy()$flow_lst), 1)
+    expect_true(get_current_eddy()$has_cache(rflow_key))
+    expect_true(get_current_eddy()$has_flow(rflow_key))
 })
 
 
@@ -466,8 +479,15 @@ test_that("forget() stops with non current state", {
     
     test_make_flow_fn <- make_flow_fn(test_fn) 
     rflow_test <- test_make_flow_fn(2, 3)
+    collect(rflow_test)
+    rflow_key <- rflow_test$fn_key
+    out_hash <- rflow_test$get_state()$out_hash
     
     expect_error(forget(rflow_test, state = "non-current"))
+    
+    expect_true(get_current_eddy()$has_cache(rflow_key))
+    expect_true(get_current_eddy()$has_flow(rflow_key))
+    expect_true(get_current_eddy()$cache$has_key(rflow_key, out_hash))
 })
 
 
