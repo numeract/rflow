@@ -294,7 +294,7 @@ forget <- function(flow, state = "current") {
         # one reason state was not found
         if (state == "all") {
             flow$forget_all()
-            # it saves itself
+            flow$save()
         } else {
             rlang::abort(paste("Cannot forget; cannot find state:", state))
         }

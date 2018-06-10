@@ -190,7 +190,6 @@ R6Flow$set("public", "rf_fn_default", function(...) {
             elem_args = elem_args,
             make_current = TRUE
         )
-        self$save()
     }
     
     # return the R6Flow obj instead of its data, use $collect() to get data
@@ -682,7 +681,8 @@ R6Flow$set("public", "check_all", function() {
     }
     
     # file caching will also return state key(s), which we do not need
-    keys <- self$eddy$list_keys(self$fn_key) %if_not_in% c(.STATE_KEY)
+    keys <- self$eddy$list_keys(self$fn_key) %if_not_in% c(
+        .STATE_KEY, .ROW_CACHE)
     changed <- FALSE
     
     # state: forget states that are missing from cache
@@ -716,7 +716,7 @@ R6Flow$set("public", "check_all", function() {
     if (changed) {
         # update index
         self$state_index <- self$which_state(in_hash)
-        self$save()
+        # do not save: still in init & init incomplete (called with super$)
     }
     
     changed
@@ -733,8 +733,6 @@ R6Flow$set("public", "forget_all", function() {
     
     # clear cache
     self$eddy$forget_flow(self$fn_key)
-    
-    self$save()
 }, overwrite = TRUE)
 
 
