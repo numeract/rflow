@@ -41,12 +41,13 @@ setup({
     
     df_fn3 <- function(df) {
         df <- df %>%
-            dplyr::group_by(Species) 
-        df[(df$Species == "setosa"), "Petal.Length"] <- "large"
+            dplyr::mutate(Petal.Length = ifelse(
+                Species == "setosa",  "large", Petal.Length))
         df
     }
     
     df_fn4 <- function(df) {
+        
         if (nrow(df) > 15) {
             colnames(df)[2] <- "new_name"
         }
@@ -60,11 +61,12 @@ setup({
                 Petal.Width = 4, Species = "setosa")
     }
     
-    df_fn6 <- function(df, group) {
-        if (group == "setosa") {
-            df <- df[0, , drop = FALSE]
+    df_fn6 <- function(df) {
+        if (nrow(df) == 20) {
+            df
         } else {
-           df 
+            df %>%
+                dplyr::filter(Species != "setosa")
         }
     }
     
@@ -420,25 +422,29 @@ test_that("flow_dfg stops with function that adds new row", {
 })
 
 
-test_that("flow_dfg works with function that returns 0 row df", {
+test_that("flow_dfg works with function that removes all rows of a group", {
     get_current_eddy()$reset()
     
     dfg_test <- df %>%
         dplyr::group_by(Species)
     
-    dfg1 <- flow_dfg(dfg_test, "setosa", fn = df_fn6)
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn6)
     collected_result <- dfg1 %>% collect()
 
     expect_true(dfg1$is_valid)
-    expect_equal(nrow(dfg1$out_df), 0)
-    expect_equal(collected_result, df[0, , drop  = FALSE])
+    expect_equal(nrow(dfg1$out_df), 20)
     
-    dfg1 <- flow_dfg(dfg_test, "versioclor", fn = df_fn6)
+    dfg_test <- dfg_test[-1, ]
+    
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn6)
     collected_result <- dfg1 %>% collect()
+    
+    expected_df <- dfg_test %>%
+        dplyr::filter(Species != "setosa")
     
     expect_true(dfg1$is_valid)
     expect_equal(nrow(dfg1$out_df), 20)
-    expect_equal(collected_result, df)
+    expect_equal(collected_result, expected_df)
 })
 
 
@@ -522,18 +528,22 @@ test_that("flow_dfg stops with function that modifies column type", {
         dplyr::group_by(Species)
 
     dfg1 <- flow_dfg(dfg_test, fn = df_fn3)
-#    expect_error(dfg1 %>% collect())
+    expect_error(dfg1 %>% collect())
 })
 
 
 test_that("flow_dfg stops with function that changes column name", {
     get_current_eddy()$reset()
-    dfg_test <- head(df, n = 35) %>%
+    dfg_test <- df %>%
         dplyr::group_by(Species)
 
     dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
-
-#    expect_error(dfg1 %>% collect())
+    collected <- dfg1 %>% collect()
+    
+    dfg_test[1, "Petal.Length"] <- 2.0
+    dfg1 <- flow_dfg(dfg_test, fn = df_fn4)
+    
+    expect_error(dfg1 %>% collect())
 })
 
 teardown({
