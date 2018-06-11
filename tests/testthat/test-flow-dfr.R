@@ -12,10 +12,10 @@ setup({
     df_fn <- function(df, i = NULL) {
         if (is.null(i)) {
             dfi <- df
+            dfi$rm <- rowMeans(dfi[1:10])
         } else {
             dfi <- df[i, , drop = FALSE]
         }
-        dfi$rm <- rowMeans(dfi[1:10])
         dfi
     }
 
@@ -25,6 +25,7 @@ setup({
 
 
 test_that("flow_dfr() works", {
+    get_current_eddy()$reset()
     dfr1 <- flow_dfr(head(df), fn = df_fn)
     
     expect_equal(dfr1$state_index, 1)
@@ -33,6 +34,24 @@ test_that("flow_dfr() works", {
     collected_dfr <- dfr1 %>% collect()
     expected_df <- head(df)
     expected_df$rm <- rowMeans(expected_df[1:10])
+    
+    expect_true(dfr1$is_valid)
+    expect_equal(collected_dfr, expected_df)
+})
+
+
+test_that("flow_dfr() works with second function argument", {
+    get_current_eddy()$reset()
+    
+    df_test <- head(df)
+    
+    dfr1 <- flow_dfr(df_test, 1, fn = df_fn)
+    
+    expect_equal(dfr1$state_index, 1)
+    expect_false(dfr1$is_valid)
+    
+    collected_dfr <- dfr1 %>% collect()
+    expected_df <-  df_test[1, , drop = FALSE]
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr, expected_df)
