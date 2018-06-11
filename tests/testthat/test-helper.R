@@ -1,11 +1,11 @@
 # Tests for helper --------------------------------------------
 context("Test helper functions")
 
-if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
-)) {
-    skip("cache-memory-file functions")
-}
+# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+# )) {
+#     skip("cache-memory-file functions")
+# }
 
 
 setup({
@@ -330,8 +330,13 @@ test_that("make_key() with flow with same function, different classes", {
     test_make_flow_fn <- make_flow_fn(identity) 
     rflow_test <- test_make_flow_fn(2)
     
-    test_make_flow_dfr <- flow_dfr(
+    test_make_flow_dfr <- flow_dfr( 
         x = data.frame(col = c(1, 2)), fn = identity)
+    
+    test_dfg <- iris[c(1:5, 70:74, 100:105), ] %>%
+        dplyr::group_by(Species)
+    
+    test_make_flow_dfg <- flow_dfg(test_dfg, fn = identity)
     
     test_key <- make_key_wrap(
         identity, fn_id = NULL, flow_options, "R6Flow")
@@ -340,6 +345,10 @@ test_that("make_key() with flow with same function, different classes", {
     test_key2 <- make_key_wrap(
         identity, fn_id = NULL, flow_options, "R6FlowDfr")
     expect_equal(test_key2$action, "get")
+    
+    test_key3 <- make_key_wrap(
+        identity, fn_id = NULL, flow_options, "R6FlowDfg")
+    expect_equal(test_key3$action, "get")
 })
 
 
