@@ -563,7 +563,7 @@ test_that("is_flow_fn() works with non function arguments", {
 
 
 teardown({
-    # get_current_eddy()$terminate()
+    get_current_eddy()$reset()
     
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn2", envir = .GlobalEnv)

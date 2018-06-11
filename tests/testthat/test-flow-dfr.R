@@ -204,7 +204,7 @@ test_that("flow_dfr() stops with non df input", {
 
 
 teardown({
-    # get_current_eddy()$terminate()
+    get_current_eddy()$reset()
     
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)

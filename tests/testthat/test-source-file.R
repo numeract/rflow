@@ -134,7 +134,7 @@ test_that("flow_file_source() works with 2 paths", {
 })
 
 teardown({
-    # get_current_eddy()$terminate()
+    get_current_eddy()$reset()
     
     unlink(c(file1, file2, file3))
     base::rm(list = "file1", envir = .GlobalEnv)

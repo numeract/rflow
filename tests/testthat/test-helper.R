@@ -346,7 +346,7 @@ test_that("make_key() with flow with same function, different classes", {
 
 
 teardown({
-    # get_current_eddy()$terminate()
+    get_current_eddy()$reset()
     
     base::rm(list = "test_fn", envir = .GlobalEnv)
     base::rm(list = "test_fn3", envir = .GlobalEnv)
