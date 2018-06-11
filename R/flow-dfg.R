@@ -76,8 +76,11 @@ R6FlowDfg$set("public", "compute", function() {
     # df gets a new column, a hash for each row
     hdf <- df
     if (length(data_args) > 1L) {
-        # extra column to capture change in dots
-        hdf$dots_hash <- self$eddy$digest(data_args[-1L])
+        # extra column to capture change in not excluded dots
+        hdf$dots_hash <- 
+            data_args[-1L] %>%
+            discard_at(self$excluded_arg) %>%
+            self$eddy$digest()
     }
     row_hash <- purrr::pmap_chr(hdf, ~ self$eddy$digest(list(...)))
     df[[ROW_HASH]] <- row_hash
