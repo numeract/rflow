@@ -21,6 +21,7 @@ setup({
             dplyr::mutate(rm = mean(Sepal.Length))
     }
     cache_fmem_test <- cache_memory_file(cache_dir)
+    test_eddy <- use_eddy("test_eddy", cache = cache_fmem_test)
     
     assign("cache_fmem_test", cache_fmem_test, envir = .GlobalEnv)
     assign("df", df, envir = .GlobalEnv)
@@ -33,8 +34,6 @@ setup({
 
 test_that("cacheing flow works", {
    
-    use_eddy("current_eddy", cache = cache_fmem_test)
-    
     write.csv(df, file1, row.names = FALSE)
     
     test_rflow <- flow_file_source(file_path) %>%
@@ -43,17 +42,20 @@ test_that("cacheing flow works", {
         flow_dfr(1, fn = df_fn) 
     
     eddy <- get_current_eddy()
-    
-    flow1 <- eddy$flow_lst[1]
-    flow2 <- eddy$flow_lst[2]
-    flow3 <- eddy$flow_lst[3]
-    flow4 <- eddy$flow_lst[4]
-    
+  
     expect_equal(length(eddy$flow_lst), 4)
     collected_result <- test_rflow %>% collect()
     
+    flow1 <- eddy$flow_lst[[1]]
+    flow2 <- eddy$flow_lst[[2]]
+    flow3 <- eddy$flow_lst[[3]]
+    flow4 <- eddy$flow_lst[[4]]
+    row_hash1 <- flow4$out_df[1, "..row_hash.."]
+    expect_equal(nrow(flow4$out_df), 1)
     
-    base::rm(list = "eddy", envir = .GlobalEnv)
+    test_eddy <- NULL
+    test_eddy2 <- use_eddy("test_eddy2", cache = cache_fmem_test)
+    eddy <- get_current_eddy()
     
     df[1, "Petal.Length"] <-  10
     write.csv(df, file1, row.names = FALSE)
@@ -62,6 +64,17 @@ test_that("cacheing flow works", {
         flow_fn(fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
         flow_dfr(1, fn = df_fn) 
+    
+    collected_result <- test_rflow %>% collect()
+    
+    flow1 <- eddy$flow_lst[[1]]
+    flow2 <- eddy$flow_lst[[2]]
+    flow3 <- eddy$flow_lst[[3]]
+    flow4 <- eddy$flow_lst[[4]]
+    
+    row_hash2 <- flow4$out_df[2, "..row_hash.."]
+    expect_false(row_hash1 == row_hash2)
+    expect_equal(nrow(flow4$out_df), 2)
 })
 
 
