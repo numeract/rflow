@@ -10,7 +10,7 @@ element(flow, name = NULL)
 \method{[}{R6Flow}(flow, name)
 }
 \arguments{
-\item{flow}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
+\item{flow}{A flow object, e.g. as returned by \code{\link{flow_fn}}.}
 
 \item{name}{Element of the output data to be selected. The default is 
 \code{name = NULL}, which returns the element version of the \code{R6Flow} 
