@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{is_flow}
 \alias{is_flow}
-\title{Is the object an flow object or an flow element?}
+\title{Is the object a flow object or a flow element?}
 \usage{
 is_flow(x)
 }
@@ -13,5 +13,5 @@ is_flow(x)
 A logical value, whether \code{x} is a flow object.
 }
 \description{
-Is the object an flow object or an flow element?
+Is the object a flow object or a flow element?
 }

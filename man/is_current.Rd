@@ -7,7 +7,7 @@
 is_current(flow)
 }
 \arguments{
-\item{flow}{An flow object, e.g. as returned by \code{\link{flow_call}}.}
+\item{flow}{A flow object, e.g. as returned by \code{\link{flow_fn}}.}
 }
 \value{
 A logical value, whether the current state is valid.

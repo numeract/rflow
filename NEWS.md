@@ -1,5 +1,6 @@
-# rflow 0.5.1
+# rflow 0.5.2
 
+- added `compute()` function
 - misc fixes (mostly `flow_dfr` and `flow_dfg`) and more tests
 
 

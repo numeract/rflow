@@ -144,11 +144,12 @@ NULL
 
 #' Get the data from an \code{R6Flow} or an \code{Element} object.
 #' 
-#' @param x An flow object, e.g. as returned by \code{\link{flow_call}}.
-#' @param ... Element of the output data to be selected. If present, it must
-#'   be named \code{name}. otherwise the first item of the \code{...} list
-#'   will be used. The default is \code{name = NULL}, which returns all the
-#'   data.
+#' @param x A flow object, e.g. as returned by \code{\link{flow_fn}}.
+#' @param ... Name of the element of the output data to be selected. 
+#'   If present, it must be named \code{name}, otherwise the first 
+#'   item of the \code{...} list will be used.
+#'   The default is \code{name = NULL}, which returns all the data.
+#'   Ignored if \code{x} is an \code{Element} object.
 #' 
 #' @return Data associated with the output of the function.
 #' 
@@ -174,15 +175,61 @@ collect.R6Flow <- function(x, ...) {
 #' @export
 collect.Element <- function(x, ...) {
     
-    if (length(list(...)) > 0L) warning("all other arguments ignored")
+    if (length(list(...)) > 0L) {
+        rlang::warn("First arg is an rflow Element, the other args are ignored")
+    }
     
     x$self$collect(name = x$elem_name)
 }
 
 
+#' @importFrom dplyr compute
+#' @name compute
+#' @rdname compute.R6Flow
+#' @export
+NULL
+
+
+#' Trigger computation for an \code{R6Flow} or an \code{Element} object.
+#' 
+#' @details 
+#'    Unlike \code{collect}, it does not trigger an error if it fails 
+#'    to compute and it does not return the actual result of the computation.
+#' 
+#' @param x A flow object, e.g. as returned by \code{\link{flow_fn}}.
+#' @param ... Any other arguments will be ignored.
+#' 
+#' @return Logical, whether the result is available to be collected.
+#' 
+#' @method compute R6Flow
+#' @export
+compute.R6Flow <- function(x, ...) {
+    
+    if (length(list(...)) > 0L) {
+        rlang::warn("First arg is an rflow, the other args are ignored")
+    }
+    
+    x$compute()
+}
+
+
+#' @rdname compute.R6Flow
+#' 
+#' @method compute Element
+#' @export
+compute.Element <- function(x, ...) {
+    
+    if (length(list(...)) > 0L) {
+        rlang::warn("First arg is an rflow Element, the other args are ignored")
+    }
+    
+    x$self$compute()
+}
+
+
 #' Extract an element from an \code{R6Flow} object.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
+#' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' @param name Element of the output data to be selected. The default is 
 #'   \code{name = NULL}, which returns the element version of the \code{R6Flow} 
 #'   input object.
@@ -217,7 +264,7 @@ element <- function(flow, name = NULL) {
 #'   the flow is "not flowing", it is preventing downstream flows
 #'   from being computed.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
+#' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' 
 #' @return A logical value, whether the current state is valid.
 #' 
@@ -260,8 +307,8 @@ index_of_state <- function(flow, state) {
 
 #' Is the current state valid (stored in the cache)?
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
-#' @param state An flow state. It can be either a valid state 
+#' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
+#' @param state A flow state. It can be either a valid state 
 #'   \code{index} (integer) or a valid state: \code{"current"}, \code{"all"}, 
 #'   \code{in_hash} or \code{out_hash} (string).
 #' 
@@ -279,8 +326,8 @@ is_valid <- function(flow, state = "current") {
 
 #' Forgets the computation for the current state.
 #' 
-#' @param flow An flow object, e.g. as returned by \code{\link{flow_call}}.
-#' @param state An flow state. It can be either a valid state 
+#' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
+#' @param state A flow state. It can be either a valid state 
 #'   \code{index} (integer) or a valid state: \code{"current"}, \code{"all"}, 
 #'   \code{in_hash} or \code{out_hash} (string).
 #' 
@@ -307,7 +354,7 @@ forget <- function(flow, state = "current") {
 }
 
 
-#' Is the object an flow object or an flow element?
+#' Is the object a flow object or a flow element?
 #' 
 #' @param x An object.
 #' 
@@ -320,7 +367,7 @@ is_flow <- function(x) {
 }
 
 
-#' Is the function an flow function (as returned by \code{make_flow_fn})?
+#' Is the function a flow function (as returned by \code{make_flow_fn})?
 #' 
 #' @param fn A function.
 #' 
