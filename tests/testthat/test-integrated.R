@@ -42,10 +42,18 @@ test_that("cacheing flow works", {
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
         flow_dfr(1, fn = df_fn) 
     
-    expect_equal(length(get_current_eddy()$flow_lst), 4)
+    eddy <- get_current_eddy()
+    
+    flow1 <- eddy$flow_lst[1]
+    flow2 <- eddy$flow_lst[2]
+    flow3 <- eddy$flow_lst[3]
+    flow4 <- eddy$flow_lst[4]
+    
+    expect_equal(length(eddy$flow_lst), 4)
     collected_result <- test_rflow %>% collect()
     
-    base::rm(list = "cache_fmem_test", envir = .GlobalEnv)
+    
+    base::rm(list = "eddy", envir = .GlobalEnv)
     
     df[1, "Petal.Length"] <-  10
     write.csv(df, file1, row.names = FALSE)
