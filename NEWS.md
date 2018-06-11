@@ -1,3 +1,8 @@
+# rflow 0.5.1
+
+- misc fixes (mostly `flow_dfr` and `flow_dfg`) and more tests
+
+
 # rflow 0.5.0
 
 - the function supplied to `flow_dfr` receives only changed rows and no index
