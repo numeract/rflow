@@ -244,7 +244,6 @@ R6FlowDfr$set("public", "save", function() {
 #' 
 #' @param ... Named arguments to pass to \code{fn}. The first argument must be 
 #'   a \code{data.frame} or \code{tibble}. Row names are not supported.
-#'   If no \code{group_by} values are provided, the data frame must be grouped.
 #' @param fn The function to apply to the data frame. It must accept a data
 #'   frame as the first argument.
 #' @param fn_id Optional id to uniquely identify the function. By default,

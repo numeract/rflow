@@ -32,7 +32,7 @@ setup({
 
 
 test_that("cacheing flow works", {
-   
+  
     # pass #1
     write.csv(df, file_path, row.names = FALSE)
     
@@ -42,16 +42,22 @@ test_that("cacheing flow works", {
         flow_file_source() %>%
         flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
-        flow_dfr(1, fn = df_fn) 
+        flow_dfr(1, fn = df_fn) %>%
+        flow_ns_sink("collected_result")
     
-    expect_equal(length(eddy$flow_lst), 4)
-    collected_result <- test_rflow %>% collect()
+    frame <- parent.frame()
+    expect_equal(length(eddy$flow_lst), 5)
     
     flow1 <- eddy$flow_lst[[1]]
     flow2 <- eddy$flow_lst[[2]]
     flow3 <- eddy$flow_lst[[3]]
     flow4 <- eddy$flow_lst[[4]]
+    flow5 <- eddy$flow_lst[[5]]
     row_hash1 <- flow4$out_df[1, "..row_hash.."]
+    expected_df <-  df[1:3, , drop = FALSE]
+    expected_df <- expected_df %>% 
+        dplyr::group_by(Species) %>%
+        dplyr::mutate(rm = mean(Sepal.Length))
     
     expect_true(flow1$is_valid)
     expect_true(flow2$is_valid)
@@ -59,7 +65,9 @@ test_that("cacheing flow works", {
     expect_true(flow4$is_valid)
     expect_equal(nrow(flow3$out_df), 3)
     expect_equal(nrow(flow4$out_df), 1)
-    # TODO: check each flow1 .. flow4, look at collected output
+    #expect_equal(expected_df[1, ], frame[["collected_result"]])
+    expected_df[ ,"Species"] <- as.character(expected_df[ ,"Species"])
+    # TODO: check each flow1 .. flow4, look at collected Toutput
     # TODO: test that collected_result is what you expect
     
     # pass #2
@@ -72,10 +80,11 @@ test_that("cacheing flow works", {
         flow_file_source() %>%
         flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
-        flow_dfr(1, fn = df_fn) 
+        flow_dfr(1, fn = df_fn)  %>%
+        flow_ns_sink("collected_result")
     
-    expect_equal(length(eddy$flow_lst), 4)
-    collected_result <- test_rflow %>% collect()
+    expect_equal(length(eddy$flow_lst), 5)
+   
     
     flow1 <- eddy$flow_lst[[1]]
     flow2 <- eddy$flow_lst[[2]]
