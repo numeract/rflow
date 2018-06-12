@@ -5,11 +5,12 @@ context("Integrated tests")
 
 setup({
     cache_dir <- "cache_dir"
-    fn_group <- "default_group"
+    cache_fmem_test <- cache_memory_file(cache_dir)
+    test_eddy <- use_eddy("test_eddy", cache = cache_fmem_test)
+    
     df <- tibble::as.tibble(iris)
     df <- df[c(1:7, 71:73, 101:110), ]
-    file1 <- tempfile(pattern = "test-rflow-")
-    file_path <- as.character(fs::path(file1))
+    file_path <- as.character(fs::path(tempfile(pattern = "test-rflow-")))
     
     df_fn <- function(df, i = NULL) {
         if (is.null(i)) {
@@ -17,33 +18,32 @@ setup({
         } else {
             dfi <- df[i, , drop = FALSE]
         }
-        dfi <- dfi %>% 
+        dfi %>% 
             dplyr::group_by(Species) %>%
             dplyr::mutate(rm = mean(Sepal.Length))
     }
-    cache_fmem_test <- cache_memory_file(cache_dir)
-    test_eddy <- use_eddy("test_eddy", cache = cache_fmem_test)
     
     assign("cache_fmem_test", cache_fmem_test, envir = .GlobalEnv)
-    assign("df", df, envir = .GlobalEnv)
     assign("cache_dir", cache_dir, envir = .GlobalEnv)
-    assign("file1", file1, envir = .GlobalEnv)
     assign("file_path", file_path, envir = .GlobalEnv)
+    assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
 })
 
 
 test_that("cacheing flow works", {
    
-    write.csv(df, file1, row.names = FALSE)
+    # pass #1
+    write.csv(df, file_path, row.names = FALSE)
     
-    test_rflow <- flow_file_source(file_path) %>%
-        flow_fn(fn = read.csv) %>%
+    eddy <- get_current_eddy()
+    test_rflow <- 
+        file_path %>%
+        flow_file_source() %>%
+        flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
         flow_dfr(1, fn = df_fn) 
     
-    eddy <- get_current_eddy()
-  
     expect_equal(length(eddy$flow_lst), 4)
     collected_result <- test_rflow %>% collect()
     
@@ -59,19 +59,22 @@ test_that("cacheing flow works", {
     expect_true(flow4$is_valid)
     expect_equal(nrow(flow3$out_df), 3)
     expect_equal(nrow(flow4$out_df), 1)
+    # TODO: check each flow1 .. flow4, look at collected output
+    # TODO: test that collected_result is what you expect
     
-    test_eddy <- NULL
-    test_eddy2 <- use_eddy("test_eddy2", cache = cache_fmem_test)
-    eddy <- get_current_eddy()
-    
+    # pass #2
     df[1, "Petal.Length"] <-  10
-    write.csv(df, file1, row.names = FALSE)
+    write.csv(df, file_path, row.names = FALSE)
     
-    test_rflow <- flow_file_source(file_path) %>%
-        flow_fn(fn = read.csv) %>%
+    eddy <- use_eddy("test_eddy2", cache = cache_fmem_test)
+    test_rflow <- 
+        file_path %>%
+        flow_file_source() %>%
+        flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
         flow_dfr(1, fn = df_fn) 
     
+    expect_equal(length(eddy$flow_lst), 4)
     collected_result <- test_rflow %>% collect()
     
     flow1 <- eddy$flow_lst[[1]]
@@ -83,18 +86,18 @@ test_that("cacheing flow works", {
     expect_false(row_hash1 == row_hash2)
     expect_equal(nrow(flow3$out_df), 6)
     expect_equal(nrow(flow4$out_df), 2)
+    # TODO: do the same here
 })
 
 
 teardown({
-    unlink(cache_dir)
-    unlink(file_path)
+    unlink(file_path, force = TRUE)
     get_current_eddy()$terminate()
+    set_current_eddy("default_eddy")
     
-    base::rm(list = "df_fn", envir = .GlobalEnv)
     base::rm(list = "cache_fmem_test", envir = .GlobalEnv)
-    base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "cache_dir", envir = .GlobalEnv)
-    base::rm(list = "file1", envir = .GlobalEnv)
     base::rm(list = "file_path", envir = .GlobalEnv)
+    base::rm(list = "df", envir = .GlobalEnv)
+    base::rm(list = "df_fn", envir = .GlobalEnv)
 })
