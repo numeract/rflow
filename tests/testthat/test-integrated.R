@@ -82,4 +82,11 @@ teardown({
     unlink(cache_dir)
     unlink(file_path)
     get_current_eddy()$terminate()
+    
+    base::rm(list = "df_fn", envir = .GlobalEnv)
+    base::rm(list = "cache_fmem_test", envir = .GlobalEnv)
+    base::rm(list = "df", envir = .GlobalEnv)
+    base::rm(list = "cache_dir", envir = .GlobalEnv)
+    base::rm(list = "file1", envir = .GlobalEnv)
+    base::rm(list = "file_path", envir = .GlobalEnv)
 })
