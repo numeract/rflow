@@ -2,6 +2,7 @@
 
 context("Integrated tests")
 
+
 setup({
     cache_dir <- "cache_dir"
     fn_group <- "default_group"
@@ -51,6 +52,12 @@ test_that("cacheing flow works", {
     flow3 <- eddy$flow_lst[[3]]
     flow4 <- eddy$flow_lst[[4]]
     row_hash1 <- flow4$out_df[1, "..row_hash.."]
+    
+    expect_true(flow1$is_valid)
+    expect_true(flow2$is_valid)
+    expect_true(flow3$is_valid)
+    expect_true(flow4$is_valid)
+    expect_equal(nrow(flow3$out_df), 3)
     expect_equal(nrow(flow4$out_df), 1)
     
     test_eddy <- NULL
@@ -74,6 +81,7 @@ test_that("cacheing flow works", {
     
     row_hash2 <- flow4$out_df[2, "..row_hash.."]
     expect_false(row_hash1 == row_hash2)
+    expect_equal(nrow(flow3$out_df), 6)
     expect_equal(nrow(flow4$out_df), 2)
 })
 
