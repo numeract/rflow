@@ -35,17 +35,15 @@ test_that("cacheing flow works", {
   
     # pass #1
     write.csv(df, file_path, row.names = FALSE)
-    
     eddy <- get_current_eddy()
     test_rflow <- 
         file_path %>%
         flow_file_source() %>%
         flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
-        flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
-        flow_dfr(1, fn = df_fn) %>%
+        flow_dfg(fn = df_fn, group_by = "Species") %>%
+        flow_dfr(1:3, fn = df_fn) %>%
         flow_ns_sink("collected_result")
     
-    frame <- parent.frame()
     expect_equal(length(eddy$flow_lst), 5)
     
     flow1 <- eddy$flow_lst[[1]]
@@ -58,17 +56,15 @@ test_that("cacheing flow works", {
     expected_df <- expected_df %>% 
         dplyr::group_by(Species) %>%
         dplyr::mutate(rm = mean(Sepal.Length))
+    expected_df[ ,"Species"] <- as.character(expected_df[ ,"Species"])
     
     expect_true(flow1$is_valid)
     expect_true(flow2$is_valid)
     expect_true(flow3$is_valid)
     expect_true(flow4$is_valid)
-    expect_equal(nrow(flow3$out_df), 3)
-    expect_equal(nrow(flow4$out_df), 1)
-    #expect_equal(expected_df[1, ], frame[["collected_result"]])
-    expected_df[ ,"Species"] <- as.character(expected_df[ ,"Species"])
-    # TODO: check each flow1 .. flow4, look at collected Toutput
-    # TODO: test that collected_result is what you expect
+    expect_equal(nrow(flow3$out_df), 20)
+    expect_equal(nrow(flow4$out_df), 3)
+    # expect_equal(expected_df[1, ], parent.frame(T)[["collected_result"]])
     
     # pass #2
     df[1, "Petal.Length"] <-  10
@@ -79,8 +75,8 @@ test_that("cacheing flow works", {
         file_path %>%
         flow_file_source() %>%
         flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
-        flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
-        flow_dfr(1, fn = df_fn)  %>%
+        flow_dfg(fn = df_fn, group_by = "Species") %>%
+        flow_dfr(1:3, fn = df_fn)  %>%
         flow_ns_sink("collected_result")
     
     expect_equal(length(eddy$flow_lst), 5)
@@ -93,8 +89,8 @@ test_that("cacheing flow works", {
     
     row_hash2 <- flow4$out_df[2, "..row_hash.."]
     expect_false(row_hash1 == row_hash2)
-    expect_equal(nrow(flow3$out_df), 6)
-    expect_equal(nrow(flow4$out_df), 2)
+    expect_equal(nrow(flow3$out_df), 27)
+    expect_equal(nrow(flow4$out_df), 6)
     # TODO: do the same here
 })
 
