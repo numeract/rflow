@@ -231,7 +231,8 @@ R6FlowDfg$set("public", "compute", function() {
 #'   a \code{data.frame} or \code{tibble}. Row names are not supported.
 #'   If no \code{group_by} values are provided, the data frame must be grouped.
 #' @param fn The function to apply to the data frame. It must accept a data
-#'   frame as the first argument.
+#'   frame as the first argument. fn may also apply group_by operations 
+#'    if the data frame given as input is not already grouped.
 #' @param fn_id Optional id to uniquely identify the function. By default,
 #'   rflow functions reuse the cache if the same function is given. The id 
 #'   allows the user to suppress console messages and to explicitly
