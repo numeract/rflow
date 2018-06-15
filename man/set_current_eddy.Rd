@@ -7,9 +7,9 @@
 set_current_eddy(eddy_name, eddy_env = default_eddy_env())
 }
 \arguments{
-\item{eddy_name}{Unique name for the eddy to allow retrieving later.}
+\item{eddy_name}{Unique name for the eddy to to be set as current.}
 
-\item{eddy_env}{An environment where to put (bind) the eddy.}
+\item{eddy_env}{The environment in which the eddy is put (bound).}
 }
 \value{
 An eddy object to be used for storing flows.

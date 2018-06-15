@@ -22,3 +22,7 @@ The cached version of the function.
 \description{
 Explicit cache of a function.
 }
+\details{
+In order to use the functionality of an R6Flow object, the output of 
+\code{make_flow_fn} has to be collected first.
+}

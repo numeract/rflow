@@ -18,7 +18,7 @@ setup({
         } else {
             dfi <- df[i, , drop = FALSE]
         }
-        dfi %>% 
+        dfi %>%
             dplyr::group_by(Species) %>%
             dplyr::mutate(rm = mean(Sepal.Length))
     }
@@ -32,7 +32,7 @@ setup({
 
 
 test_that("cacheing flow works", {
-  
+    
     # pass #1
     write.csv(df, file_path, row.names = FALSE)
     eddy <- get_current_eddy()
@@ -60,11 +60,11 @@ test_that("cacheing flow works", {
     collected_flow4 <- flow4 %>% collect()
     
     row_hash1 <- flow4$out_df[1, "..row_hash.."]
-    expected_df <-  df[1:3, , drop = FALSE]
+    expected_df <- df[1:3, , drop = FALSE]
     expected_df <- expected_df %>% 
         dplyr::group_by(Species) %>%
         dplyr::mutate(rm = mean(Sepal.Length))
-    expected_df[ ,"Species"] <- as.character(expected_df[ ,"Species"])
+    expected_df["Species"] <- as.character(expected_df["Species"])
     
     expect_true(test_rflow$is_valid)
     expect_equal(nrow(env[["collected_result"]]), 3)
@@ -83,17 +83,15 @@ test_that("cacheing flow works", {
         flow_file_source() %>%
         flow_fn(stringsAsFactors = FALSE, fn = read.csv) %>%
         flow_dfg(1:3, fn = df_fn, group_by = "Species") %>%
-        flow_dfr(fn = identity)  %>%
-        flow_ns_sink("collected_result")
+        flow_dfr(fn = identity) %>%
+        flow_ns_sink("collected_result", ns = env)
     
     expect_equal(length(eddy$flow_lst), 5)
-   
     
     flow1 <- eddy$flow_lst[[1]]
     flow2 <- eddy$flow_lst[[2]]
     flow3 <- eddy$flow_lst[[3]]
     flow4 <- eddy$flow_lst[[4]]
-    
     
     collected_flow1 <- flow1 %>% collect()
     collected_flow2 <- flow2 %>% collect()

@@ -11,17 +11,18 @@ use_eddy(eddy_name, cache = default_cache(),
 \arguments{
 \item{eddy_name}{Unique name for the eddy to allow retrieving later.}
 
-\item{cache}{An cache object returned by one of the \code{cache} functions.}
+\item{cache}{A cache object returned by one of the \code{cache} functions.}
 
 \item{flow_options}{Options to store for future flow invocations. They
 do not affect the \code{eddy}, they are only stored for ease of access.}
 
-\item{reuse_if_present}{Logical, whether to reuse an eddy with the same name,
-if already present, even if the \code{flow_options} are different.}
+\item{reuse_if_present}{Logical, whether or not to reuse an eddy with 
+the same name, if already present, even if the \code{flow_options}
+ are different.}
 
 \item{set_current}{Logical, whether to make this eddy current.}
 
-\item{eddy_env}{An environment where to put (bind) the eddy.}
+\item{eddy_env}{The environment in which the eddy is put (bound).}
 }
 \value{
 An eddy object to be used for storing flows.

@@ -225,7 +225,7 @@ to_ns <- function(x, var_name, ns) {
 #' @export
 flow_ns_sink <- function(x,
                          var_name,
-                         ns = parent.frame(),
+                         ns,
                          flow_options = get_flow_options()) {
     
     require_keys(var_name)

@@ -2,20 +2,20 @@
 % Please edit documentation in R/eddy-functions.R
 \name{delete_eddy}
 \alias{delete_eddy}
-\title{Delete eddy and ALL its data from ALL cache layers.}
+\title{Delete eddy and ALL its data from ALL cache layers (memory and/or disk).}
 \usage{
 delete_eddy(eddy_name, eddy_env = default_eddy_env())
 }
 \arguments{
-\item{eddy_name}{Unique name for the eddy to allow retrieving later.}
+\item{eddy_name}{Unique name of the eddy to be deleted.}
 
-\item{eddy_env}{An environment where to put (bind) the eddy.}
+\item{eddy_env}{The environment in which the eddy is put (bound).}
 }
 \value{
 Nothing (\code{NULL}).
 }
 \description{
-Delete eddy and ALL its data from ALL cache layers.
+Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
 }
 \seealso{
 Other eddy functions: \code{\link{get_current_eddy}},

@@ -63,12 +63,16 @@ including the eddy. \code{gfo} is just an alias of \code{get_flow_options}.
 }
 \description{
 flow options used to initialize or update an eddy.
+
+default flow options used to initialize or update an eddy.
 }
 \details{
 If used in \code{set_flow_options}, these options will be stored in 
   \code{eddy} and retrieved by each flow subsequently executed. E.g. if not
   careful, it is possible to force all following flows to use a custom 
   \code{split_fn} function, which is not recommended.
+
+Sets a list of default options.
 
 \code{set_flow_options} does not overwrite the current options when the 
   argument is \code{NULL}.

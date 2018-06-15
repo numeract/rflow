@@ -8,8 +8,7 @@ flow_dfr(..., fn = NULL, fn_id = NULL, flow_options = get_flow_options())
 }
 \arguments{
 \item{...}{Named arguments to pass to \code{fn}. The first argument must be 
-a \code{data.frame} or \code{tibble}. Row names are not supported.
-If no \code{group_by} values are provided, the data frame must be grouped.}
+a \code{data.frame} or \code{tibble}. Row names are not supported.}
 
 \item{fn}{The function to apply to the data frame. It must accept a data
 frame as the first argument.}
@@ -28,7 +27,8 @@ The flow object.
 Row-wise caching of operations on data frame.
 }
 \details{
-Function \code{fn} will receive only the rows changed; 
+Function \code{fn} operates on a data frame received as argument.
+  \code{fn} will receive only the rows changed; 
   it may drop some of the rows, but will not add any new rows.
   The function \code{fn} may return fewer or more columns or modify 
   existing columns as long it always returns a consistent schema
