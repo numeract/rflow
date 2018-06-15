@@ -230,7 +230,8 @@ R6FlowDfr$set("public", "save", function() {
 #' Row-wise caching of operations on data frame.
 #' 
 #' @details 
-#'   Function \code{fn} will receive only the rows changed; 
+#'   Function \code{fn} operates on a data frame received as argument.
+#'   \code{fn} will receive only the rows changed; 
 #'   it may drop some of the rows, but will not add any new rows.
 #'   The function \code{fn} may return fewer or more columns or modify 
 #'   existing columns as long it always returns a consistent schema
