@@ -17,10 +17,10 @@ default_eddy_env <- function() {
 #' Create a new eddy. Does not affect the current eddy.
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
-#' @param cache An cache object returned by one of the \code{cache} functions.
+#' @param cache A cache object returned by one of the \code{cache} functions.
 #' @param flow_options Options to store for future flow invocations. They
 #'   do not affect the \code{eddy}, they are only stored for ease of access.
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return An eddy object to be used for storing flows.
 #' 
@@ -56,7 +56,7 @@ new_eddy <- function(eddy_name,
 #' Retrieves an eddy. 
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return An eddy object to be used for storing flows.
 #' 
@@ -83,13 +83,14 @@ get_eddy <- function(eddy_name,
 #' Convenience function that creates a new eddy or re-uses it if present.
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
-#' @param cache An cache object returned by one of the \code{cache} functions.
+#' @param cache A cache object returned by one of the \code{cache} functions.
 #' @param flow_options Options to store for future flow invocations. They
 #'   do not affect the \code{eddy}, they are only stored for ease of access.
-#' @param reuse_if_present Logical, whether to reuse an eddy with the same name,
-#'   if already present, even if the \code{flow_options} are different.
+#' @param reuse_if_present Logical, whether or not to reuse an eddy with 
+#' the same name, if already present, even if the \code{flow_options}
+#'  are different.
 #' @param set_current Logical, whether to make this eddy current.
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return An eddy object to be used for storing flows.
 #' 
@@ -137,10 +138,10 @@ use_eddy <- function(eddy_name,
 }
 
 
-#' Delete eddy and ALL its data from ALL cache layers.
+#' Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
 #' 
-#' @param eddy_name Unique name for the eddy to allow retrieving later.
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_name Unique name of the eddy to be deleted.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return Nothing (\code{NULL}).
 #' 
@@ -172,8 +173,8 @@ delete_eddy <- function(eddy_name,
 
 #' Set the current eddy to be used in future flow calls.
 #' 
-#' @param eddy_name Unique name for the eddy to allow retrieving later.
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_name Unique name for the eddy to to be set as current.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return An eddy object to be used for storing flows.
 #' 
@@ -202,7 +203,7 @@ set_current_eddy <- function(eddy_name,
 #' If the current eddy was not previously set with \code{set_current_eddy},
 #'   it creates a new eddy that uses \code{default_cache()}.
 #' 
-#' @param eddy_env An environment where to put (bind) the eddy.
+#' @param eddy_env The environment in which the eddy is put (bound).
 #' 
 #' @return An eddy object to be used for storing flows.
 #' 
@@ -314,6 +315,10 @@ parse_flow_options <- function(excluded_arg,
 }
 
 
+#' default flow options used to initialize or update an eddy.
+#' 
+#' @details  
+#' Sets a list of default options.
 #' @return For \code{default_flow_options}, a list of options.
 #' 
 #' @rdname flow_options
