@@ -5,7 +5,9 @@
 
 
 #' Explicit cache of a function.
-#' 
+#' @details 
+#' In order to use the functionality of an R6Flow object, the output of 
+#' \code{make_flow_fn} has to be collected first.
 #' @param fn Function to be cached, ideally a pure function.
 #' @param fn_id Optional id to uniquely identify the function. By default,
 #'   rflow functions reuse the cache if the same function is given. The id 
@@ -19,7 +21,6 @@
 make_flow_fn <- function(fn,
                          fn_id = NULL,
                          flow_options = get_flow_options()) {
-    
     # best place to capture the name of the function
     # fn_name (the binding) is irrelevant (it's the args and body that matter)
     # but it is useful for fn_id hints
