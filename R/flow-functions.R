@@ -10,9 +10,9 @@
 #' \code{make_flow_fn} has to be collected first.
 #' @param fn Function to be cached, ideally a pure function.
 #' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions reuse the cache if the same function is given. The id 
+#'   rflow functions reuse the \code{cache} if the same function is given. The id 
 #'   allows the user to suppress console messages and to explicitly
-#'   indicate whether to reuse the old cache or create a new one.
+#'   indicate whether to reuse the old \code{cache} or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The cached version of the function.
@@ -55,9 +55,9 @@ make_flow_fn <- function(fn,
 #' @param fn The function to apply to the data frame. It must accept a data
 #'   frame as the first argument and a numeric index as the second argument.
 #' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions reuse the cache if the same function is given. The id 
+#'   rflow functions reuse the \code{cache} if the same function is given. The id 
 #'   allows the user to suppress console messages and to explicitly
-#'   indicate whether to reuse the old cache or create a new one.
+#'   indicate whether to reuse the old \code{cache} or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The flow object.
@@ -97,9 +97,9 @@ flow_fn <- function(...,
 #' 
 #' @param fn_call Function call to be processed.
 #' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions reuse the cache if the same function is given. The id 
+#'   rflow functions reuse the \code{cache} if the same function is given. The id 
 #'   allows the user to suppress console messages and to explicitly
-#'   indicate whether to reuse the old cache or create a new one.
+#'   indicate whether to reuse the old \code{cache} or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The flow object.
