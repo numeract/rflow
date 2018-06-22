@@ -9,7 +9,7 @@ get_eddy(eddy_name, eddy_env = default_eddy_env())
 \arguments{
 \item{eddy_name}{Unique name for the eddy to allow retrieving later.}
 
-\item{eddy_env}{The environment in which the eddy is put (bound).}
+\item{eddy_env}{The environment in which the \code{eddy}is put (bound).}
 }
 \value{
 An eddy object to be used for storing flows.

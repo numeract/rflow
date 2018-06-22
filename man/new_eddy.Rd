@@ -15,7 +15,7 @@ new_eddy(eddy_name, cache = default_cache(),
 \item{flow_options}{Options to store for future flow invocations. They
 do not affect the \code{eddy}, they are only stored for ease of access.}
 
-\item{eddy_env}{The environment in which the eddy is put (bound).}
+\item{eddy_env}{The environment in which the \code{eddy} is put (bound).}
 }
 \value{
 An eddy object to be used for storing flows.

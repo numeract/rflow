@@ -7,7 +7,7 @@
 delete_eddy(eddy_name, eddy_env = default_eddy_env())
 }
 \arguments{
-\item{eddy_name}{Unique name of the eddy to be deleted.}
+\item{eddy_name}{Unique name of the \code{eddy} to be deleted.}
 
 \item{eddy_env}{The environment in which the eddy is put (bound).}
 }

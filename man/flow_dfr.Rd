@@ -14,7 +14,7 @@ a \code{data.frame} or \code{tibble}. Row names are not supported.}
 frame as the first argument.}
 
 \item{fn_id}{Optional id to uniquely identify the function. By default,
-rflow functions reuse the cache if the same function is given. The id 
+rflow functions reuse the \code{cache} if the same function is given. The id 
 allows the user to suppress console messages and to explicitly
 indicate whether to reuse the old cache or create a new one.}
 
