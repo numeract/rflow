@@ -122,6 +122,19 @@ R6FlowDfr$set("public", "compute", function() {
             old_header <- purrr::map_chr(self$out_df, ~ class(.)[1])
             new_header <- purrr::map_chr(out_df, ~ class(.)[1])
             stopifnot(identical(old_header, new_header))
+            # update factor cols
+            for (j in seq_ncol(out_df)) {
+                f_new <- out_df[[j]]
+                f_old <- self$out_df[[j]]
+                if (is.factor(f_new) && 
+                    !identical(levels(f_new), levels(f_old))
+                ) {
+                    f_lst <- forcats::fct_unify(
+                        list(out_df[[j]], self$out_df[[j]]))
+                    out_df[[j]] <- f_lst[[1]]
+                    self$out_df[[j]] <- f_lst[[2]]
+                }
+            }
         }
         # save to row cache & add rows from cache
         self$out_df <- dplyr::bind_rows(self$out_df, out_df)
