@@ -24,6 +24,7 @@ Imports:
     crayon,
     digest,
     dplyr,
+    forcats,
     fs,
     magrittr,
     purrr,
