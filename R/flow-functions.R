@@ -284,7 +284,7 @@ compute.Element <- function(x, ...) {
 #' 
 #' @return An object with class \code{Element}.
 #' 
-#' #' @examples 
+#' @examples 
 #' input_function <- function(x, y) { x + y }
 #' make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
 #' rflow_function <- make_flow_function(2, 3)
@@ -301,6 +301,12 @@ element <- function(flow, name = NULL) {
 
 
 #' @rdname element
+#' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1)
+#' rflow_function <- make_flow_function(2, 3) 
+#' element_name <- rflow_function["x"]$elem_name
 #' 
 #' @export
 `[.R6Flow` <- function(flow, name) {
@@ -322,6 +328,11 @@ element <- function(flow, name = NULL) {
 #' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' 
 #' @return A logical value, whether the current state is valid.
+#' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' rflow_function <- flow_call(input_function(2, 3), fn_id = "id2") 
+#' is_current_flow <- is_current(rflow_function)
 #' 
 #' @export
 is_current <- function(flow) {
@@ -370,6 +381,12 @@ index_of_state <- function(flow, state) {
 #' @return A logical value, whether the value can be obtained without
 #'   triggering computation.
 #' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' rflow_function <- flow_call(input_function(2, 3)) 
+#' is_valid_flow <- is_valid(rflow_function)
+#'
+#' 
 #' @export
 is_valid <- function(flow, state = "current") {
     
@@ -387,6 +404,12 @@ is_valid <- function(flow, state = "current") {
 #'   \code{in_hash} or \code{out_hash} (string).
 #' 
 #' @return A logical value, whether the deletion was successful.
+#' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1)
+#' rflow_function <- make_flow_function(2, 3) 
+#' forget(rflow_function)
 #' 
 #' @export
 forget <- function(flow, state = "current") {
@@ -415,6 +438,12 @@ forget <- function(flow, state = "current") {
 #' 
 #' @return A logical value, whether \code{x} is a flow object.
 #' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 2)
+#' rflow_function <- make_flow_function(2, 3) 
+#' is_input_flow <- is_flow(rflow_function)
+#' 
 #' @export
 is_flow <- function(x) {
     
@@ -427,6 +456,11 @@ is_flow <- function(x) {
 #' @param fn A function.
 #' 
 #' @return A logical value, whether \code{fn} is a flow function.
+#' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 3)
+#' is_flow_function <- is_flow_fn(fn = make_flow_function)
 #' 
 #' @export
 is_flow_fn <- function(fn) {
