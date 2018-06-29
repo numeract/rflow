@@ -12,6 +12,9 @@
 #' 
 #' @family cache functions
 #' 
+#' @examples 
+#' cache_memory <- cache_memory()
+#' 
 #' @export
 cache_memory <- function() {
     
@@ -28,6 +31,10 @@ cache_memory <- function() {
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 
 #' @family cache functions
+#' 
+#' @examples 
+#' cache_dir <- "cache_directory"
+#' cache_file <- cache_file(cache_dir)
 #' 
 #' @export
 cache_file <- function(cache_dir) {
@@ -47,6 +54,11 @@ cache_file <- function(cache_dir) {
 #' 
 #' @family cache functions
 #' 
+#' @examples
+#'  cache_dir <- "cache_directory"
+#'  cache_fmem <- cache_memory_file(cache_dir)
+#'  
+#'  
 #' @export
 cache_memory_file <- function(cache_dir) {
     
@@ -62,6 +74,9 @@ cache_memory_file <- function(cache_dir) {
 #' @return A cache object that inherits from \code{R6Cache}.
 #' 
 #' @family cache functions
+#' 
+#' @examples
+#' current_cache <- default_cache()
 #' 
 #' @export
 default_cache <- function() {
