@@ -7,7 +7,8 @@
 flow_file_source(file_path, flow_options = get_flow_options())
 }
 \arguments{
-\item{file_path}{A (named) vector of file paths to be watched.}
+\item{file_path}{A (named) vector of file paths to be watched or a
+\code{fs_path} object.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.
 All options except \code{eddy} are ignored.}

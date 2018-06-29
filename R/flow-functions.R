@@ -6,7 +6,7 @@
 
 #' Explicit cache of a function.
 #' @details 
-#' In order to use the functionality of an R6Flow object, the output of 
+#' In order to use the functionality of an \code{R6Flow} object, the output of 
 #' \code{make_flow_fn} has to be collected first.
 #' @param fn Function to be cached, ideally a pure function.
 #' @param fn_id Optional id to uniquely identify the function. By default,
@@ -16,6 +16,20 @@
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The cached version of the function.
+#' 
+#' @examples 
+#' 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+#' rflow_function <- make_flow_function(2, 3)
+#' flow_result <- rflow_function %>% collect()
+#' 
+#' # usage with rflow pipes
+#' input_function2 <- function(x, y) { x * y }
+#' make_flow_function2 <- make_flow_fn(input_function2, fn_id = 2) 
+#' collected_pipe_flow <- make_flow_function(1, 2) %>%
+#'                      make_flow_function2(2) %>%
+#'                      collect()
 #' 
 #' @export
 make_flow_fn <- function(fn,
@@ -61,6 +75,16 @@ make_flow_fn <- function(fn,
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The flow object.
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' flow_function <- flow_fn(2, 3, fn = input_function, fn_id = "id1")
+#' collected_result <- flow_function %>% collect()
+#' 
+#' # usage with rflow pipes
+#' input_function2 <- function(x, y) { x * y }
+#' collected_pipe_result <- flow_function %>%
+#'                         flow_fn(2, fn = input_function2) %>%
+#'                         collect()
 #' 
 #' @export
 flow_fn <- function(..., 
@@ -96,13 +120,19 @@ flow_fn <- function(...,
 #' Implicit cache of a function and of the given call.
 #' 
 #' @param fn_call Function call to be processed.
-#' @param fn_id Optional id to uniquely identify the function. By default,
-#'   rflow functions reuse the \code{cache} if the same function is given. The id 
-#'   allows the user to suppress console messages and to explicitly
-#'   indicate whether to reuse the old \code{cache} or create a new one.
+#' @param fn_id Character or Integer. Optional id to uniquely identify 
+#'   the function. By default, rflow functions reuse the \code{cache} if the 
+#'   same function is given. The \code{fn_id} allows the user to suppress 
+#'   console messages and  to explicitly indicate whether to reuse the old
+#'   \code{cache} or create a new one.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #' 
 #' @return The flow object.
+#' 
+#' @examples
+#' input_function <- function(x, y) { x + y }
+#' call_flow <- flow_call(input_function(x = 1, y = 2))
+#' collected_result <- call_flow %>% collect()
 #' 
 #' @export
 flow_call <- function(fn_call, 
@@ -155,6 +185,14 @@ NULL
 #' @return Data associated with the output of the function.
 #' 
 #' @method collect R6Flow
+#' 
+#' @examples 
+#' 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+#' rflow_function <- make_flow_function(2, 3)
+#' flow_result <- rflow_function %>% collect()
+#' 
 #' @export
 collect.R6Flow <- function(x, ...) {
     
@@ -173,6 +211,15 @@ collect.R6Flow <- function(x, ...) {
 #' @rdname collect.R6Flow
 #' 
 #' @method collect Element
+#' 
+#' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+#' rflow_function <- make_flow_function(2, 3)
+#' flow_result <- rflow_function %>% collect()
+#' flow_element <- element(rflow_function, "x")
+#' collected_element_value <- collect(flow_element)
+#' 
 #' @export
 collect.Element <- function(x, ...) {
     
@@ -236,6 +283,13 @@ compute.Element <- function(x, ...) {
 #'   input object.
 #' 
 #' @return An object with class \code{Element}.
+#' 
+#' #' @examples 
+#' input_function <- function(x, y) { x + y }
+#' make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+#' rflow_function <- make_flow_function(2, 3)
+#' flow_result <- rflow_function %>% collect()
+#' flow_element <- element(rflow_function, "x")
 #' 
 #' @export
 element <- function(flow, name = NULL) {

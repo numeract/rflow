@@ -23,6 +23,21 @@ The cached version of the function.
 Explicit cache of a function.
 }
 \details{
-In order to use the functionality of an R6Flow object, the output of 
+In order to use the functionality of an \code{R6Flow} object, the output of 
 \code{make_flow_fn} has to be collected first.
+}
+\examples{
+
+input_function <- function(x, y) { x + y }
+make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+rflow_function <- make_flow_function(2, 3)
+flow_result <- rflow_function \%>\% collect()
+
+# usage with rflow pipes
+input_function2 <- function(x, y) { x * y }
+make_flow_function2 <- make_flow_fn(input_function2, fn_id = 2) 
+collected_pipe_flow <- make_flow_function(1, 2) \%>\%
+                     make_flow_function2(2) \%>\%
+                     collect()
+
 }

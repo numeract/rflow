@@ -9,10 +9,11 @@ flow_call(fn_call, fn_id = NULL, flow_options = get_flow_options())
 \arguments{
 \item{fn_call}{Function call to be processed.}
 
-\item{fn_id}{Optional id to uniquely identify the function. By default,
-rflow functions reuse the \code{cache} if the same function is given. The id 
-allows the user to suppress console messages and to explicitly
-indicate whether to reuse the old \code{cache} or create a new one.}
+\item{fn_id}{Character or Integer. Optional id to uniquely identify 
+the function. By default, rflow functions reuse the \code{cache} if the 
+same function is given. The \code{fn_id} allows the user to suppress 
+console messages and  to explicitly indicate whether to reuse the old
+\code{cache} or create a new one.}
 
 \item{flow_options}{List of options created using \code{get_flow_options}.}
 }
@@ -21,4 +22,10 @@ The flow object.
 }
 \description{
 Implicit cache of a function and of the given call.
+}
+\examples{
+input_function <- function(x, y) { x + y }
+call_flow <- flow_call(input_function(x = 1, y = 2))
+collected_result <- call_flow \%>\% collect()
+
 }

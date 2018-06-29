@@ -13,6 +13,10 @@ A cache object that inherits from \code{R6Cache}.
 Currently, the default cache engine is \code{cache_memory()}, but this 
   might change in the future.
 }
+\examples{
+current_cache <- default_cache()
+
+}
 \seealso{
 Other cache functions: \code{\link{cache_file}},
   \code{\link{cache_memory_file}},

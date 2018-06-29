@@ -29,3 +29,15 @@ Implicit cache of a function and of the given call.
 Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
   must be named. Argument \code{fn} must be always provided.
 }
+\examples{
+input_function <- function(x, y) { x + y }
+flow_function <- flow_fn(2, 3, fn = input_function, fn_id = "id1")
+collected_result <- flow_function \%>\% collect()
+
+# usage with rflow pipes
+input_function2 <- function(x, y) { x * y }
+collected_pipe_result <- flow_function \%>\%
+                        flow_fn(2, fn = input_function2) \%>\%
+                        collect()
+
+}

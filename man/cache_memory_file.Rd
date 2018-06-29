@@ -16,6 +16,12 @@ A cache object that inherits from \code{R6Cache}.
 The cache data will be stored both in memory (for quick access) and on
   disk (for persistence).
 }
+\examples{
+ cache_dir <- "cache_directory"
+ cache_fmem <- cache_memory_file(cache_dir)
+ 
+ 
+}
 \seealso{
 Other cache functions: \code{\link{cache_file}},
   \code{\link{cache_memory}}, \code{\link{default_cache}}

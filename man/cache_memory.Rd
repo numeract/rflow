@@ -12,6 +12,10 @@ A cache object that inherits from \code{R6Cache}.
 \description{
 All cache data will be stored only in memory.
 }
+\examples{
+cache_memory <- cache_memory()
+
+}
 \seealso{
 Other cache functions: \code{\link{cache_file}},
   \code{\link{cache_memory_file}},

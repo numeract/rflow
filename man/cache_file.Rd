@@ -15,6 +15,11 @@ A cache object that inherits from \code{R6Cache}.
 \description{
 All cache data will be stored only on the local disk.
 }
+\examples{
+cache_dir <- "cache_directory"
+cache_file <- cache_file(cache_dir)
+
+}
 \seealso{
 Other cache functions: \code{\link{cache_memory_file}},
   \code{\link{cache_memory}}, \code{\link{default_cache}}
