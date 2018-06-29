@@ -52,8 +52,9 @@ R6FileSource$set("public", "initialize", function(
 #'   This flow object does not throw an error if the \code{file_path} is missing, 
 #'   but it changes its state. Hece, it can be used to trigger a downstream
 #'   flow object if the file is now present, changed or missing.
-#' 
-#' @param file_path A (named) vector of file paths to be watched.
+#'
+#' @param file_path A (named) vector of file paths to be watched or a
+#'  \code{fs_path} object.
 #' @param flow_options List of options created using \code{get_flow_options}.
 #'   All options except \code{eddy} are ignored.
 #' 
