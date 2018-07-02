@@ -15,3 +15,10 @@ A logical value, whether \code{x} is a flow object.
 \description{
 Is the object a flow object or a flow element?
 }
+\examples{
+fn <- function(x, y) { x + y + 11 }
+make_flow_function <- make_flow_fn(fn)
+rflow_function <- make_flow_function(2, 3) 
+is_input_flow <- is_flow(rflow_function)
+
+}

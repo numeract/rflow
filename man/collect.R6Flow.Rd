@@ -27,14 +27,13 @@ Get the data from an \code{R6Flow} or an \code{Element} object.
 }
 \examples{
 
-input_function <- function(x, y) { x + y }
-make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+fn <- function(x, y) { x + y + 4 }
+make_flow_function <- make_flow_fn(fn) 
 rflow_function <- make_flow_function(2, 3)
 flow_result <- rflow_function \%>\% collect()
 
-
-input_function <- function(x, y) { x + y }
-make_flow_function <- make_flow_fn(input_function, fn_id = 1) 
+fn <- function(x, y) { x + y + 5 }
+make_flow_function <- make_flow_fn(fn) 
 rflow_function <- make_flow_function(2, 3)
 flow_result <- rflow_function \%>\% collect()
 flow_element <- element(rflow_function, "x")

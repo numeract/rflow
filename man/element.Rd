@@ -22,3 +22,16 @@ An object with class \code{Element}.
 \description{
 Extract an element from an \code{R6Flow} object.
 }
+\examples{
+fn <- function(x, y) { x + y + 6 }
+make_flow_function <- make_flow_fn(fn) 
+rflow_function <- make_flow_function(2, 3)
+flow_result <- rflow_function \%>\% collect()
+flow_element <- element(rflow_function, "x")
+
+fn <- function(x, y) { x + y + 7 }
+make_flow_function <- make_flow_fn(fn)
+rflow_function <- make_flow_function(2, 3) 
+element_name <- rflow_function["x"]$elem_name
+
+}

@@ -17,3 +17,9 @@ If there is no current state, e.g. right after \code{\link{make_flow_fn}},
   the flow is "not flowing", it is preventing downstream flows
   from being computed.
 }
+\examples{
+fn <- function(x, y) { x + y + 8 }
+rflow_function <- flow_call(fn(2, 3)) 
+is_current_flow <- is_current(rflow_function)
+
+}

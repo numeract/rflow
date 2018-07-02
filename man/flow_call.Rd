@@ -24,8 +24,8 @@ The flow object.
 Implicit cache of a function and of the given call.
 }
 \examples{
-input_function <- function(x, y) { x + y }
-call_flow <- flow_call(input_function(x = 1, y = 2))
+fn <- function(x, y) { x + y + 3 }
+call_flow <- flow_call(fn(x = 1, y = 2))
 collected_result <- call_flow \%>\% collect()
 
 }

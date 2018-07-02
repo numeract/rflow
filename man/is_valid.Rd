@@ -20,3 +20,10 @@ A logical value, whether the value can be obtained without
 \description{
 Is the current state valid (stored in the cache)?
 }
+\examples{
+fn <- function(x, y) { x + y + 9 }
+rflow_function <- flow_call(fn(2, 3)) 
+is_valid_flow <- is_valid(rflow_function)
+
+
+}

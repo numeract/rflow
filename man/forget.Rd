@@ -19,3 +19,10 @@ A logical value, whether the deletion was successful.
 \description{
 Forgets the computation for the current state.
 }
+\examples{
+fn <- function(x, y) { x + y + 10 }
+make_flow_function <- make_flow_fn(fn)
+rflow_function <- make_flow_function(2, 3) 
+forget(rflow_function)
+
+}
