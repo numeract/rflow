@@ -16,8 +16,7 @@ A cache object that inherits from \code{R6Cache}.
 All cache data will be stored only on the local disk.
 }
 \examples{
-cache_dir <- "cache_directory"
-cache_file <- cache_file(cache_dir)
+\dontrun{cache_file <- cache_file("path_to_cache_diretory")}
 
 }
 \seealso{

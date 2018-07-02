@@ -13,7 +13,7 @@
 #' @family cache functions
 #' 
 #' @examples 
-#' cache_memory <- cache_memory()
+#' \dontrun{cache_memory <- cache_memory()}
 #' 
 #' @export
 cache_memory <- function() {
@@ -33,8 +33,7 @@ cache_memory <- function() {
 #' @family cache functions
 #' 
 #' @examples 
-#' cache_dir <- "cache_directory"
-#' cache_file <- cache_file(cache_dir)
+#' \dontrun{cache_file <- cache_file("path_to_cache_diretory")}
 #' 
 #' @export
 cache_file <- function(cache_dir) {
@@ -55,8 +54,7 @@ cache_file <- function(cache_dir) {
 #' @family cache functions
 #' 
 #' @examples
-#'  cache_dir <- "cache_directory"
-#'  cache_fmem <- cache_memory_file(cache_dir)
+#' \dontrun{cache_fmem <- cache_memory_file("path_to_cache_diretory")}
 #'  
 #'  
 #' @export
@@ -76,7 +74,7 @@ cache_memory_file <- function(cache_dir) {
 #' @family cache functions
 #' 
 #' @examples
-#' current_cache <- default_cache()
+#' \dontrun{current_cache <- default_cache()}
 #' 
 #' @export
 default_cache <- function() {
