@@ -187,11 +187,9 @@ NULL
 #' @method collect R6Flow
 #' 
 #' @examples 
-#' 
 #' fn <- function(x, y) { x + y + 4 }
-#' make_flow_function <- make_flow_fn(fn) 
-#' rflow_function <- make_flow_function(2, 3)
-#' flow_result <- rflow_function %>% collect()
+#' flow_function <- flow_fn(2,3, fn = fn) 
+#' flow_result <- flow_function %>% collect()
 #' 
 #' @export
 collect.R6Flow <- function(x, ...) {
@@ -214,10 +212,9 @@ collect.R6Flow <- function(x, ...) {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 5 }
-#' make_flow_function <- make_flow_fn(fn) 
-#' rflow_function <- make_flow_function(2, 3)
-#' flow_result <- rflow_function %>% collect()
-#' flow_element <- element(rflow_function, "x")
+#' flow_function <- flow_fn(2, 3, fn = fn) 
+#' flow_result <- flow_function %>% collect()
+#' flow_element <- element(flow_function, "x")
 #' collected_element_value <- collect(flow_element)
 #' 
 #' @export
@@ -286,10 +283,9 @@ compute.Element <- function(x, ...) {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 6 }
-#' make_flow_function <- make_flow_fn(fn) 
-#' rflow_function <- make_flow_function(2, 3)
-#' flow_result <- rflow_function %>% collect()
-#' flow_element <- element(rflow_function, "x")
+#' flow_function <- flow_fn(2, 3, fn = fn) 
+#' flow_result <- flow_function %>% collect()
+#' flow_element <- element(flow_function, "x")
 #' 
 #' @export
 element <- function(flow, name = NULL) {
@@ -304,9 +300,8 @@ element <- function(flow, name = NULL) {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 7 }
-#' make_flow_function <- make_flow_fn(fn)
-#' rflow_function <- make_flow_function(2, 3) 
-#' element_name <- rflow_function["x"]$elem_name
+#' flow_function <- flow_fn(2, 3, fn = fn)
+#' element_name <- flow_function["x"]$elem_name
 #' 
 #' @export
 `[.R6Flow` <- function(flow, name) {
@@ -407,9 +402,8 @@ is_valid <- function(flow, state = "current") {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 10 }
-#' make_flow_function <- make_flow_fn(fn)
-#' rflow_function <- make_flow_function(2, 3) 
-#' forget(rflow_function)
+#' flow_function <- flow_fn(2, 3, fn = fn)
+#' forget(flow_function)
 #' 
 #' @export
 forget <- function(flow, state = "current") {
@@ -440,9 +434,8 @@ forget <- function(flow, state = "current") {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 11 }
-#' make_flow_function <- make_flow_fn(fn)
-#' rflow_function <- make_flow_function(2, 3) 
-#' is_input_flow <- is_flow(rflow_function)
+#' flow_function <- flow_fn(1, 2, fn = fn)
+#' is_input_flow <- is_flow(flow_function)
 #' 
 #' @export
 is_flow <- function(x) {
@@ -459,7 +452,7 @@ is_flow <- function(x) {
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 12}
-#' make_flow_function <- make_flow_fn(fn)
+#' make_flow_function <- make_flow_fn(fn = fn)
 #' is_flow_function <- is_flow_fn(fn = make_flow_function)
 #' 
 #' @export

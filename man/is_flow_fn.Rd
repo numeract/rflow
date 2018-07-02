@@ -17,7 +17,7 @@ Is the function a flow function (as returned by \code{make_flow_fn})?
 }
 \examples{
 fn <- function(x, y) { x + y + 12}
-make_flow_function <- make_flow_fn(fn)
+make_flow_function <- make_flow_fn(fn = fn)
 is_flow_function <- is_flow_fn(fn = make_flow_function)
 
 }

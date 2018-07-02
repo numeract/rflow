@@ -26,17 +26,14 @@ Data associated with the output of the function.
 Get the data from an \code{R6Flow} or an \code{Element} object.
 }
 \examples{
-
 fn <- function(x, y) { x + y + 4 }
-make_flow_function <- make_flow_fn(fn) 
-rflow_function <- make_flow_function(2, 3)
-flow_result <- rflow_function \%>\% collect()
+flow_function <- flow_fn(2,3, fn = fn) 
+flow_result <- flow_function \%>\% collect()
 
 fn <- function(x, y) { x + y + 5 }
-make_flow_function <- make_flow_fn(fn) 
-rflow_function <- make_flow_function(2, 3)
-flow_result <- rflow_function \%>\% collect()
-flow_element <- element(rflow_function, "x")
+flow_function <- flow_fn(2, 3, fn = fn) 
+flow_result <- flow_function \%>\% collect()
+flow_element <- element(flow_function, "x")
 collected_element_value <- collect(flow_element)
 
 }

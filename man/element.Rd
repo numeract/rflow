@@ -24,14 +24,12 @@ Extract an element from an \code{R6Flow} object.
 }
 \examples{
 fn <- function(x, y) { x + y + 6 }
-make_flow_function <- make_flow_fn(fn) 
-rflow_function <- make_flow_function(2, 3)
-flow_result <- rflow_function \%>\% collect()
-flow_element <- element(rflow_function, "x")
+flow_function <- flow_fn(2, 3, fn = fn) 
+flow_result <- flow_function \%>\% collect()
+flow_element <- element(flow_function, "x")
 
 fn <- function(x, y) { x + y + 7 }
-make_flow_function <- make_flow_fn(fn)
-rflow_function <- make_flow_function(2, 3) 
-element_name <- rflow_function["x"]$elem_name
+flow_function <- flow_fn(2, 3, fn = fn)
+element_name <- flow_function["x"]$elem_name
 
 }

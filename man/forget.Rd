@@ -21,8 +21,7 @@ Forgets the computation for the current state.
 }
 \examples{
 fn <- function(x, y) { x + y + 10 }
-make_flow_function <- make_flow_fn(fn)
-rflow_function <- make_flow_function(2, 3) 
-forget(rflow_function)
+flow_function <- flow_fn(2, 3, fn = fn)
+forget(flow_function)
 
 }
