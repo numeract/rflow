@@ -23,3 +23,12 @@ The flow object
 \description{
 Write a value to a namespace only if the value has changed.
 }
+\examples{
+\dontrun{
+ fn <- function(x, y) { x + y }
+ make_flow <- make_flow_fn(fn)
+ rflow_fn <- make_flow(1, 2)
+ flow_sink <- flow_ns_sink(rflow_fn, "test_sink_flow", new.env()) 
+ }
+  
+}

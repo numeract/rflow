@@ -13,8 +13,8 @@ a \code{data.frame} or \code{tibble}. Row names are not supported.
 If no \code{group_by} values are provided, the data frame must be grouped.}
 
 \item{fn}{The function to apply to the data frame. It must accept a data
-frame as the first argument. fn may also apply group_by operations 
- if the data frame given as input is not already grouped.}
+frame as the first argument. \code{fn} may also apply \code{group_by}
+ operations if the data frame given as input is not already grouped.}
 
 \item{fn_id}{Optional id to uniquely identify the function. By default,
 rflow functions reuse the cache if the same function is given. The id 
@@ -44,4 +44,19 @@ Function \code{fn} will receive only the rows and groups changed;
   
   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
   must be named. Argument \code{fn} must be always provided.
+}
+\examples{
+ 
+df_fn <- function(df) {
+   df <- df \%>\%
+       dplyr::group_by(Species) \%>\%
+       dplyr::mutate(Sepal.Length = Sepal.Length * 2)
+}
+dfg_flow <- flow_dfg(iris, fn = df_fn, group_by = "Species")
+collected_dfg <- dfg_flow \%>\% collect()
+
+# with pipes
+collected_dfg2 <- dfg_flow \%>\%
+                flow_dfg(fn = identity, group_by = "Species") \%>\%
+                collect()
 }

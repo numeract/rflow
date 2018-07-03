@@ -59,6 +59,7 @@ R6FileSource$set("public", "initialize", function(
 #'   All options except \code{eddy} are ignored.
 #' 
 #' @return The flow object.
+#' 
 #' @examples 
 #' \dontrun{
 #' file1 <- tempfile(pattern = "test-rflow-")

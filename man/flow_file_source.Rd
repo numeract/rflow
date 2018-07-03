@@ -24,3 +24,13 @@ This flow object does not throw an error if the \code{file_path} is missing,
   but it changes its state. Hece, it can be used to trigger a downstream
   flow object if the file is now present, changed or missing.
 }
+\examples{
+\dontrun{
+file1 <- tempfile(pattern = "test-rflow-")
+example_df <- tibble::remove_rownames(head(mtcars))
+write.csv(example_df, file1, row.names = FALSE)
+file_path <- as.character(fs::path(file1))
+rflow_source <- flow_file_source(file_path)
+}
+
+}
