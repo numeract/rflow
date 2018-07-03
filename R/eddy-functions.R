@@ -8,6 +8,9 @@
 #' 
 #' @return An environment.
 #' 
+#' @examples 
+#' default_eddy_env()
+#' 
 #' @export
 default_eddy_env <- function() {
     .EDDY_ENV
@@ -25,6 +28,9 @@ default_eddy_env <- function() {
 #' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
+#' 
+#' @examples 
+#' new_eddy("eddy_name")
 #' 
 #' @export
 new_eddy <- function(eddy_name,
@@ -62,6 +68,10 @@ new_eddy <- function(eddy_name,
 #' 
 #' @family eddy functions
 #' 
+#' @examples 
+#' new_eddy("eddy_name")
+#' get_eddy("eddy_name")
+#'  
 #' @export
 get_eddy <- function(eddy_name,
                      eddy_env = default_eddy_env()) {
@@ -95,6 +105,9 @@ get_eddy <- function(eddy_name,
 #' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
+#' 
+#' @examples 
+#' use_eddy("new_eddy")
 #' 
 #' @export
 use_eddy <- function(eddy_name,
@@ -147,6 +160,10 @@ use_eddy <- function(eddy_name,
 #' 
 #' @family eddy functions
 #' 
+#' @examples 
+#' new_eddy("eddy_name")
+#' delete_eddy("eddy_name")
+#' 
 #' @export
 delete_eddy <- function(eddy_name,
                         eddy_env = default_eddy_env()) {
@@ -180,6 +197,10 @@ delete_eddy <- function(eddy_name,
 #' 
 #' @family eddy functions
 #' 
+#' @examples 
+#' new_eddy("eddy_name")
+#' set_current_eddy("eddy_name")
+#' 
 #' @export
 set_current_eddy <- function(eddy_name,
                              eddy_env = default_eddy_env()) {
@@ -208,6 +229,9 @@ set_current_eddy <- function(eddy_name,
 #' @return An eddy object to be used for storing flows.
 #' 
 #' @family eddy functions
+#' 
+#' @examples 
+#' get_current_eddy()
 #' 
 #' @export
 get_current_eddy <- function(eddy_env = default_eddy_env()) {
@@ -365,6 +389,8 @@ set_flow_options <- function(excluded_arg = NULL,
 #' including the eddy. \code{gfo} is just an alias of \code{get_flow_options}.
 #' 
 #' @rdname flow_options
+#' 
+#' @example get_flow_options()
 #' 
 #' @export
 get_flow_options <- function(excluded_arg = NULL,
