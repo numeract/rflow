@@ -31,13 +31,13 @@ Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
 }
 \examples{
 fn <- function(x, y) { x + y + 2 }
-flow_function <- flow_fn(2, 3, fn = fn)
-collected_result <- flow_function \%>\% collect()
-
+flowed_fn <- flow_fn(2, 3, fn = fn)
+collected_result <- flowed_fn \%>\%
+    collect()
 # usage with rflow pipes
 fn2 <- function(x, y) { x * y }
-collected_pipe_result <- flow_function \%>\%
-                        flow_fn(2, fn = fn2) \%>\%
-                        collect()
+collected_pipe_result <- flowed_fn \%>\%
+    flow_fn(2, fn = fn2) \%>\%
+    collect()
 
 }

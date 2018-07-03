@@ -22,8 +22,7 @@ Is the current state valid (stored in the cache)?
 }
 \examples{
 fn <- function(x, y) { x + y + 9 }
-rflow_function <- flow_call(fn(2, 3)) 
-is_valid_flow <- is_valid(rflow_function)
-
+flowed_fn <- flow_fn(2, 3, fn = fn) 
+is_valid_flow <- is_valid(flowed_fn)
 
 }

@@ -16,8 +16,8 @@ A logical value, whether \code{fn} is a flow function.
 Is the function a flow function (as returned by \code{make_flow_fn})?
 }
 \examples{
-fn <- function(x, y) { x + y + 12}
-make_flow_function <- make_flow_fn(fn = fn)
-is_flow_function <- is_flow_fn(fn = make_flow_function)
+fn <- function(x, y) { x + y + 12 }
+flowed_function <- flow_fn(2, 3, fn = fn)
+is_flow_function <- is_flow_fn(fn = flowed_function)
 
 }

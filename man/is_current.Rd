@@ -19,7 +19,7 @@ If there is no current state, e.g. right after \code{\link{make_flow_fn}},
 }
 \examples{
 fn <- function(x, y) { x + y + 8 }
-rflow_function <- flow_call(fn(2, 3)) 
-is_current_flow <- is_current(rflow_function)
+flowed_fn <- flow_fn(1, 2, fn = fn) 
+is_current_flow <- is_current(flowed_fn)
 
 }
