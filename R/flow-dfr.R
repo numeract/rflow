@@ -268,6 +268,21 @@ R6FlowDfr$set("public", "save", function() {
 #' 
 #' @return The flow object.
 #' 
+#' @examples 
+#' df_fn <- function(df, i = NULL) {
+#' if (is.null(i)) {
+#'    dfi <- df
+#'    dfi$rm <- rowMeans(dfi[1:10])
+#'   } else {
+#'    dfi <- df[i, , drop = FALSE]
+#'   }
+#' dfi
+#' }
+#' 
+#' dfr_flow <- flow_dfr(mtcars, 1, fn = df_fn)
+#' collected_dfr <- dfr_flow %>%
+#'              collect()
+#' 
 #' @export
 flow_dfr <- function(..., 
                      fn = NULL,
