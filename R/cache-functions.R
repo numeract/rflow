@@ -13,7 +13,7 @@
 #' @family cache functions
 #' 
 #' @examples 
-#' \dontrun{cache_memory <- cache_memory()}
+#' cache_memory <- cache_memory()
 #' 
 #' @export
 cache_memory <- function() {

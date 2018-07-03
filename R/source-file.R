@@ -61,13 +61,11 @@ R6FileSource$set("public", "initialize", function(
 #' @return The flow object.
 #' 
 #' @examples 
-#' \dontrun{
-#' file1 <- tempfile(pattern = "test-rflow-")
-#' example_df <- tibble::remove_rownames(head(mtcars))
-#' write.csv(example_df, file1, row.names = FALSE)
-#' file_path <- as.character(fs::path(file1))
-#' rflow_source <- flow_file_source(file_path)
-#' }
+#' write.csv(head(mtcars), "temp_file.csv", row.names = FALSE)
+#' rflow_source <- flow_file_source("temp_file.csv")
+#' write.csv(tail(mtcars), "temp_file.csv", row.names = FALSE)
+#' rflow_source <- flow_file_source("temp_file.csv")
+#' unlink("temp_file.csv")
 #' 
 #' @export
 flow_file_source <- function(file_path, 
