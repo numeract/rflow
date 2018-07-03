@@ -222,6 +222,14 @@ to_ns <- function(x, var_name, ns) {
 #' 
 #' @return The flow object
 #' 
+#' @examples 
+#' \dontrun{
+#'  fn <- function(x, y) { x + y }
+#'  make_flow <- make_flow_fn(fn)
+#'  rflow_fn <- make_flow(1, 2)
+#'  flow_sink <- flow_ns_sink(rflow_fn, "test_sink_flow", new.env()) 
+#'  }
+#'   
 #' @export
 flow_ns_sink <- function(x,
                          var_name,
