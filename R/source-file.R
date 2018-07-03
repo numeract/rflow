@@ -59,6 +59,14 @@ R6FileSource$set("public", "initialize", function(
 #'   All options except \code{eddy} are ignored.
 #' 
 #' @return The flow object.
+#' @examples 
+#' \dontrun{
+#' file1 <- tempfile(pattern = "test-rflow-")
+#' example_df <- tibble::remove_rownames(head(mtcars))
+#' write.csv(example_df, file1, row.names = FALSE)
+#' file_path <- as.character(fs::path(file1))
+#' rflow_source <- flow_file_source(file_path)
+#' }
 #' 
 #' @export
 flow_file_source <- function(file_path, 
