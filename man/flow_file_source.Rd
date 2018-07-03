@@ -25,12 +25,13 @@ This flow object does not throw an error if the \code{file_path} is missing,
   flow object if the file is now present, changed or missing.
 }
 \examples{
-\dontrun{
-file1 <- tempfile(pattern = "test-rflow-")
-example_df <- tibble::remove_rownames(head(mtcars))
-write.csv(example_df, file1, row.names = FALSE)
-file_path <- as.character(fs::path(file1))
-rflow_source <- flow_file_source(file_path)
-}
+# write for the first time content in file and create flow
+write.csv(head(mtcars), "temp_file.csv", row.names = FALSE)
+rflow_source <- flow_file_source("temp_file.csv")
+# write other content in the same file
+# now the flow object will update its state
+write.csv(tail(mtcars), "temp_file.csv", row.names = FALSE)
+rflow_source <- flow_file_source("temp_file.csv")
+unlink("temp_file.csv")
 
 }

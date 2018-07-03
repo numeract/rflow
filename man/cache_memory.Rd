@@ -13,7 +13,7 @@ A cache object that inherits from \code{R6Cache}.
 All cache data will be stored only in memory.
 }
 \examples{
-\dontrun{cache_memory <- cache_memory()}
+cache_memory <- cache_memory()
 
 }
 \seealso{
