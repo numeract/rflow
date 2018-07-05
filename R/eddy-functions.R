@@ -390,8 +390,6 @@ set_flow_options <- function(excluded_arg = NULL,
 #' 
 #' @rdname flow_options
 #' 
-#' @example get_flow_options()
-#' 
 #' @export
 get_flow_options <- function(excluded_arg = NULL,
                              eval_arg_fn = NULL,

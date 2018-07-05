@@ -464,6 +464,12 @@ is_flow_fn <- function(fn) {
 }
 
 
+#' Check if the function is NOT a flow function
+#' (as returned by \code{make_flow_fn}). 
+#' 
+#' @param fn A function.
+#' 
+#' @return A logical value, whether \code{fn} is a not flow function.
 is_not_flow_fn <- function(fn) {
     
     if (!is.function(fn)) return(FALSE)
