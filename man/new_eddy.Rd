@@ -23,6 +23,10 @@ An eddy object to be used for storing flows.
 \description{
 Create a new eddy. Does not affect the current eddy.
 }
+\examples{
+new_eddy("new_eddy_name")
+
+}
 \seealso{
 Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_current_eddy}}, \code{\link{get_eddy}},

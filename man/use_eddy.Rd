@@ -30,6 +30,10 @@ An eddy object to be used for storing flows.
 \description{
 Convenience function that creates a new eddy or re-uses it if present.
 }
+\examples{
+use_eddy("use_eddy")
+
+}
 \seealso{
 Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_current_eddy}}, \code{\link{get_eddy}},

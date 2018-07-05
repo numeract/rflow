@@ -30,7 +30,7 @@ default_eddy_env <- function() {
 #' @family eddy functions
 #' 
 #' @examples 
-#' new_eddy("eddy_name")
+#' new_eddy("new_eddy_name")
 #' 
 #' @export
 new_eddy <- function(eddy_name,
@@ -107,7 +107,7 @@ get_eddy <- function(eddy_name,
 #' @family eddy functions
 #' 
 #' @examples 
-#' use_eddy("new_eddy")
+#' use_eddy("use_eddy")
 #' 
 #' @export
 use_eddy <- function(eddy_name,
@@ -161,8 +161,8 @@ use_eddy <- function(eddy_name,
 #' @family eddy functions
 #' 
 #' @examples 
-#' new_eddy("eddy_name")
-#' delete_eddy("eddy_name")
+#' new_eddy("eddy_new")
+#' delete_eddy("eddy_new")
 #' 
 #' @export
 delete_eddy <- function(eddy_name,
@@ -198,8 +198,8 @@ delete_eddy <- function(eddy_name,
 #' @family eddy functions
 #' 
 #' @examples 
-#' new_eddy("eddy_name")
-#' set_current_eddy("eddy_name")
+#' new_eddy("eddy")
+#' set_current_eddy("eddy")
 #' 
 #' @export
 set_current_eddy <- function(eddy_name,

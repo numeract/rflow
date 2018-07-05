@@ -17,6 +17,11 @@ An eddy object to be used for storing flows.
 \description{
 Set the current eddy to be used in future flow calls.
 }
+\examples{
+new_eddy("eddy")
+set_current_eddy("eddy")
+
+}
 \seealso{
 Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_current_eddy}}, \code{\link{get_eddy}},

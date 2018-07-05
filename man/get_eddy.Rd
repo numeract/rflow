@@ -17,6 +17,11 @@ An eddy object to be used for storing flows.
 \description{
 Retrieves an eddy.
 }
+\examples{
+new_eddy("eddy_name")
+get_eddy("eddy_name")
+ 
+}
 \seealso{
 Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_current_eddy}}, \code{\link{new_eddy}},

@@ -16,6 +16,10 @@ An eddy object to be used for storing flows.
 If the current eddy was not previously set with \code{set_current_eddy},
   it creates a new eddy that uses \code{default_cache()}.
 }
+\examples{
+get_current_eddy()
+
+}
 \seealso{
 Other eddy functions: \code{\link{delete_eddy}},
   \code{\link{get_eddy}}, \code{\link{new_eddy}},

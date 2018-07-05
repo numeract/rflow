@@ -17,6 +17,11 @@ Nothing (\code{NULL}).
 \description{
 Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
 }
+\examples{
+new_eddy("eddy_new")
+delete_eddy("eddy_new")
+
+}
 \seealso{
 Other eddy functions: \code{\link{get_current_eddy}},
   \code{\link{get_eddy}}, \code{\link{new_eddy}},
