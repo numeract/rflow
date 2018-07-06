@@ -1,11 +1,11 @@
 # Tests for flow_dfr -----------------------------------------------------------
 context("flow-dfr tests")
 
-# if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
-#     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
-# )) {
-#     skip("cache-memory-file functions")
-# }
+if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
+    "2e85e2a3018ecf3b2e5fc03bfb20fd39"
+)) {
+    skip("cache-memory-file functions")
+}
 
 setup({
     df <- tibble::as.tibble(mtcars)
@@ -18,9 +18,16 @@ setup({
         }
         dfi
     }
+    
+    df_fn2 <- function(df) {
+        df <- df %>%
+            dplyr::mutate(hp = hp + 1)
+        df
+    }
 
     assign("df", df, envir = .GlobalEnv)
     assign("df_fn", df_fn, envir = .GlobalEnv)
+    assign("df_fn2", df_fn2, envir = .GlobalEnv)
 })
 
 
@@ -37,6 +44,27 @@ test_that("flow_dfr() works", {
     
     expect_true(dfr1$is_valid)
     expect_equal(collected_dfr, expected_df)
+})
+
+
+test_that("flow_dfr() works with factor column", {
+    get_current_eddy()$reset()
+    test_df <- head(df)
+    
+    test_df$gear <- as.factor(test_df$gear)
+    dfr1 <- flow_dfr(test_df, fn = df_fn2)
+    
+    expect_equal(dfr1$state_index, 1)
+    expect_false(dfr1$is_valid)
+    
+    collected_dfr <- dfr1 %>% collect()
+    expected_df <- head(df) %>%
+        dplyr::mutate(hp = hp + 1,
+                      gear = as.factor(gear))
+    
+    expect_true(dfr1$is_valid)
+    expect_equal(collected_dfr, expected_df)
+    expect_true(is.factor(collected_dfr$gear))
 })
 
 
@@ -227,4 +255,5 @@ teardown({
     
     base::rm(list = "df", envir = .GlobalEnv)
     base::rm(list = "df_fn", envir = .GlobalEnv)
+    base::rm(list = "df_fn2", envir = .GlobalEnv)
 })

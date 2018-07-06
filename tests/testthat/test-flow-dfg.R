@@ -103,7 +103,7 @@ test_that("flow_dfg works", {
 })
 
 
-test_that("flow_dfg works with factors", {
+test_that("flow_dfg works with factor column", {
     get_current_eddy()$reset()
     df$Species  <- as.factor(df$Species)
     dfg1 <- flow_dfg(df, fn = df_fn, group_by = "Species")
