@@ -103,6 +103,25 @@ test_that("flow_dfg works", {
 })
 
 
+test_that("flow_dfg works with factors", {
+    get_current_eddy()$reset()
+    df$Species  <- as.factor(df$Species)
+    dfg1 <- flow_dfg(df, fn = df_fn, group_by = "Species")
+    
+    expect_equal(dfg1$state_index, 1)
+    expect_false(dfg1$is_valid)
+    
+    collected_dfg <- dfg1 %>% collect()
+    expected_df <- df %>%
+        dplyr::group_by(Species) %>%
+        dplyr::mutate(Sepal.Length  = Sepal.Length * 2)
+    
+    expect_true(dfg1$is_valid)
+    expect_equal(collected_dfg, expected_df)
+    expect_true(is.factor(collected_dfg$Species))
+})
+
+
 test_that("flow_dfg works without group_by argument but already grouped df", {
     get_current_eddy()$reset()
     
