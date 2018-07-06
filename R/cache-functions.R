@@ -13,7 +13,7 @@
 #' @family cache functions
 #' 
 #' @examples 
-#' cache_memory <- cache_memory()
+#' cache_in_memory <- cache_memory()
 #' 
 #' @export
 cache_memory <- function() {
@@ -33,7 +33,7 @@ cache_memory <- function() {
 #' @family cache functions
 #' 
 #' @examples 
-#' \dontrun{cache_file <- cache_file("path_to_cache_diretory")}
+#' \dontrun{cache_in_file <- cache_file("path_to_cache_diretory")}
 #' 
 #' @export
 cache_file <- function(cache_dir) {
