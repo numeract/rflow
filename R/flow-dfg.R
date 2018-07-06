@@ -257,19 +257,32 @@ R6FlowDfg$set("public", "compute", function() {
 #' @return The flow object.
 #' 
 #' @examples 
-#'  
-#' df_fn <- function(df) {
-#'    df <- df %>%
-#'        dplyr::group_by(Species) %>%
-#'        dplyr::mutate(Sepal.Length = Sepal.Length * 2)
+#' dfg_fn <- function(df) {
+#'     df <- df %>%
+#'         dplyr::mutate(Sepal.Length = Sepal.Length * 2)
 #' }
-#' dfg_flow <- flow_dfg(iris, fn = df_fn, group_by = "Species")
+#' 
+#' dfg_fn2 <- function(df) {
+#'     df <- df %>%
+#'         dplyr::mutate(Petal.Length = Petal.Length * 3)
+#' }
+#' 
+#' iris <- iris %>%
+#'     dplyr::group_by(Species)
+#' dfg_flow <- flow_dfg(iris, fn = dfg_fn)
 #' collected_dfg <- dfg_flow %>% collect()
 #' 
-#' # with pipes
+#' # when a change in group is made, the flow object changes
+#' iris[1, "Species"] <- "virginica"
+#' dfg_flow <- flow_dfg(iris, fn = dfg_fn)
+#' collected_dfg <- dfg_flow %>% collect()
+#' 
+#' the flow element can also become input for another flow_dfg function 
+#' in order to allow multiple, chained computations
 #' collected_dfg2 <- dfg_flow %>%
-#'                 flow_dfg(fn = identity, group_by = "Species") %>%
-#'                 collect()
+#'    flow_dfg(fn = dfg_fn2, group_by = "Species") %>%
+#'    collect()
+
 #' @export
 flow_dfg <- function(..., 
                      fn = NULL,
