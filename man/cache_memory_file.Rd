@@ -17,7 +17,9 @@ The cache data will be stored both in memory (for quick access) and on
   disk (for persistence).
 }
 \examples{
-\dontrun{cache_fmem <- cache_memory_file("path_to_cache_diretory")}
+\dontrun{
+cache_fmem <- cache_memory_file("path_to_cache_diretory")
+}
  
  
 }

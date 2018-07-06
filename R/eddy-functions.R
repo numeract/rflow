@@ -8,9 +8,6 @@
 #' 
 #' @return An environment.
 #' 
-#' @examples 
-#' default_eddy_env()
-#' 
 #' @export
 default_eddy_env <- function() {
     .EDDY_ENV
@@ -162,6 +159,7 @@ use_eddy <- function(eddy_name,
 #' 
 #' @examples 
 #' new_eddy("eddy_new")
+#' # processing steps ...
 #' delete_eddy("eddy_new")
 #' 
 #' @export
@@ -385,8 +383,8 @@ set_flow_options <- function(excluded_arg = NULL,
 }
 
 
-#' @return For \code{get_flow_options} and \code{gfo}, a list of options 
-#' including the eddy. \code{gfo} is just an alias of \code{get_flow_options}.
+#' @return For \code{get_flow_options}, a list of options 
+#' including the eddy.
 #' 
 #' @rdname flow_options
 #' 
@@ -404,9 +402,3 @@ get_flow_options <- function(excluded_arg = NULL,
     
     rfo
 }
-
-
-#' @rdname flow_options
-#' 
-#' @export
-gfo <- get_flow_options

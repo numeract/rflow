@@ -19,6 +19,7 @@ Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
 }
 \examples{
 new_eddy("eddy_new")
+# processing steps ...
 delete_eddy("eddy_new")
 
 }

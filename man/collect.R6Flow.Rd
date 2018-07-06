@@ -27,10 +27,10 @@ Get the data from an \code{R6Flow} or an \code{Element} object.
 }
 \examples{
 fn <- function(x, y) { x + y + 4 }
-flowed_fn <- flow_fn(2,3, fn = fn) 
+flowed_fn <- flow_fn(2, 3, fn = fn) 
 flow_result <- flowed_fn \%>\% collect()
 
-fn <- function(x, y) { x + y + 5 }
+fn <- function(x, y) { list(x = x, y = y, z = 5) }
 flowed_fn <- flow_fn(2, 3, fn = fn)
 flow_result <- flowed_fn \%>\%
     collect()

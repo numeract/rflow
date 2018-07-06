@@ -5,7 +5,6 @@
 \alias{default_flow_options}
 \alias{set_flow_options}
 \alias{get_flow_options}
-\alias{gfo}
 \title{flow options used to initialize or update an eddy.}
 \usage{
 default_flow_options(excluded_arg = character(), split_bare_list = TRUE,
@@ -17,9 +16,6 @@ set_flow_options(excluded_arg = NULL, split_bare_list = NULL,
 get_flow_options(excluded_arg = NULL, eval_arg_fn = NULL,
   split_bare_list = NULL, split_dataframe = NULL, split_fn = NULL,
   eddy = get_current_eddy())
-
-gfo(excluded_arg = NULL, eval_arg_fn = NULL, split_bare_list = NULL,
-  split_dataframe = NULL, split_fn = NULL, eddy = get_current_eddy())
 }
 \arguments{
 \item{excluded_arg}{A vector of argument names to be excluded when computing
@@ -58,8 +54,8 @@ For \code{default_flow_options}, a list of options.
 
 For \code{set_flow_options}, \code{NULL}.
 
-For \code{get_flow_options} and \code{gfo}, a list of options 
-including the eddy. \code{gfo} is just an alias of \code{get_flow_options}.
+For \code{get_flow_options}, a list of options 
+including the eddy.
 }
 \description{
 flow options used to initialize or update an eddy.

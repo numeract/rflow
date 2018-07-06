@@ -23,11 +23,11 @@ An object with class \code{Element}.
 Extract an element from an \code{R6Flow} object.
 }
 \examples{
-fn <- function(x, y) { x + y + 6 }
+fn <- function(x, y) { list(x = x, y = y, Z = 6) }
 flowed_fn <- flow_fn(2, 3, fn = fn) 
 flow_element <- element(flowed_fn, "x")
 
-fn <- function(x, y) { x + y + 7 }
+fn <- function(x, y) { list(x = x, y = y, Z = 7) }
 flowed_fn <- flow_fn(2, 3, fn = fn)
 element_name <- flowed_fn["x"]$elem_name
 

@@ -12,7 +12,3 @@ An environment.
 \description{
 Get the default binding environment that keeps the eddies.
 }
-\examples{
-default_eddy_env()
-
-}

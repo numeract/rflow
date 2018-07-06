@@ -189,7 +189,7 @@ NULL
 #' 
 #' @examples 
 #' fn <- function(x, y) { x + y + 4 }
-#' flowed_fn <- flow_fn(2,3, fn = fn) 
+#' flowed_fn <- flow_fn(2, 3, fn = fn) 
 #' flow_result <- flowed_fn %>% collect()
 #' 
 #' @export
@@ -212,7 +212,7 @@ collect.R6Flow <- function(x, ...) {
 #' @method collect Element
 #' 
 #' @examples 
-#' fn <- function(x, y) { x + y + 5 }
+#' fn <- function(x, y) { list(x = x, y = y, z = 5) }
 #' flowed_fn <- flow_fn(2, 3, fn = fn)
 #' flow_result <- flowed_fn %>%
 #'     collect()
@@ -249,6 +249,7 @@ NULL
 #' @return Logical, whether the result is available to be collected.
 #' 
 #' @method compute R6Flow
+#' 
 #' @export
 compute.R6Flow <- function(x, ...) {
     
@@ -284,7 +285,7 @@ compute.Element <- function(x, ...) {
 #' @return An object with class \code{Element}.
 #' 
 #' @examples 
-#' fn <- function(x, y) { x + y + 6 }
+#' fn <- function(x, y) { list(x = x, y = y, Z = 6) }
 #' flowed_fn <- flow_fn(2, 3, fn = fn) 
 #' flow_element <- element(flowed_fn, "x")
 #' 
@@ -300,7 +301,7 @@ element <- function(flow, name = NULL) {
 #' @rdname element
 #' 
 #' @examples 
-#' fn <- function(x, y) { x + y + 7 }
+#' fn <- function(x, y) { list(x = x, y = y, Z = 7) }
 #' flowed_fn <- flow_fn(2, 3, fn = fn)
 #' element_name <- flowed_fn["x"]$elem_name
 #' 

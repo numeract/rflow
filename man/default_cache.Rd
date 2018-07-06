@@ -14,7 +14,9 @@ Currently, the default cache engine is \code{cache_memory()}, but this
   might change in the future.
 }
 \examples{
-\dontrun{current_cache <- default_cache()}
+\dontrun{
+current_cache <- default_cache()
+}
 
 }
 \seealso{
