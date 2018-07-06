@@ -42,17 +42,19 @@ Function \code{fn} operates on a data frame received as argument.
 }
 \examples{
 df_fn <- function(df, i = NULL) {
-if (is.null(i)) {
-   dfi <- df
-   dfi$rm <- rowMeans(dfi[1:10])
-  } else {
-   dfi <- df[i, , drop = FALSE]
-  }
-dfi
+    if (is.null(i)) {
+        dfi <- df
+        dfi$rm <- rowMeans(dfi[1:10])
+    } else {
+        dfi <- df[i, , drop = FALSE]
+    }
+    dfi
 }
 
+# the flow element can also become input for another flow_df function 
+# in order to allow multiple, chained computations
 dfr_flow <- flow_dfr(mtcars, 1, fn = df_fn)
 collected_dfr <- dfr_flow \%>\%
-             collect()
+    collect()
 
 }

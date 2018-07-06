@@ -66,8 +66,8 @@ iris[1, "Species"] <- "virginica"
 dfg_flow <- flow_dfg(iris, fn = dfg_fn)
 collected_dfg <- dfg_flow \%>\% collect()
 
-the flow element can also become input for another flow_dfg function 
-in order to allow multiple, chained computations
+# the flow element can also become input for another flow_dfg function 
+# in order to allow multiple, chained computations
 collected_dfg2 <- dfg_flow \%>\%
    flow_dfg(fn = dfg_fn2, group_by = "Species") \%>\%
    collect()
