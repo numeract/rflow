@@ -72,10 +72,13 @@ Examples of eddy functions:
 library(rflow)
 
 # create a new eddy
-new_eddy("new_eddy_name")
-get_eddy("new_eddy_name")
+new_eddy("new_eddy_example")
+get_eddy("new_eddy_example")
 
-# the eddy used to store flowed_fn data will be "new_eddy_name"
+# set "new_eddy_example" as current
+set_current_eddy("new_eddy_example")
+
+# the eddy used to store flowed_fn data will be "new_eddy_example"
 fn <- function(x, y) { x + y }
 flowed_fn <- flow_fn(1, 2, fn = fn)
 
@@ -89,21 +92,22 @@ flowed_fn <- flow_fn(1, 2, fn = fn)
 delete_eddy("use_eddy")
 
 # set the eddy to be used in future flow calls
-set_current_eddy("new_eddy_name")
+set_current_eddy("new_eddy_example")
 get_current_eddy()
 
+# notice the message received due to creating a flow with the same function
+# and the same arguments in "new_eddy_example"
 fn <- function(x, y) { x + y }
 flowed_fn <- flow_fn(1, 2, fn = fn)
 
 # remove the eddy object
-delete_eddy("new_eddy_name")
+delete_eddy("new_eddy_example")
 
 # create custom file cache used by a future eddy
 cache <- cache_file("cache_dir")
 
-new_eddy(
-    "custom_eddy",
-    cache = cache)
+new_eddy("custom_eddy",
+         cache = cache)
 delete_eddy("custom_eddy")
 ```
 
