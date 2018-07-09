@@ -3,8 +3,7 @@ title: "Introduction to rflow"
 author: "Numeract LLC"
 output:
   html_document:
-    theme: null
-    css: mystyle.css
+    theme: lumen
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
