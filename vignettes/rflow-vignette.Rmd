@@ -62,3 +62,80 @@ flow_fn(x1, x2, fn = f1) %>%            # reuses cache created by ff1
   collect()                             # 3, no actual re-calc takes place
 ```
 
+## Eddy functions
+
+## Flow functions
+
+## Flow elements
+
+## Flow source
+
+## Flow for data frame and grouped data frame
+
+## Shiny
+
+Shiny from RStudio uses reactive values to know what changes took place and  what to recompute. It is thus possible to use a series of reactive elements in Shiny to prevent expensive re-computations from taking place.
+
+
+```
+rv1 <- reactive({ 
+    ... input$x ... 
+})
+
+rv2 <- reactive({ 
+    ... rv1() .... input$y ... 
+})
+
+rv3 <- reactive({ 
+    ... rv2() .... input$z ... 
+})
+```
+
+The downside is that we need one reactive element for each function in the 
+pipeline - this makes data processing dependent on UI / Shiny. Using `rflow`, 
+we can separate the UI from the data processing, maintaining the caching
+not only for the current state but for all previously computed states.
+
+```
+rv <- reactive({ 
+    rf1(input$x, ...) %>%
+    rf2(input$y, ...) %>%
+    rf3(input$z, ...) %>%
+    collect()
+})
+```
+
+While a similar workflow can be achieved with package `memoise`, it suffers from
+several disadvantages (below).
+
+
+
+## Memoise
+
+Package [memoise](https://github.com/r-lib/memoise) 
+by Hadley Wickham, Jim Hester and others was the main source of inspiration.
+Memoise is elegant, fast, simple to use, but it suffers from certain limitations 
+that we hope to overcome in this package:
+
+- excessive [rehashing of inputs](https://github.com/r-lib/memoise/issues/31)
+- only one cache layer (although its cache framework is extensible)
+- no input/output sub-setting, it uses the complete set of arguments provided
+- no reactivity (yet to be implemented in `rflow`)
+
+
+## Drake
+
+Package [drake](https://github.com/ropensci/drake) by Will Landau and others 
+provides a complete framework for large data sets, including using
+files as inputs and outputs. The downside is that it requires additional 
+overhead to get started and its focus is on the pipeline as a whole. If your
+work requires many hours of computations (which increases the value of each 
+result), the overhead due to the setup has a relatively lower cost - in this
+scenario `drake` is an excellent choice.
+
+## Summary 
+
+Package `rflow` is somewhere between `memoise` and `drake`:
+
+- one can start using `rflow` right away, with minimal overhead
+- allows focusing on the data processing (e.g., EDA) and not on the framework
