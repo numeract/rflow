@@ -21,7 +21,7 @@ R6Flow <- R6::R6Class(
         split_bare_list = TRUE,
         split_dataframe = FALSE,
         split_fn = NULL,
-        # link to R6Eddy obj were data is stored
+        # link to R6Eddy obj where data is stored
         eddy = NULL,
         # internal states
         state = NULL,

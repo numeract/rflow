@@ -63,6 +63,50 @@ flow_fn(x1, x2, fn = f1) %>%            # reuses cache created by ff1
 
 ## Eddy functions
 
+An eddy is a `R6` object in which the rflow data is stored. It also contains 
+information regarding the type of cache (memory, file or file-memory) used.
+Once an eddy is set, all data from flows flows created afterwards is kept in it
+implicitly.
+Examples of eddy functions:
+```{r}
+library(rflow)
+
+# create a new eddy
+new_eddy("new_eddy_name")
+get_eddy("new_eddy_name")
+
+# the eddy used to store flowed_fn data will be "new_eddy_name"
+fn <- function(x, y) { x + y }
+flowed_fn <- flow_fn(1, 2, fn = fn)
+
+# creates a new eddy or re-uses it if present
+use_eddy("use_eddy")
+
+# the eddy used to store flowed_fn data will now be "use_eddy"
+fn <- function(x, y) { x + y }
+flowed_fn <- flow_fn(1, 2, fn = fn)
+
+delete_eddy("use_eddy")
+
+# set the eddy to be used in future flow calls
+set_current_eddy("new_eddy_name")
+get_current_eddy()
+
+fn <- function(x, y) { x + y }
+flowed_fn <- flow_fn(1, 2, fn = fn)
+
+# remove the eddy object
+delete_eddy("new_eddy_name")
+
+# create custom file cache used by a future eddy
+cache <- cache_file("cache_dir")
+
+new_eddy(
+    "custom_eddy",
+    cache = cache)
+delete_eddy("custom_eddy")
+```
+
 ## Flow functions
 
 ## Flow elements
@@ -73,7 +117,9 @@ flow_fn(x1, x2, fn = f1) %>%            # reuses cache created by ff1
 
 ## Shiny
 
-Shiny from RStudio uses reactive values to know what changes took place and  what to recompute. It is thus possible to use a series of reactive elements in Shiny to prevent expensive re-computations from taking place.
+Shiny from RStudio uses reactive values to know what changes took place 
+and  what to recompute. It is thus possible to use a series of reactive 
+elements in Shiny to prevent expensive re-computations from taking place.
 
 
 ```
