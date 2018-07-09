@@ -41,8 +41,8 @@ f1 <- function(a, b, c = 1) {a * b + c}
 f2 <- function(d, e) {d / e}
 
 # passing the results downstream using functions
-(o1 <- f1(x1, x2))  # 6
-(o2 <- f2(o1, x3))  # 3
+(o1 <- f1(x1, x2))  
+(o2 <- f2(o1, x3)) 
 
 
 # variant 1: declaring flows for each function using default options
@@ -50,22 +50,22 @@ rf1 <- flow_fn(x1, x2, fn = f1)
 rf2 <- flow_fn(rf1, x3, fn = f2)
 
 # collecting the results
-collect(rf1)         # 6
-collect(rf2)         # 3
+collect(rf1)         
+collect(rf2)         
 
 
 # variant 2: arguments and functions withing one call
 library(dplyr)                          # makes life easier 
 flow_fn(x1, x2, fn = f1) %>%            # reuses cache created by ff1
   flow_fn(x3, fn = f2) %>%              # reuses cache created by ff2
-  collect()                             # 3, no actual re-calc takes place
+  collect()                             # no actual re-calc takes place
 ```
 
 ## Eddy functions
 
 An eddy is a `R6` object in which the rflow data is stored. It also contains 
 information regarding the type of cache (memory, file or file-memory) used.
-Once an eddy is set, all data from flows flows created afterwards is kept in it
+Once an eddy is set, all data from the flows created afterwards is kept in it
 implicitly.
 Examples of eddy functions:
 ```{r}
