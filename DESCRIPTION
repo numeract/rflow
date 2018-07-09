@@ -31,7 +31,10 @@ Imports:
     R6,
     rlang,
     tibble
-Suggests: 
+Suggests:
     testthat,
     covr,
-    shiny
+    shiny,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

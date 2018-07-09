@@ -32,7 +32,6 @@ rflow_source <- flow_file_source(file_temp)
 
 # write other content in the same file
 # now the flow object will update its state
-
 write.csv(tail(mtcars), file_temp, row.names = FALSE)
 rflow_source <- flow_file_source(file_temp)
 unlink(file_temp)
