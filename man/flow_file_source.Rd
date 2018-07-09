@@ -26,12 +26,15 @@ This flow object does not throw an error if the \code{file_path} is missing,
 }
 \examples{
 # write for the first time content in file and create flow
-write.csv(head(mtcars), "temp_file.csv", row.names = FALSE)
-rflow_source <- flow_file_source("temp_file.csv")
+file_temp <- tempfile(pattern = "example_source")
+write.csv(head(mtcars), file_temp, row.names = FALSE)
+rflow_source <- flow_file_source(file_temp)
+
 # write other content in the same file
 # now the flow object will update its state
-write.csv(tail(mtcars), "temp_file.csv", row.names = FALSE)
-rflow_source <- flow_file_source("temp_file.csv")
-unlink("temp_file.csv")
+
+write.csv(tail(mtcars), file_temp, row.names = FALSE)
+rflow_source <- flow_file_source(file_temp)
+unlink(file_temp)
 
 }
