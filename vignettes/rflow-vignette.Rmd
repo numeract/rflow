@@ -197,8 +197,41 @@ element_name <- flowed_fn["x"]$elem_name
 # [1] "x"
 ```
 
-## Flow source
+## Flow source and flow sink
 
+The function `flow_source` creates a flow object that watches one or more files.
+This flow object does not throw an error if the `file_path` argument is missing, 
+but it changes its state. Hece, it can be used to trigger a downstream
+flow object if the file is now present, changed or missing.
+
+```{r, results = 'hide'}
+
+# write for the first time content in file and create flow
+file_temp <- tempfile(pattern = "example_source")
+write.csv(head(mtcars), file_temp, row.names = FALSE)
+rflow_source <- flow_file_source(file_temp)
+ 
+# write other content in the same file
+# now the flow object will update its state
+write.csv(tail(mtcars), file_temp, row.names = FALSE)
+rflow_source <- flow_file_source(file_temp)
+unlink(file_temp)
+
+```
+
+The function `flow_ns_sink` writes a value to a namespace only if
+the value has changed. The argument x represents the value to asign,
+the argument `var_name` represents the name (as a string) of the variable,
+`ns` is the namespace, either an `environment` or a `Shiny::reactiveValues` 
+object. An example of how `flow_ns_sink` works with `R6flow` objects
+is presented below.
+
+```{r, results = 'hide'}
+fn <- function(x, y) { x + y }
+flowed_fn <- flow_fn(1, 2, fn = fn)
+sunk_flow <- flow_ns_sink(flowed_fn, "test_sink_flow", new.env()) 
+
+```
 
 ## Flow for data frame and grouped data frame
 
