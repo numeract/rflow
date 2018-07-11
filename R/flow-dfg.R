@@ -272,7 +272,7 @@ R6FlowDfg$set("public", "compute", function() {
 #' dfg_flow <- flow_dfg(iris, fn = dfg_fn)
 #' collected_dfg <- dfg_flow %>% collect()
 #' 
-#' # when a change in group is made, the flow object changes
+#' # when a change in group is made, the flow object updates its state
 #' iris[1, "Species"] <- "virginica"
 #' dfg_flow <- flow_dfg(iris, fn = dfg_fn)
 #' collected_dfg <- dfg_flow %>% collect()
