@@ -15,10 +15,14 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-rflow is a package that allows cacheing of functions in memory, on disk or in both memory and disk.
+rflow is a package that allows cacheing of functions in memory, 
+on disk or in both memory and disk.
 
 ## Problems addressed by rflow
-A common problem when processing data as part of a pipeline is avoiding unnecessary calculations. For example, if a function is called over and over with the same arguments, it should not recalculate the result each time but it should provide the cached (pre-computed) result.
+A common problem when processing data as part of a pipeline is 
+avoiding unnecessary calculations. For example, if a function is called 
+over and over with the same arguments, it should not recalculate 
+the result each time but it should provide the cached (pre-computed) result.
 
 While caching of the function output resolves the first problem, a second issue occurs when large data sets are being processed. In this case, hashing of the input arguments each time might take too long. This issue can be solved by hashing the data only once (as output) and then by noticing changes in the hash received by the downstream function. In other words, it is not the data that flows through the pipeline (as is the case with standard function), but hashes of the data.
 
@@ -68,6 +72,7 @@ information regarding the type of cache (memory, file or file-memory) used.
 Once an eddy is set, all data from the flows created afterwards is kept in it
 implicitly.
 Examples of eddy functions:
+
 ```{r}
 library(rflow)
 
@@ -111,7 +116,67 @@ new_eddy("custom_eddy",
 delete_eddy("custom_eddy")
 ```
 
+
 ## Flow functions
+Flow objects encapsulate the main functionality of the rflow package. They 
+allow cacheing of function output and return a pre-computed result for a 
+function called with the same arguments.
+Use cases of the flow fucntions are presented below
+```{r rflow_examples, results = 'hide'}
+library(rflow)
+
+use_eddy("rflow_examples")
+# the usage of flow_fn is strongly recommended
+# it creates an imiplicit cache of a function and of the given flow call
+# Note that the arguments fn, fn_id and flow_options must be named
+# fn_id allows the user to suppress 
+# console messages and  to explicitly indicate whether to reuse the old
+# cache or create a new one.
+fn1 <- function(x, y) { x + y + 1 }
+flowed_fn <- flow_fn(2, 3, fn = fn1)
+# by passing the created flow to the collect function, the pre-computed
+# is obtained
+collected_result <- flowed_fn %>%
+    collect() #6
+
+# if th previously created function changes its body,
+# the flow object will update its state 
+# when called again with the same arguments
+fn1 <- function(x, y) { x + y }
+flowed_fn <- flow_fn(2, 3, fn = fn1)
+# by passing the created flow to the collect function, the pre-computed
+# is obtained
+collected_result <- flowed_fn %>%
+    collect() #5
+
+# the flow object created previously can also be passed as argument to another 
+# flow_fn fn function
+fn2 <- function(x, y) { x * y }
+collected_pipe_result <- flowed_fn %>%
+    flow_fn(2, fn = fn2) %>%
+    collect() #10
+
+# make_flow_fn creates an explicit cache of a function. In order to use the 
+# functionality of an R6flow object, the output of make_flow_fn has to be 
+# collected first
+fn3 <- function(x, y) { x + y + 2 }
+make_flow_function <- make_flow_fn(fn3)
+rflow_function <- make_flow_function(2, 3)
+flow_result <- rflow_function %>% collect() #7
+
+# usage with rflow pipes
+make_flow_function2 <- make_flow_fn(fn2)
+collected_pipe_flow <- make_flow_function(1, 2) %>%
+    make_flow_function2(2) %>%
+    collect() #10
+
+# flow call creates an implicit cache of a function and of the given call.
+# it is not recommended to use it
+fn4 <- function(x, y) { x + y + 3 }
+call_flow <- flow_call(fn4(x = 1, y = 2))
+collected_result <- call_flow %>% collect() #6
+
+```
 
 ## Flow elements
 
