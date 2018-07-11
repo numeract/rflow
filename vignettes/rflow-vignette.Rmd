@@ -73,7 +73,7 @@ Once an eddy is set, all data from the flows created afterwards is kept in it
 implicitly.
 Examples of eddy functions:
 
-```{r}
+```{r, results = 'hide'}
 library(rflow)
 
 # create a new eddy
@@ -180,9 +180,28 @@ collected_result <- call_flow %>% collect() #6
 
 ## Flow elements
 
+Flow element represents an object containing cache information regarding 
+an element from a named list returned by a flowed function.
+
+```{r, results = 'hide'}
+library(rflow)
+
+use_eddy("elements_example")
+fn_list_output <- function(x, y) { list(x = x, y = y, Z = 6) }
+flowed_fn <- flow_fn(2, 3, fn = fn_list_output)  
+flow_element <- element(flowed_fn, "x")
+
+# the name of the element can be extracted by using the '[' selector 
+# as presented below
+element_name <- flowed_fn["x"]$elem_name
+# [1] "x"
+```
+
 ## Flow source
 
+
 ## Flow for data frame and grouped data frame
+
 
 ## Shiny
 
