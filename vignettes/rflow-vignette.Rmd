@@ -327,18 +327,53 @@ and  what to recompute. It is thus possible to use a series of reactive
 elements in Shiny to prevent expensive re-computations from taking place.
 
 
-```
-rv1 <- reactive({ 
-    ... input$x ... 
-})
+```{r, results = 'hide', eval=FALSE, message = FALSE}
+library(shiny)
+library(rflow)
+library(ggplot2)
+if (interactive()) {
+    options(device.ask.default = FALSE)
+    
+    app <- shinyApp(
+        ui = fluidPage(
+            numericInput("x", "x", 1),
+            numericInput("y", "y", 2),
+            plotOutput("plot")
+        ),
+        server = function(input, output) {
+            mtcars_head <- head(mtcars)
+            fn_add_x <- function(df, x) {
+                df$mpg <- df$mpg + x
+                df
+            }
+            fn_add_y <- function(df, y) {
+                df$cyl <- df$cyl + y
+                df
+            }
+            rv_fn_add_x <- reactive({
+                mtcars_head <- fn_add_x(mtcars_head, input$x)
+            })
+            rv_fn_add_y <- reactive({
+                rv_fn_add_x()
+                mtcars_head <- fn_add_y(mtcars_head, input$y)
+            })
+            rv_plot <- reactive({
+                mtcars_head <- mtcars_head %>%
+                  flow_fn(input$x, fn = rv_fn_add_x) %>%
+                  flow_fn(input$y, fn = rv_fn_add_y) %>%
+                  collect()
+              mtcars_plot <- ggplot2::aes(x = mtcars_head$cyl,
+                                          y = mtcars_head$mpg) +
+                             ggplot2::geom_point()
+              mtcars_plot
+            })
+            output$plot <- renderPlot(rv_plot())
+        }
+    )
+    
+    runApp(app)
+}
 
-rv2 <- reactive({ 
-    ... rv1() .... input$y ... 
-})
-
-rv3 <- reactive({ 
-    ... rv2() .... input$z ... 
-})
 ```
 
 The downside is that we need one reactive element for each function in the 
