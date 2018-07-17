@@ -48,7 +48,7 @@ as easy to use as in tidyverse.
 ## Basics
 Here's how a simple rflow pipeline works with functions.
 
-```{r, message=F, warning=F}
+```{r, message = F, warning = FALSE}
 library(rflow)
 
 x1 <- 10
@@ -86,7 +86,7 @@ information regarding the type of cache (memory, file or file-memory) used.
 Once an eddy is set, all data from the flows created afterwards is kept in it
 implicitly. Examples of eddy functions:
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 library(rflow)
 
 # create a new eddy
@@ -135,12 +135,12 @@ Flow functions encapsulate the main functionality of the `rflow` package. They
 allow cacheing of function output and return a pre-computed result for a 
 function called with the same arguments.
 Use cases of the flow functions are presented below
-```{r rflow_examples, results = 'hide'}
+```{r rflow_examples, results = 'hide', message = FALSE}
 library(rflow)
 
 use_eddy("rflow_examples")
 # the usage of flow_fn is strongly recommended
-# it creates an imiplicit cache of a function and of the given flow call
+# it creates an implicit cache of a function and of the given flow call
 # Note that the arguments fn, fn_id and flow_options must be named
 # fn_id allows the user to suppress 
 # console messages and  to explicitly indicate whether to reuse the old
@@ -150,7 +150,7 @@ flowed_fn <- flow_fn(2, 3, fn = fn1)
 # by passing the created flow to the collect function, the pre-computed
 # is obtained
 collected_result <- flowed_fn %>%
-    collect() #6
+    collect() # [1] 6
 
 # if th previously created function changes its body,
 # the flow object will update its state 
@@ -160,14 +160,14 @@ flowed_fn <- flow_fn(2, 3, fn = fn1)
 # by passing the created flow to the collect function, the pre-computed
 # is obtained
 collected_result <- flowed_fn %>%
-    collect() #5
+    collect() # [1] 5
 
 # the flow object created previously can also be passed as argument to another 
 # flow_fn fn function
 fn2 <- function(x, y) { x * y }
 collected_pipe_result <- flowed_fn %>%
     flow_fn(2, fn = fn2) %>%
-    collect() #10
+    collect() # [1] 10
 
 # make_flow_fn creates an explicit cache of a function. In order to use the 
 # functionality of an R6flow object, the output of make_flow_fn has to be 
@@ -175,28 +175,30 @@ collected_pipe_result <- flowed_fn %>%
 fn3 <- function(x, y) { x + y + 2 }
 make_flow_function <- make_flow_fn(fn3)
 rflow_function <- make_flow_function(2, 3)
-flow_result <- rflow_function %>% collect() #7
+flow_result <- rflow_function %>% 
+        collect() # [1] 7
 
 # usage with rflow pipes
 make_flow_function2 <- make_flow_fn(fn2)
 collected_pipe_flow <- make_flow_function(1, 2) %>%
     make_flow_function2(2) %>%
-    collect() #10
+    collect() # [1] 10
 
 # flow call creates an implicit cache of a function and of the given call.
 # it is not recommended to use it
 fn4 <- function(x, y) { x + y + 3 }
 call_flow <- flow_call(fn4(x = 1, y = 2))
-collected_result <- call_flow %>% collect() #6
+collected_result <- call_flow %>% 
+                collect() # [1] 6
 
 ```
 
 ## Flow elements
 
-Flow element represents an object containing cache information regarding 
+A `R6Flow` element represents an object containing cache information regarding 
 an element from a named list returned by a flowed function.
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 library(rflow)
 
 fn_list_output <- function(x, y) { list(x = x, y = y, Z = 6) }
@@ -216,7 +218,7 @@ This flow object does not throw an error if the `file_path` argument is missing,
 but it changes its state. Hece, it can be used to trigger a downstream
 flow object if the file is now present, changed or missing.
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 # write for the first time content in file and create flow
 file_temp <- tempfile(pattern = "example_source")
 write.csv(head(mtcars), file_temp, row.names = FALSE)
@@ -237,7 +239,7 @@ the argument `var_name` represents the name (as a string) of the variable,
 object. An example of how `flow_ns_sink` works with `R6flow` objects
 is presented below.
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 fn <- function(x, y) { x + y }
 flowed_fn <- flow_fn(1, 2, fn = fn)
 sunk_flow <- flow_ns_sink(flowed_fn, "test_sink_flow", new.env()) 
@@ -258,7 +260,7 @@ order to identify changes.
    
 Arguments `fn`, `fn_id` and `flow_options`, when provided,
 must be named. Argument `fn` must be always provided.
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 library(rflow)
 df_fn <- function(df, i = NULL) {
      if (is.null(i)) { 
@@ -290,7 +292,7 @@ it may drop some of the rows, but will not add any new rows.
 The function `fn` may return fewer or more columns or modify 
 existing columns as long it always returns a consistent schema
 (i.e., the same column data types and names) for all calls.
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE}
 dfg_fn <- function(df) {
     df <- df %>%
         dplyr::mutate(Sepal.Length = Sepal.Length * 2)
