@@ -331,49 +331,48 @@ elements in Shiny to prevent expensive re-computations from taking place.
 library(shiny)
 library(rflow)
 library(ggplot2)
-if (interactive()) {
-    options(device.ask.default = FALSE)
-    
-    app <- shinyApp(
-        ui = fluidPage(
-            numericInput("x", "x", 1),
-            numericInput("y", "y", 2),
-            plotOutput("plot")
-        ),
-        server = function(input, output) {
-            mtcars_head <- head(mtcars)
-            fn_add_x <- function(df, x) {
-                df$mpg <- df$mpg + x
-                df
-            }
-            fn_add_y <- function(df, y) {
-                df$cyl <- df$cyl + y
-                df
-            }
-            rv_fn_add_x <- reactive({
-                mtcars_head <- fn_add_x(mtcars_head, input$x)
-            })
-            rv_fn_add_y <- reactive({
-                rv_fn_add_x()
-                mtcars_head <- fn_add_y(mtcars_head, input$y)
-            })
-            rv_plot <- reactive({
-                mtcars_head <- mtcars_head %>%
-                  flow_fn(input$x, fn = rv_fn_add_x) %>%
-                  flow_fn(input$y, fn = rv_fn_add_y) %>%
-                  collect()
-              mtcars_plot <- ggplot2::aes(x = mtcars_head$cyl,
-                                          y = mtcars_head$mpg) +
-                             ggplot2::geom_point()
-              mtcars_plot
-            })
-            output$plot <- renderPlot(rv_plot())
-        }
-    )
-    
-    runApp(app)
+
+mtcars2 <- mtcars # copy of the original mtcars
+fn_add_mpg <- function(df, mpg) {
+    df$mpg <- df$mpg + mpg
+    df
+}
+fn_add_cyl <- function(df, cyl) {
+    df$cyl <- df$cyl + cyl
+    df
 }
 
+if (interactive()) {
+    options(device.ask.default = FALSE)
+
+    app <- shinyApp(
+        ui = fluidPage(
+            numericInput("mpg", "mpg", 1), #add mpg
+            numericInput("cyl", "cyl", 2), #add cyl
+            plotOutput("mpg_vs_cyl")
+        ),
+        server = function(input, output) {
+            rv_fn_add_mpg <- reactive({ #add mpg
+                # use two reactives in order to not re-calculate
+                # mtcars2 each time the input changes
+                fn_add_mpg(mtcars2, input$mpg)
+            })
+            # it only changes when cyl changes its value
+            rv_fn_add_cyl <- reactive({
+                fn_add_cyl(rv_fn_add_mpg(), input$cyl)
+            })
+            rv_plot <- reactive({
+                mtcars2 <- rv_fn_add_cyl()
+                mtcars_plot <- ggplot2::ggplot(mtcars2, aes(x = cyl, y = mpg)) +
+                    ggplot2::geom_point()
+                mtcars_plot
+            })
+            output$mpg_vs_cyl <- renderPlot(rv_plot())
+        }
+    )
+
+    runApp(app)
+}
 ```
 
 The downside is that we need one reactive element for each function in the 
@@ -381,13 +380,50 @@ pipeline - this makes data processing dependent on UI / Shiny. Using `rflow`,
 we can separate the UI from the data processing, maintaining the caching
 not only for the current state but for all previously computed states.
 
-```
-rv <- reactive({ 
-    rf1(input$x, ...) %>%
-    rf2(input$y, ...) %>%
-    rf3(input$z, ...) %>%
-    collect()
-})
+```{r, results = 'hide', eval=FALSE, message = FALSE}
+library(shiny)
+library(rflow)
+library(ggplot2)
+
+mtcars2 <- mtcars # copy of the original mtcars
+fn_add_mpg <- function(df, mpg) {
+    df$mpg <- df$mpg + mpg
+    df
+}
+fn_add_cyl <- function(df, cyl) {
+    df$cyl <- df$cyl + cyl
+    df
+}
+
+if (interactive()) {
+    options(device.ask.default = FALSE)
+    
+    app <- shinyApp(
+        ui = fluidPage(
+            numericInput("mpg", "mpg", 1), #add mpg
+            numericInput("cyl", "cyl", 2), #add cyl
+            plotOutput("mpg_vs_cyl")
+        ),
+        server = function(input, output) {
+            # reacts to both mpg and cyl changes simultaneously but if nothing 
+            # has changed, the function result is taken from cache. 
+            # If only one value has changed, that value will be recalculated
+            
+            rv_plot <- reactive({
+                mtcars2 <- mtcars2 %>%
+                    flow_fn(input$mpg, fn = fn_add_mpg) %>%
+                    flow_fn(input$cyl, fn = fn_add_cyl) %>%
+                    collect() 
+                mtcars_plot <- ggplot2::ggplot(mtcars2, aes(x = cyl, y = mpg)) +
+                    ggplot2::geom_point()
+                mtcars_plot
+            })
+            output$mpg_vs_cyl <- renderPlot(rv_plot())
+        }
+    )
+    
+    runApp(app)
+}
 ```
 
 While a similar workflow can be achieved with package `memoise`, it suffers from
