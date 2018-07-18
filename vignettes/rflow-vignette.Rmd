@@ -332,7 +332,6 @@ library(shiny)
 library(rflow)
 library(ggplot2)
 
-mtcars2 <- mtcars # copy of the original mtcars
 fn_add_mpg <- function(df, mpg) {
     df$mpg <- df$mpg + mpg
     df
@@ -355,7 +354,7 @@ if (interactive()) {
             rv_fn_add_mpg <- reactive({ #add mpg
                 # use two reactives in order to not re-calculate
                 # mtcars2 each time the input changes
-                fn_add_mpg(mtcars2, input$mpg)
+                fn_add_mpg(mtcars, input$mpg)
             })
             # it only changes when cyl changes its value
             rv_fn_add_cyl <- reactive({
@@ -385,7 +384,6 @@ library(shiny)
 library(rflow)
 library(ggplot2)
 
-mtcars2 <- mtcars # copy of the original mtcars
 fn_add_mpg <- function(df, mpg) {
     df$mpg <- df$mpg + mpg
     df
@@ -410,7 +408,7 @@ if (interactive()) {
             # If only one value has changed, that value will be recalculated
             
             rv_plot <- reactive({
-                mtcars2 <- mtcars2 %>%
+                mtcars2 <- mtcars %>%
                     flow_fn(input$mpg, fn = fn_add_mpg) %>%
                     flow_fn(input$cyl, fn = fn_add_cyl) %>%
                     collect() 
