@@ -4,7 +4,8 @@
 \alias{flow_fn}
 \title{Implicit cache of a function and of the given call.}
 \usage{
-flow_fn(..., fn = NULL, fn_id = NULL, flow_options = get_flow_options())
+flow_fn(..., fn = NULL, fn_id = NULL,
+  flow_options = get_flow_options())
 }
 \arguments{
 \item{...}{Named arguments to pass to \code{fn}.}

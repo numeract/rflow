@@ -7,8 +7,8 @@
 \alias{get_flow_options}
 \title{flow options used to initialize or update an eddy.}
 \usage{
-default_flow_options(excluded_arg = character(), split_bare_list = TRUE,
-  split_dataframe = FALSE, split_fn = NULL)
+default_flow_options(excluded_arg = character(),
+  split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
 
 set_flow_options(excluded_arg = NULL, split_bare_list = NULL,
   split_dataframe = NULL, split_fn = NULL, eddy = get_current_eddy())

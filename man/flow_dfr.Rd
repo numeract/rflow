@@ -4,7 +4,8 @@
 \alias{flow_dfr}
 \title{Row-wise caching of operations on data frame.}
 \usage{
-flow_dfr(..., fn = NULL, fn_id = NULL, flow_options = get_flow_options())
+flow_dfr(..., fn = NULL, fn_id = NULL,
+  flow_options = get_flow_options())
 }
 \arguments{
 \item{...}{Named arguments to pass to \code{fn}. The first argument must be 
