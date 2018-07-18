@@ -1,0 +1,19 @@
+reference:
+    - title: Flow Functions
+      contents:
+      - starts_with("flow_")
+      - make_flow_fn
+      - collect
+      - element
+      - is_flow
+      - is_flow_fn
+      - is_not_flow_fn
+      - is_current
+      - is_valid
+    - title: Eddy Functions
+      contents:
+       - ends_with("eddy")
+    - title: Cache Functions
+      contents:
+      - starts_with("cache_")
+      - ends_with("cache")   

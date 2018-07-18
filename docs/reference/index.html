@@ -123,65 +123,11 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <h2 id="section-flow-functions" class="hasAnchor"><a href="#section-flow-functions" class="anchor"></a>Flow Functions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
-        
-        <td>
-          <p><code><a href="cache_file.html">cache_file()</a></code> </p>
-        </td>
-        <td><p>Get the file only cache engine.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cache_memory.html">cache_memory()</a></code> </p>
-        </td>
-        <td><p>Get the memory only cache engine.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cache_memory_file.html">cache_memory_file()</a></code> </p>
-        </td>
-        <td><p>Get the memory-file cache engine.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="collect.R6Flow.html">collect(<i>&lt;R6Flow&gt;</i>)</a></code> <code><a href="collect.R6Flow.html">collect(<i>&lt;Element&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Get the data from an <code>R6Flow</code> or an <code>Element</code> object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="compute.R6Flow.html">compute(<i>&lt;R6Flow&gt;</i>)</a></code> <code><a href="compute.R6Flow.html">compute(<i>&lt;Element&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Trigger computation for an <code>R6Flow</code> or an <code>Element</code> object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="default_cache.html">default_cache()</a></code> </p>
-        </td>
-        <td><p>Get the default cache engine.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="default_eddy_env.html">default_eddy_env()</a></code> </p>
-        </td>
-        <td><p>Get the default binding environment that keeps the eddies.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="delete_eddy.html">delete_eddy()</a></code> </p>
-        </td>
-        <td><p>Delete eddy and ALL its data from ALL cache layers (memory and/or disk).</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="element.html">element()</a></code> <code><a href="element.html">`[`(<i>&lt;R6Flow&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Extract an element from an <code>R6Flow</code> object.</p></td>
-      </tr><tr>
         
         <td>
           <p><code><a href="flow_call.html">flow_call()</a></code> </p>
@@ -226,27 +172,21 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="forget.html">forget()</a></code> </p>
+          <p><code><a href="make_flow_fn.html">make_flow_fn()</a></code> </p>
         </td>
-        <td><p>Forgets the computation for the current state.</p></td>
+        <td><p>Explicit cache of a function.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_current_eddy.html">get_current_eddy()</a></code> </p>
+          <p><code><a href="collect.R6Flow.html">collect(<i>&lt;R6Flow&gt;</i>)</a></code> <code><a href="collect.R6Flow.html">collect(<i>&lt;Element&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Get the current eddy for a given (or default) environment.</p></td>
+        <td><p>Get the data from an <code>R6Flow</code> or an <code>Element</code> object.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_eddy.html">get_eddy()</a></code> </p>
+          <p><code><a href="element.html">element()</a></code> <code><a href="element.html">`[`(<i>&lt;R6Flow&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Retrieves an eddy.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="is_current.html">is_current()</a></code> </p>
-        </td>
-        <td><p>Does the flow have a "current" state?</p></td>
+        <td><p>Extract an element from an <code>R6Flow</code> object.</p></td>
       </tr><tr>
         
         <td>
@@ -269,15 +209,41 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="is_valid.html">is_valid()</a></code> </p>
+          <p><code><a href="is_current.html">is_current()</a></code> </p>
         </td>
-        <td><p>Is the current state valid (stored in the cache)?</p></td>
+        <td><p>Does the flow have a "current" state?</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="make_flow_fn.html">make_flow_fn()</a></code> </p>
+          <p><code><a href="is_valid.html">is_valid()</a></code> </p>
         </td>
-        <td><p>Explicit cache of a function.</p></td>
+        <td><p>Is the current state valid (stored in the cache)?</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-eddy-functions" class="hasAnchor"><a href="#section-eddy-functions" class="anchor"></a>Eddy Functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="delete_eddy.html">delete_eddy()</a></code> </p>
+        </td>
+        <td><p>Delete eddy and ALL its data from ALL cache layers (memory and/or disk).</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_current_eddy.html">get_current_eddy()</a></code> </p>
+        </td>
+        <td><p>Get the current eddy for a given (or default) environment.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_eddy.html">get_eddy()</a></code> </p>
+        </td>
+        <td><p>Retrieves an eddy.</p></td>
       </tr><tr>
         
         <td>
@@ -293,15 +259,41 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="to_ns.html">to_ns()</a></code> </p>
-        </td>
-        <td><p>Assigns a value to a variable in a name space.</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="use_eddy.html">use_eddy()</a></code> </p>
         </td>
         <td><p>Convenience function that creates a new eddy or re-uses it if present.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-cache-functions" class="hasAnchor"><a href="#section-cache-functions" class="anchor"></a>Cache Functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="cache_file.html">cache_file()</a></code> </p>
+        </td>
+        <td><p>Get the file only cache engine.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="cache_memory.html">cache_memory()</a></code> </p>
+        </td>
+        <td><p>Get the memory only cache engine.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="cache_memory_file.html">cache_memory_file()</a></code> </p>
+        </td>
+        <td><p>Get the memory-file cache engine.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="default_cache.html">default_cache()</a></code> </p>
+        </td>
+        <td><p>Get the default cache engine.</p></td>
       </tr>
     </tbody>
     </table>
@@ -310,7 +302,9 @@
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#section-flow-functions">Flow Functions</a></li>
+      <li><a href="#section-eddy-functions">Eddy Functions</a></li>
+      <li><a href="#section-cache-functions">Cache Functions</a></li>
     </ul>
   </div>
 </div>

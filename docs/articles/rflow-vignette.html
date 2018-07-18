@@ -337,7 +337,6 @@ collected_dfg2 &lt;-<span class="st"> </span>dfg_flow <span class="op">%&gt;%</s
 <span class="kw">library</span>(rflow)
 <span class="kw">library</span>(ggplot2)
 
-mtcars2 &lt;-<span class="st"> </span>mtcars <span class="co"># copy of the original mtcars</span>
 fn_add_mpg &lt;-<span class="st"> </span><span class="cf">function</span>(df, mpg) {
     df<span class="op">$</span>mpg &lt;-<span class="st"> </span>df<span class="op">$</span>mpg <span class="op">+</span><span class="st"> </span>mpg
     df
@@ -360,7 +359,7 @@ fn_add_cyl &lt;-<span class="st"> </span><span class="cf">function</span>(df, cy
             rv_fn_add_mpg &lt;-<span class="st"> </span><span class="kw">reactive</span>({ <span class="co">#add mpg</span>
                 <span class="co"># use two reactives in order to not re-calculate</span>
                 <span class="co"># mtcars2 each time the input changes</span>
-                <span class="kw">fn_add_mpg</span>(mtcars2, input<span class="op">$</span>mpg)
+                <span class="kw">fn_add_mpg</span>(mtcars, input<span class="op">$</span>mpg)
             })
             <span class="co"># it only changes when cyl changes its value</span>
             rv_fn_add_cyl &lt;-<span class="st"> </span><span class="kw">reactive</span>({
@@ -383,7 +382,6 @@ fn_add_cyl &lt;-<span class="st"> </span><span class="cf">function</span>(df, cy
 <span class="kw">library</span>(rflow)
 <span class="kw">library</span>(ggplot2)
 
-mtcars2 &lt;-<span class="st"> </span>mtcars <span class="co"># copy of the original mtcars</span>
 fn_add_mpg &lt;-<span class="st"> </span><span class="cf">function</span>(df, mpg) {
     df<span class="op">$</span>mpg &lt;-<span class="st"> </span>df<span class="op">$</span>mpg <span class="op">+</span><span class="st"> </span>mpg
     df
@@ -408,7 +406,7 @@ fn_add_cyl &lt;-<span class="st"> </span><span class="cf">function</span>(df, cy
             <span class="co"># If only one value has changed, that value will be recalculated</span>
             
             rv_plot &lt;-<span class="st"> </span><span class="kw">reactive</span>({
-                mtcars2 &lt;-<span class="st"> </span>mtcars2 <span class="op">%&gt;%</span>
+                mtcars2 &lt;-<span class="st"> </span>mtcars <span class="op">%&gt;%</span>
 <span class="st">                    </span><span class="kw"><a href="../reference/flow_fn.html">flow_fn</a></span>(input<span class="op">$</span>mpg, <span class="dt">fn =</span> fn_add_mpg) <span class="op">%&gt;%</span>
 <span class="st">                    </span><span class="kw"><a href="../reference/flow_fn.html">flow_fn</a></span>(input<span class="op">$</span>cyl, <span class="dt">fn =</span> fn_add_cyl) <span class="op">%&gt;%</span>
 <span class="st">                    </span><span class="kw"><a href="../reference/collect.R6Flow.html">collect</a></span>() 
