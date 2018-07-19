@@ -5,7 +5,7 @@ Version: 0.5.3
 Authors@R: c(
     person("Mike", "Badescu", email = "mike.badescu@numeract.com", role = c("aut", "cre")),
     person("Ana-Maria", "Niculescu", role = "aut"),
-    person("Teodor", "Ciuraru", role = "aut"),
+    person("Teodor", "Ciuraru", role = "ctb"),
     person("Numeract LLC", role = "cph")
     )
 Maintainer: Mike Badescu <mike.badescu@numeract.com>
