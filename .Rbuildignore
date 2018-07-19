@@ -6,3 +6,4 @@
 ^.lintr$
 ^_pkgdown\.yml$
 ^docs$
+^codemeta\.json$
