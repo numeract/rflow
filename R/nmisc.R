@@ -21,14 +21,14 @@ keep_if_not_in <- function(x, y) {
 keep_at <- function(.x, .at) {
     
     if (length(.at) == 0L) return(.x[0L])
-    if (any(is.na(.at))) stop("`.at` must not contain NA's") # nocov
+    if (any(is.na(.at))) stop("`.at` must not contain NA's")
     
     .p <- if (is.character(.at)) {
         names(.x) %in% .at
     } else if (is.numeric(.at)) {
         seq_along(.x) %in% as.integer(.at)
     } else {
-        stop("`.at` must be character (names) or a numeric (positions)") # nocov
+        stop("`.at` must be character (names) or a numeric (positions)")
     }
     
     purrr::keep(.x, .p)
@@ -38,14 +38,14 @@ keep_at <- function(.x, .at) {
 discard_at <- function(.x, .at) {
     
     if (length(.at) == 0L) return(.x)
-    if (any(is.na(.at))) stop("`.at` must not contain NA's") # nocov
+    if (any(is.na(.at))) stop("`.at` must not contain NA's")
     
     .p <- if (is.character(.at)) {
         names(.x) %in% .at
     } else if (is.numeric(.at)) {
         seq_along(.x) %in% as.integer(.at)
     } else {
-        stop("`.at` must be character (names) or a numeric (positions)") # nocov
+        stop("`.at` must be character (names) or a numeric (positions)")
     }
     
     purrr::discard(.x, .p)

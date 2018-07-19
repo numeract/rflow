@@ -110,7 +110,7 @@ R6CacheMemory$set("public", "get_data", function(group, key) {
     kv_lst <- base::get(group, envir = self$cache_env, inherits = FALSE)
     
     if (!(key %in% names(kv_lst))) {
-        stop("key ", key, "not found for group ", group) # nocov
+        stop("key ", key, "not found for group ", group)
     }
     
     kv_lst[[key]]
