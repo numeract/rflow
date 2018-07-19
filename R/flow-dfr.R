@@ -240,7 +240,7 @@ R6FlowDfr$set("public", "save", function() {
 }, overwrite = TRUE)
 
 
-#' Row-wise caching of operations on data frame.
+#' Row-wise caching of operations on data frame
 #' 
 #' @details 
 #'   Function \code{fn} operates on a data frame received as argument.

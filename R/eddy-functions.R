@@ -4,7 +4,7 @@
 # !diagnostics suppress=., .EDDY_ENV
 
 
-#' Get the default binding environment that keeps the eddies.
+#' Get the default binding environment that keeps the eddies
 #' 
 #' @return An environment.
 #' 
@@ -14,7 +14,7 @@ default_eddy_env <- function() {
 }
 
 
-#' Create a new eddy. Does not affect the current eddy.
+#' Create a new eddy. Does not affect the current eddy
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param cache A cache object returned by one of the \code{cache} functions.
@@ -56,7 +56,7 @@ new_eddy <- function(eddy_name,
 }
 
 
-#' Retrieves an eddy. 
+#' Retrieves an eddy
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param eddy_env The environment in which the \code{eddy}is put (bound).
@@ -87,7 +87,7 @@ get_eddy <- function(eddy_name,
 }
 
 
-#' Convenience function that creates a new eddy or re-uses it if present.
+#' Convenience function that creates a new eddy or re-uses it if present
 #' 
 #' @param eddy_name Unique name for the eddy to allow retrieving later.
 #' @param cache A cache object returned by one of the \code{cache} functions.
@@ -148,7 +148,7 @@ use_eddy <- function(eddy_name,
 }
 
 
-#' Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
+#' Delete eddy and ALL its data from ALL cache layers (memory and/or disk)
 #' 
 #' @param eddy_name Unique name of the \code{eddy} to be deleted.
 #' @param eddy_env The environment in which the eddy is put (bound).
@@ -186,7 +186,7 @@ delete_eddy <- function(eddy_name,
 }
 
 
-#' Set the current eddy to be used in future flow calls.
+#' Set the current eddy to be used in future flow calls
 #' 
 #' @param eddy_name Unique name for the \code{eddy} to to be set as current.
 #' @param eddy_env The environment in which the eddy is put (bound).
@@ -217,7 +217,7 @@ set_current_eddy <- function(eddy_name,
 }    
 
 
-#' Get the current eddy for a given (or default) environment.
+#' Get the current eddy for a given (or default) environment
 #' 
 #' If the current eddy was not previously set with \code{set_current_eddy},
 #'   it creates a new eddy that uses \code{default_cache()}.
@@ -257,7 +257,7 @@ get_current_eddy <- function(eddy_env = default_eddy_env()) {
 }
 
 
-#' flow options used to initialize or update an eddy.
+#' flow options used to initialize or update an eddy
 #' 
 #' @details
 #' If used in \code{set_flow_options}, these options will be stored in 

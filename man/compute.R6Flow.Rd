@@ -4,7 +4,7 @@
 \alias{compute}
 \alias{compute.R6Flow}
 \alias{compute.Element}
-\title{Trigger computation for an \code{R6Flow} or an \code{Element} object.}
+\title{Trigger computation for an \code{R6Flow} or an \code{Element} object}
 \usage{
 \method{compute}{R6Flow}(x, ...)
 
@@ -19,7 +19,7 @@
 Logical, whether the result is available to be collected.
 }
 \description{
-Trigger computation for an \code{R6Flow} or an \code{Element} object.
+Trigger computation for an \code{R6Flow} or an \code{Element} object
 }
 \details{
 Unlike \code{collect}, it does not trigger an error if it fails 

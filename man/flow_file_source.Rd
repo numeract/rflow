@@ -2,7 +2,7 @@
 % Please edit documentation in R/source-file.R
 \name{flow_file_source}
 \alias{flow_file_source}
-\title{Creates a flow object that watches one or more files.}
+\title{Creates a flow object that watches one or more files}
 \usage{
 flow_file_source(file_path, flow_options = get_flow_options())
 }
@@ -17,7 +17,7 @@ All options except \code{eddy} are ignored.}
 The flow object.
 }
 \description{
-Creates a flow object that watches one or more files.
+Creates a flow object that watches one or more files
 }
 \details{
 This flow object does not throw an error if the \code{file_path} is missing, 

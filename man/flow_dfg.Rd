@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-dfg.R
 \name{flow_dfg}
 \alias{flow_dfg}
-\title{Group-wise caching of operations on data frame.}
+\title{Group-wise caching of operations on data frame}
 \usage{
 flow_dfg(..., fn = NULL, fn_id = NULL, group_by = NULL,
   flow_options = get_flow_options())
@@ -30,7 +30,7 @@ already present will be ignored.}
 The flow object.
 }
 \description{
-Group-wise caching of operations on data frame.
+Group-wise caching of operations on data frame
 }
 \details{
 Function \code{fn} will receive only the rows and groups changed; 

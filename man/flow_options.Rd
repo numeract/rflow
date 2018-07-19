@@ -5,7 +5,7 @@
 \alias{default_flow_options}
 \alias{set_flow_options}
 \alias{get_flow_options}
-\title{flow options used to initialize or update an eddy.}
+\title{flow options used to initialize or update an eddy}
 \usage{
 default_flow_options(excluded_arg = character(),
   split_bare_list = TRUE, split_dataframe = FALSE, split_fn = NULL)
@@ -58,7 +58,7 @@ For \code{get_flow_options}, a list of options
 including the eddy.
 }
 \description{
-flow options used to initialize or update an eddy.
+flow options used to initialize or update an eddy
 
 default flow options used to initialize or update an eddy.
 }

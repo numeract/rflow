@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{get_eddy}
 \alias{get_eddy}
-\title{Retrieves an eddy.}
+\title{Retrieves an eddy}
 \usage{
 get_eddy(eddy_name, eddy_env = default_eddy_env())
 }
@@ -15,7 +15,7 @@ get_eddy(eddy_name, eddy_env = default_eddy_env())
 An eddy object to be used for storing flows.
 }
 \description{
-Retrieves an eddy.
+Retrieves an eddy
 }
 \examples{
 new_eddy("eddy_name")

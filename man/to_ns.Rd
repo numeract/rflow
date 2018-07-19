@@ -2,7 +2,7 @@
 % Please edit documentation in R/sink-ns.R
 \name{to_ns}
 \alias{to_ns}
-\title{Assigns a value to a variable in a name space.}
+\title{Assigns a value to a variable in a name space}
 \usage{
 to_ns(x, var_name, ns)
 }
@@ -18,5 +18,5 @@ to_ns(x, var_name, ns)
 The initial value, \code{x}
 }
 \description{
-Assigns a value to a variable in a name space.
+Assigns a value to a variable in a name space
 }

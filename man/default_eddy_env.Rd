@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{default_eddy_env}
 \alias{default_eddy_env}
-\title{Get the default binding environment that keeps the eddies.}
+\title{Get the default binding environment that keeps the eddies}
 \usage{
 default_eddy_env()
 }
@@ -10,5 +10,5 @@ default_eddy_env()
 An environment.
 }
 \description{
-Get the default binding environment that keeps the eddies.
+Get the default binding environment that keeps the eddies
 }

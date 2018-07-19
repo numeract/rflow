@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{use_eddy}
 \alias{use_eddy}
-\title{Convenience function that creates a new eddy or re-uses it if present.}
+\title{Convenience function that creates a new eddy or re-uses it if present}
 \usage{
 use_eddy(eddy_name, cache = default_cache(),
   flow_options = default_flow_options(), reuse_if_present = TRUE,
@@ -28,7 +28,7 @@ the same name, if already present, even if the \code{flow_options}
 An eddy object to be used for storing flows.
 }
 \description{
-Convenience function that creates a new eddy or re-uses it if present.
+Convenience function that creates a new eddy or re-uses it if present
 }
 \examples{
 use_eddy("use_eddy")

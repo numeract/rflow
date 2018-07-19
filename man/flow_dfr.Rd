@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-dfr.R
 \name{flow_dfr}
 \alias{flow_dfr}
-\title{Row-wise caching of operations on data frame.}
+\title{Row-wise caching of operations on data frame}
 \usage{
 flow_dfr(..., fn = NULL, fn_id = NULL,
   flow_options = get_flow_options())
@@ -25,7 +25,7 @@ indicate whether to reuse the old cache or create a new one.}
 The flow object.
 }
 \description{
-Row-wise caching of operations on data frame.
+Row-wise caching of operations on data frame
 }
 \details{
 Function \code{fn} operates on a data frame received as argument.

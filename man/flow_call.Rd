@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{flow_call}
 \alias{flow_call}
-\title{Implicit cache of a function and of the given call.}
+\title{Implicit cache of a function and of the given call}
 \usage{
 flow_call(fn_call, fn_id = NULL, flow_options = get_flow_options())
 }
@@ -21,7 +21,7 @@ console messages and  to explicitly indicate whether to reuse the old
 The flow object.
 }
 \description{
-Implicit cache of a function and of the given call.
+Implicit cache of a function and of the given call
 }
 \examples{
 fn <- function(x, y) { x + y + 3 }

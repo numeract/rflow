@@ -4,7 +4,7 @@
 # !diagnostics suppress=., 
 
 
-#' Explicit cache of a function.
+#' Explicit cache of a function
 #' @details 
 #' In order to use the functionality of an \code{R6Flow} object, the output of 
 #' \code{make_flow_fn} has to be collected first.
@@ -58,7 +58,7 @@ make_flow_fn <- function(fn,
 }
 
 
-#' Implicit cache of a function and of the given call.
+#' Implicit cache of a function and of the given call
 #' 
 #' @details 
 #'   Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,
@@ -118,7 +118,7 @@ flow_fn <- function(...,
 }
 
 
-#' Implicit cache of a function and of the given call.
+#' Implicit cache of a function and of the given call
 #' 
 #' @param fn_call Function call to be processed.
 #' @param fn_id Character or Integer. Optional id to uniquely identify 
@@ -174,7 +174,7 @@ flow_call <- function(fn_call,
 NULL
 
 
-#' Get the data from an \code{R6Flow} or an \code{Element} object.
+#' Get the data from an \code{R6Flow} or an \code{Element} object
 #' 
 #' @param x A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' @param ... Name of the element of the output data to be selected. 
@@ -237,7 +237,7 @@ collect.Element <- function(x, ...) {
 NULL
 
 
-#' Trigger computation for an \code{R6Flow} or an \code{Element} object.
+#' Trigger computation for an \code{R6Flow} or an \code{Element} object
 #' 
 #' @details 
 #'    Unlike \code{collect}, it does not trigger an error if it fails 
@@ -275,7 +275,7 @@ compute.Element <- function(x, ...) {
 }
 
 
-#' Extract an element from an \code{R6Flow} object.
+#' Extract an element from an \code{R6Flow} object
 #' 
 #' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' @param name Element of the output data to be selected. The default is 
@@ -316,7 +316,7 @@ element <- function(flow, name = NULL) {
 }
 
 
-#' Does the flow have a "current" state? 
+#' Checks if the flow has a"current" state
 #' 
 #' If there is no current state, e.g. right after \code{\link{make_flow_fn}},
 #'   the flow is "not flowing", it is preventing downstream flows
@@ -368,7 +368,7 @@ index_of_state <- function(flow, state) {
 }
 
 
-#' Is the current state valid (stored in the cache)?
+#' Checks if the current state is valid (stored in the cache)
 #' 
 #' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' @param state A flow state. It can be either a valid state 
@@ -392,7 +392,7 @@ is_valid <- function(flow, state = "current") {
 }
 
 
-#' Forgets the computation for the current state.
+#' Forgets the computation for the current state
 #' 
 #' @param flow A flow object, e.g. as returned by \code{\link{flow_fn}}.
 #' @param state A flow state. It can be either a valid state 
@@ -427,7 +427,7 @@ forget <- function(flow, state = "current") {
 }
 
 
-#' Is the object a flow object or a flow element?
+#' Checks if the object is flow object or a flow element
 #' 
 #' @param x An object.
 #' 
@@ -445,7 +445,7 @@ is_flow <- function(x) {
 }
 
 
-#' Is the function a flow function (as returned by \code{make_flow_fn})?
+#' Checks if the function is flow function (as returned by \code{make_flow_fn})
 #' 
 #' @param fn A function.
 #' 

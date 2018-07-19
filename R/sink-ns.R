@@ -195,7 +195,7 @@ R6NsSink$set("public", "is_valid_at_index", function(index = NULL) {
 }, overwrite = TRUE)
 
 
-#' Assigns a value to a variable in a name space.
+#' Assigns a value to a variable in a name space
 #' 
 #' @param x Value to assign.
 #' @param var_name The name (as string) of the variable.

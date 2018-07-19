@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{delete_eddy}
 \alias{delete_eddy}
-\title{Delete eddy and ALL its data from ALL cache layers (memory and/or disk).}
+\title{Delete eddy and ALL its data from ALL cache layers (memory and/or disk)}
 \usage{
 delete_eddy(eddy_name, eddy_env = default_eddy_env())
 }
@@ -15,7 +15,7 @@ delete_eddy(eddy_name, eddy_env = default_eddy_env())
 Nothing (\code{NULL}).
 }
 \description{
-Delete eddy and ALL its data from ALL cache layers (memory and/or disk).
+Delete eddy and ALL its data from ALL cache layers (memory and/or disk)
 }
 \examples{
 new_eddy("eddy_new")

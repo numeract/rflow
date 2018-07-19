@@ -4,7 +4,7 @@
 \alias{collect}
 \alias{collect.R6Flow}
 \alias{collect.Element}
-\title{Get the data from an \code{R6Flow} or an \code{Element} object.}
+\title{Get the data from an \code{R6Flow} or an \code{Element} object}
 \usage{
 \method{collect}{R6Flow}(x, ...)
 
@@ -23,7 +23,7 @@ Ignored if \code{x} is an \code{Element} object.}
 Data associated with the output of the function.
 }
 \description{
-Get the data from an \code{R6Flow} or an \code{Element} object.
+Get the data from an \code{R6Flow} or an \code{Element} object
 }
 \examples{
 fn <- function(x, y) { x + y + 4 }

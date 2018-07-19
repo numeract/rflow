@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{new_eddy}
 \alias{new_eddy}
-\title{Create a new eddy. Does not affect the current eddy.}
+\title{Create a new eddy. Does not affect the current eddy}
 \usage{
 new_eddy(eddy_name, cache = default_cache(),
   flow_options = default_flow_options(), eddy_env = default_eddy_env())
@@ -21,7 +21,7 @@ do not affect the \code{eddy}, they are only stored for ease of access.}
 An eddy object to be used for storing flows.
 }
 \description{
-Create a new eddy. Does not affect the current eddy.
+Create a new eddy. Does not affect the current eddy
 }
 \examples{
 new_eddy("new_eddy_name")

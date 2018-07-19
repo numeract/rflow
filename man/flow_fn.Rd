@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{flow_fn}
 \alias{flow_fn}
-\title{Implicit cache of a function and of the given call.}
+\title{Implicit cache of a function and of the given call}
 \usage{
 flow_fn(..., fn = NULL, fn_id = NULL,
   flow_options = get_flow_options())
@@ -24,7 +24,7 @@ indicate whether to reuse the old \code{cache} or create a new one.}
 The flow object.
 }
 \description{
-Implicit cache of a function and of the given call.
+Implicit cache of a function and of the given call
 }
 \details{
 Arguments \code{fn}, \code{fn_id} and \code{flow_options}, when provided,

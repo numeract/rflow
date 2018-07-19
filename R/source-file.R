@@ -46,7 +46,7 @@ R6FileSource$set("public", "initialize", function(
 }, overwrite = TRUE)
 
 
-#' Creates a flow object that watches one or more files.
+#' Creates a flow object that watches one or more files
 #' 
 #' @details 
 #'   This flow object does not throw an error if the \code{file_path} is missing, 

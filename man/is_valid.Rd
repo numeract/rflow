@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{is_valid}
 \alias{is_valid}
-\title{Is the current state valid (stored in the cache)?}
+\title{Checks if the current state is valid (stored in the cache)}
 \usage{
 is_valid(flow, state = "current")
 }
@@ -18,7 +18,7 @@ A logical value, whether the value can be obtained without
   triggering computation.
 }
 \description{
-Is the current state valid (stored in the cache)?
+Checks if the current state is valid (stored in the cache)
 }
 \examples{
 fn <- function(x, y) { x + y + 9 }

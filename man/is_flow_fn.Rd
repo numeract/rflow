@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{is_flow_fn}
 \alias{is_flow_fn}
-\title{Is the function a flow function (as returned by \code{make_flow_fn})?}
+\title{Checks if the function is flow function (as returned by \code{make_flow_fn})}
 \usage{
 is_flow_fn(fn)
 }
@@ -13,7 +13,7 @@ is_flow_fn(fn)
 A logical value, whether \code{fn} is a flow function.
 }
 \description{
-Is the function a flow function (as returned by \code{make_flow_fn})?
+Checks if the function is flow function (as returned by \code{make_flow_fn})
 }
 \examples{
 fn <- function(x, y) { x + y + 12 }

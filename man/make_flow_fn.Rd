@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{make_flow_fn}
 \alias{make_flow_fn}
-\title{Explicit cache of a function.}
+\title{Explicit cache of a function}
 \usage{
 make_flow_fn(fn, fn_id = NULL, flow_options = get_flow_options())
 }
@@ -20,7 +20,7 @@ indicate whether to reuse the old \code{cache} or create a new one.}
 The cached version of the function.
 }
 \description{
-Explicit cache of a function.
+Explicit cache of a function
 }
 \details{
 In order to use the functionality of an \code{R6Flow} object, the output of 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{get_current_eddy}
 \alias{get_current_eddy}
-\title{Get the current eddy for a given (or default) environment.}
+\title{Get the current eddy for a given (or default) environment}
 \usage{
 get_current_eddy(eddy_env = default_eddy_env())
 }

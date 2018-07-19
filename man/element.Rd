@@ -3,7 +3,7 @@
 \name{element}
 \alias{element}
 \alias{[.R6Flow}
-\title{Extract an element from an \code{R6Flow} object.}
+\title{Extract an element from an \code{R6Flow} object}
 \usage{
 element(flow, name = NULL)
 
@@ -20,7 +20,7 @@ input object.}
 An object with class \code{Element}.
 }
 \description{
-Extract an element from an \code{R6Flow} object.
+Extract an element from an \code{R6Flow} object
 }
 \examples{
 fn <- function(x, y) { list(x = x, y = y, Z = 6) }

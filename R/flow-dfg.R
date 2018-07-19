@@ -225,7 +225,7 @@ R6FlowDfg$set("public", "compute", function() {
 }, overwrite = TRUE)
 
 
-#' Group-wise caching of operations on data frame.
+#' Group-wise caching of operations on data frame
 #' 
 #' @details 
 #'   Function \code{fn} will receive only the rows and groups changed; 

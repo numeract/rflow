@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{forget}
 \alias{forget}
-\title{Forgets the computation for the current state.}
+\title{Forgets the computation for the current state}
 \usage{
 forget(flow, state = "current")
 }
@@ -17,7 +17,7 @@ forget(flow, state = "current")
 A logical value, whether the deletion was successful.
 }
 \description{
-Forgets the computation for the current state.
+Forgets the computation for the current state
 }
 \examples{
 fn <- function(x, y) { x + y + 10 }

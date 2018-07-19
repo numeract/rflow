@@ -2,7 +2,7 @@
 % Please edit documentation in R/flow-functions.R
 \name{is_current}
 \alias{is_current}
-\title{Does the flow have a "current" state?}
+\title{Checks if the flow has a"current" state}
 \usage{
 is_current(flow)
 }

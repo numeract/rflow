@@ -2,7 +2,7 @@
 % Please edit documentation in R/eddy-functions.R
 \name{set_current_eddy}
 \alias{set_current_eddy}
-\title{Set the current eddy to be used in future flow calls.}
+\title{Set the current eddy to be used in future flow calls}
 \usage{
 set_current_eddy(eddy_name, eddy_env = default_eddy_env())
 }
@@ -15,7 +15,7 @@ set_current_eddy(eddy_name, eddy_env = default_eddy_env())
 An eddy object to be used for storing flows.
 }
 \description{
-Set the current eddy to be used in future flow calls.
+Set the current eddy to be used in future flow calls
 }
 \examples{
 new_eddy("eddy")
