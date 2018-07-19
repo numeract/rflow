@@ -53,7 +53,7 @@ R6Eddy$set("public", "initialize", function(
 ) {
     stopifnot(inherits(cache, "R6Cache"))
     if (isTRUE(is_reactive))
-        stop("reactive eddies not yet implemented")
+        stop("reactive eddies not yet implemented") # nocov
     
     self$cache <- cache
     self$flow_lst <- list()
@@ -83,10 +83,10 @@ R6Eddy$set("public", "has_flow", function(fn_key) {
 R6Eddy$set("public", "require_flow", function(fn_key) {
     
     if (!self$has_flow(fn_key)) {
-        stop("flow not found for fn_key: ", fn_key)
+        stop("flow not found for fn_key: ", fn_key) # nocov
     }
     if (!self$cache$has_group(fn_key)) {
-        stop("cache group not found for fn_key: ", fn_key)
+        stop("cache group not found for fn_key: ", fn_key) # nocov
     }
     
     invisible(NULL)
