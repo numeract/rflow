@@ -2,8 +2,10 @@
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^codecov\.yml$
-^.covrignore$
-^.lintr$
+^\.covrignore$
+^\.lintr$
 ^_pkgdown\.yml$
 ^docs$
 ^codemeta\.json$
+^cran-comments\.md$
+^LICENSE\.md$
