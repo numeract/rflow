@@ -1,21 +1,24 @@
 ---
 title: "Introduction to rflow"
-author: "Numeract LLC"
 output:
-  html_document:
-    theme: lumen
+  html_vignette:
     toc: yes
 vignette: >
+  %\VignetteIndexEntry{Introduction to rflow}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Introduction to R6 classes}
-  %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+
+
 ---
 
-```{r echo = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-rflow is a package that allows cacheing of functions in memory, 
+`rflow` is a package that allows cacheing of functions in memory, 
 on disk or in both memory and disk.
 
 ## Problems addressed by rflow
