@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-`rflow` is a package that allows cacheing of functions in memory, 
+`rflow` is a package that allows caching of functions in memory, 
 on disk or in both memory and disk.
 
 ## Problems addressed by rflow
@@ -135,7 +135,7 @@ delete_eddy("custom_eddy")
 
 ## Flow functions
 Flow functions encapsulate the main functionality of the `rflow` package. They 
-allow cacheing of function output and return a pre-computed result for a 
+allow caching of function output and return a pre-computed result for a 
 function called with the same arguments.
 Use cases of the flow functions are presented below
 ```{r rflow_examples, results = 'hide', message = FALSE}
@@ -236,7 +236,7 @@ unlink(file_temp)
 ```
 
 The function `flow_ns_sink` writes a value to a namespace only if
-the value has changed. The argument x represents the value to asign,
+the value has changed. The argument x represents the value to assign,
 the argument `var_name` represents the name (as a string) of the variable,
 `ns` is the namespace, either an `environment` or a `Shiny::reactiveValues` 
 object. An example of how `flow_ns_sink` works with `R6flow` objects
@@ -281,7 +281,7 @@ dfr_flow <- flow_dfr(mtcars, 1, fn = df_fn)
 collected_dfr <- dfr_flow %>%
                  collect()
 
-# if one row of the dataframe changes, the R6Flow will change its state
+# if one row of the data frame changes, the R6Flow will change its state
 mtcars[1, "mpg"] <- 22
 dfr_flow <- flow_dfr(mtcars, 1, fn = df_fn)
 collected_dfr <- dfr_flow %>%
@@ -289,7 +289,7 @@ collected_dfr <- dfr_flow %>%
 
 ```
 
-The function `flow_dfg` performs group-wise cacheing operations on data frame
+The function `flow_dfg` performs group-wise caching operations on data frame
 Function `fn` will receive only the rows and groups changed; 
 it may drop some of the rows, but will not add any new rows.
 The function `fn` may return fewer or more columns or modify 

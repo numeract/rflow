@@ -162,7 +162,7 @@ R6Flow$set("public", "rf_fn_default", function(...) {
             .f = ~ .$get_element(name = NULL)
         )
     
-    # prevent simple recursivitity issues; TODO update @ reactivity
+    # prevent simple recursivity issues; TODO update @ reactivity
     is_recursive_lgl <- elem_args %>%
         purrr::keep(~ inherits(., "Element")) %>%
         purrr::map_lgl(~ identical(.$self$fn_key, self$fn_key))

@@ -63,7 +63,7 @@ make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
     # useful misc 
     eddy <- flow_options$eddy
     stopifnot(inherits(eddy, "R6Eddy"))
-    # fn_name can be anyting & exists only in R6Flow obj (not saved in cache)
+    # fn_name can be anything & exists only in R6Flow obj (not saved in cache)
     fn_names <- purrr::map_chr(eddy$flow_lst, "fn_name")
     
     # flow_hash: all but fn_name (always ignored) & fn_id; calc only once
@@ -81,7 +81,7 @@ make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
     fo_chr <- format(discard_at(flow_options, "eddy"))
     flow_hash <- eddy$digest(c(arg_chr, body_chr, fo_chr, class_name))
     
-    # if fn_id given ==> simple case, othwerwise do some guessing
+    # if fn_id given ==> simple case, otherwise do some guessing
     if (is_default_id) {
         # get a list of values to try for fn_id (taking hint from fn_name)
         fn_keys <- names(fn_names %if_in% fn_name)
@@ -137,7 +137,7 @@ make_key <- function(fn_name, fn, fn_id, flow_options, class_name) {
         action = action,    # string: 'new' || 'get'
         fn_key = fn_key,    # key
         fn_name = fn_name,  # key
-        fn_id = fn_id       # string/key or postive integer
+        fn_id = fn_id       # string/key or positive integer
     )
 }
 
