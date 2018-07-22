@@ -7,6 +7,7 @@ if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
     skip("cache-memory-file functions")
 }
 
+
 setup({
     test_fn <- function(x, y) { x + y }
     test_fn2 <- function(x, y) { x * y }
@@ -14,6 +15,7 @@ setup({
     test_fn4 <- function(x, y) {list(x = x, y = y)}
     test_sink_var <- "value1"
     test_env <- new.env()
+    
     assign("test_env", test_env, envir = .GlobalEnv)
     assign("test_sink_var", test_sink_var, envir = test_env)
     assign("test_fn", test_fn, envir = .GlobalEnv)
@@ -136,7 +138,7 @@ test_that("flow_ns_sink stops with non valid var_name", {
 
 
 test_that("flow_ns_sink() stops with non environment", {
-    non_environment <- function(){}
+    non_environment <- function() {}
     expect_error(
         flow_sink <- flow_ns_sink("value1", "test_sink_var", non_environment))
 })

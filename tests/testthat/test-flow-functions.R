@@ -14,6 +14,7 @@ setup({
     test_fn2 <- function(x, y) { x * y }
     test_fn3 <- function(x) {x}
     test_fn4 <- function(x, y) {list(x = x, y = y)}
+    
     assign("test_fn", test_fn, envir = .GlobalEnv)
     assign("test_fn2", test_fn2, envir = .GlobalEnv)
     assign("test_fn3", test_fn3, envir = .GlobalEnv)

@@ -8,7 +8,6 @@ Authors@R: c(
     person("Teodor", "Ciuraru", role = "ctb"),
     person("Numeract LLC", role = "cph")
     )
-Maintainer: Mike Badescu <mike.badescu@numeract.com>
 Description: Cache function output to prevent re-calculation when called again 
     with the same arguments. Transformed (rflow) functions can be chained to 
     create pipelines by avoiding excessive re-hashing.

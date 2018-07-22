@@ -8,6 +8,7 @@ if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
     skip("cache-memory-file functions")
 }
 
+
 get_hash <- function(df, filter_by, hash_of) {
     hash_of <- rlang::sym(hash_of)
     
@@ -17,6 +18,7 @@ get_hash <- function(df, filter_by, hash_of) {
         dplyr::distinct((!!hash_of))
     hash
 }
+
 
 setup({
     df <- tibble::as.tibble(iris)

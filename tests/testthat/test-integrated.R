@@ -4,7 +4,7 @@ context("Integrated tests")
 
 
 setup({
-    cache_dir <- "cache_dir"
+    cache_dir <- tempfile(pattern = "cache-dir-")
     cache_fmem_test <- cache_memory_file(cache_dir)
     test_eddy <- use_eddy("test_eddy", cache = cache_fmem_test)
     
@@ -109,9 +109,11 @@ test_that("cacheing flow works", {
 
 
 teardown({
-    unlink(file_path, force = TRUE)
     get_current_eddy()$terminate()
     set_current_eddy("default_eddy")
+    
+    unlink(file_path, force = TRUE)
+    unlink(cache_dir, recursive = TRUE, force = TRUE)
     
     base::rm(list = "cache_fmem_test", envir = .GlobalEnv)
     base::rm(list = "cache_dir", envir = .GlobalEnv)

@@ -9,21 +9,18 @@ if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
 
 setup({
     file1 <- tempfile(pattern = "test-rflow-")
-    file2 <- tempfile(pattern = "test-rflow-")
-    file3 <- tempfile(pattern = "test-rflow-")
-    
+
     df1 <- tibble::remove_rownames(head(mtcars))
     df2 <- tibble::remove_rownames(tail(mtcars))
-
+    
     assign("file1", file1, envir = .GlobalEnv)
-    assign("file2", file2, envir = .GlobalEnv)
-    assign("file3", file3, envir = .GlobalEnv)
     assign("df1", df1, envir = .GlobalEnv)
     assign("df2", df2, envir = .GlobalEnv)
 })
 
 
 test_that("flow_file_source() works", {
+    
     get_current_eddy()$reset()
     
     write.csv(df1, file1, row.names = FALSE)
@@ -36,6 +33,7 @@ test_that("flow_file_source() works", {
 
 
 test_that("flow_file_source() works when file modified", {
+    
     get_current_eddy()$reset()
     
     write.csv(df1, file1, row.names = FALSE)
@@ -53,22 +51,24 @@ test_that("flow_file_source() works when file modified", {
 
 
 test_that("flow_file_source() works when adding same file", {
+    
     get_current_eddy()$reset()
     
     write.csv(df1, file1, row.names = FALSE)
-
+    
     file_path <- as.character(fs::path(file1))
     test_rflow_source <- flow_file_source(file_path)
-
+    
     expect_equal(test_rflow_source$state_index, 1L)
-
+    
     test_rflow_source <- flow_file_source(file_path)
-
+    
     expect_equal(test_rflow_source$state_index, 1L)
 })
 
 
 test_that("flow_file_source() works with fs::path type", {
+    
     get_current_eddy()$reset()
     
     write.csv(df1, file1, row.names = FALSE)
@@ -81,6 +81,7 @@ test_that("flow_file_source() works with fs::path type", {
 
 
 test_that("flow_file_source() works with non existent file path", {
+    
     get_current_eddy()$reset()
     
     file_path <- as.character(fs::path("test", "path"))
@@ -89,6 +90,7 @@ test_that("flow_file_source() works with non existent file path", {
 
 
 test_that("flow_file_source() works when file present, missing, and changed", {
+    
     get_current_eddy()$reset()
     
     write.csv(df1, file1, row.names = FALSE)
@@ -112,6 +114,7 @@ test_that("flow_file_source() works when file present, missing, and changed", {
 
 
 test_that("flow_file_source() stops with non valid input", {
+    
     get_current_eddy()$reset()
     
     expect_error(test_rflow_source <- flow_file_source(1))
@@ -122,10 +125,10 @@ test_that("flow_file_source() stops with non valid input", {
     expect_error(test_rflow_source <- flow_file_source(NULL))
     expect_error(test_rflow_source <- flow_file_source(NA))
     expect_error(test_rflow_source <- flow_file_source(NA_character_))
-   
 })
 
 test_that("flow_file_source() works with 2 paths", {
+    
     get_current_eddy()$reset()
     
     expect_silent(test_rflow_source <- flow_file_source(c("path1", "path2")))
@@ -133,13 +136,15 @@ test_that("flow_file_source() works with 2 paths", {
     expect_true(test_rflow_source$get_element("path2")$is_current)
 })
 
+
 teardown({
     get_current_eddy()$reset()
     
-    unlink(c(file1, file2, file3))
+    if (dir.exists(file1)) {
+        unlink(file1, recursive = TRUE, force = TRUE)
+    }
+    
     base::rm(list = "file1", envir = .GlobalEnv)
-    base::rm(list = "file2", envir = .GlobalEnv)
-    base::rm(list = "file3", envir = .GlobalEnv)
     base::rm(list = "df1", envir = .GlobalEnv)
     base::rm(list = "df2", envir = .GlobalEnv)
 })

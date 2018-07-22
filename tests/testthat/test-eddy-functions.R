@@ -1,4 +1,4 @@
-# Eddy functions tests----------------------------------------------------------
+# Eddy functions tests ----
 context("Eddy functions tests")
 
 if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
@@ -22,15 +22,18 @@ test_that("set_current_eddy() works", {
     delete_eddy("eddy_test") 
 })
 
+
 test_that("parse_flow_options() works", {
+    
     eval_arg_fn <- function(x) {list(x)}
     eddy <- new_eddy(eddy_name = "test_eddy")
-    options <- parse_flow_options(excluded_arg = "x",
-                                  eval_arg_fn = eval_arg_fn,
-                                  split_bare_list = TRUE,
-                                  split_dataframe = FALSE,
-                                  split_fn = NULL,
-                                  eddy = eddy) 
+    options <- parse_flow_options(
+        excluded_arg = "x",
+        eval_arg_fn = eval_arg_fn,
+        split_bare_list = TRUE,
+        split_dataframe = FALSE,
+        split_fn = NULL,
+        eddy = eddy) 
     
     expected_val <- list(
         excluded_arg = "x",
@@ -46,12 +49,13 @@ test_that("parse_flow_options() works", {
 
 test_that("parse_flow_options() works with NULL args", {
 
-    options <- parse_flow_options(excluded_arg = "x",
-                                  eval_arg_fn = NULL,
-                                  split_bare_list = TRUE,
-                                  split_dataframe = FALSE,
-                                  split_fn = NULL,
-                                  eddy = NULL) 
+    options <- parse_flow_options(
+        excluded_arg = "x",
+        eval_arg_fn = NULL,
+        split_bare_list = TRUE,
+        split_dataframe = FALSE,
+        split_fn = NULL,
+        eddy = NULL) 
     
     expected_val <- list(
         excluded_arg = "x",

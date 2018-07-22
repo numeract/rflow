@@ -1,13 +1,19 @@
-# Tests for chache memory --------------------------------------------
+# Tests for cache memory --------------------------------------------
 context("Test cache-memory functions")
 
 if (digest::digest(Sys.info()[-c(2, 3)]) %in% c(
     "2e85e2a3018ecf3b2e5fc03bfb20fd39"
 )) {
-    skip("cache-memory-file functions")
+    skip("cache-memory functions")
 }
 
-fn_group <- "default_group"
+
+setup({
+    fn_group <- "default_group"
+    
+    assign("fn_group", fn_group, envir = .GlobalEnv)
+})
+
 
 # add_group tests ----------------------------------------------------
 test_that("add_group() works", {
@@ -73,6 +79,7 @@ test_that("delete_group() works with non existent group", {
 
 # forget_group tests ----------------------------------------------------
 test_that("forget_group() works", {
+    
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
 
@@ -90,7 +97,7 @@ test_that("list_keys() works", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_equal(
         cache_memory_test$list_keys(fn_group), c("key", "key1"))
 
@@ -103,7 +110,7 @@ test_that("list_keys() works with non-existent group", {
     cache_memory_test <- cache_memory()
     cache_memory_test$add_data(fn_group, "key", "value")
     cache_memory_test$add_data(fn_group, "key1", "value1")
-
+    
     expect_silent(
         cache_memory_test$list_keys("a_group"))
 
@@ -296,4 +303,9 @@ test_that("terminate() works with empty cache", {
     cache_memory_test$terminate()
     expect_equal(cache_memory_test$cache_env, NULL)
     expect_false(is.environment(cache_memory_test$cache_env))
+})
+
+
+teardown({
+    base::rm(list = "fn_group", envir = .GlobalEnv)
 })
